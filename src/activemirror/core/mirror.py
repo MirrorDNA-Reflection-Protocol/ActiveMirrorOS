@@ -57,6 +57,10 @@ class ActiveMirror:
         # Use provided config or create default
         self._config = config or Config()
 
+        # Handle convenience parameter aliases
+        if "storage_type" in kwargs:
+            kwargs["type"] = kwargs.pop("storage_type")
+
         # Merge kwargs into config
         if kwargs:
             for key, value in kwargs.items():
@@ -64,6 +68,8 @@ class ActiveMirror:
                     setattr(self._config, key, value)
                 elif hasattr(self._config.memory, key):
                     setattr(self._config.memory, key, value)
+                elif hasattr(self._config.storage, key):
+                    setattr(self._config.storage, key, value)
 
         # Validate configuration
         errors = self._config.validate()
