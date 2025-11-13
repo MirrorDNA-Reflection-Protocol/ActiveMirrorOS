@@ -1,0 +1,22 @@
+# ActiveMirrorOS Starter Kit Configuration
+
+storage:
+  type: sqlite
+  db_path: ./data/starter_memories.db
+  enable_wal: true
+
+memory:
+  max_context_messages: 30
+  enable_semantic_memory: true
+  context_window_size: 4096
+  context_strategy: recent_and_relevant
+
+identity:
+  type: anonymous
+  create_if_missing: true
+
+dialogue:
+  engine: basic
+  mode: conversational
+
+debug: false
