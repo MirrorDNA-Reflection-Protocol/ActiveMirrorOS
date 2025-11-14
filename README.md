@@ -80,6 +80,7 @@ ActiveMirrorOS/
 │   ├── example-cli/     # CLI journaling tool
 │   ├── example-desktop/ # Electron chat app
 │   └── example-mobile/  # React Native mobile app
+├── mobile/              # Mobile demo (Expo/React Native)
 ├── docs/                # Complete documentation
 ├── examples/            # Python usage examples
 └── tests/               # Test suite (83 tests)
@@ -136,6 +137,26 @@ session.addMessage('user', 'Tell me about persistent memory');
 // Export session
 mirror.exportSession('my-session', 'markdown');
 ```
+
+---
+
+## Mobile Demo
+
+A minimal conceptual mobile demo is available to visualize how ActiveMirrorOS could work on phones:
+
+```bash
+cd mobile
+npm install
+npx expo start
+```
+
+**Features**:
+- Welcome screen with ActiveMirrorOS branding
+- Mock reflective chat interface
+- Continuity log with dummy historical data
+- Clean, responsive mobile UI
+
+**Important**: This is a static prototype with no backend integration. See [mobile/README.md](mobile/README.md) for details.
 
 ---
 
