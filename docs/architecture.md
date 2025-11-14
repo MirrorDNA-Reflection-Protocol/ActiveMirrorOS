@@ -60,7 +60,7 @@ Every interaction supports LingOS Lite reflection patterns with uncertainty mark
 
 See [quickstart.md](quickstart.md) for usage and [api-reference.md](api-reference.md) for detailed APIs.
 
-##Security
+## Security
 
 - AES-256-GCM encryption for vault
 - PBKDF2 key derivation (100k iterations)
