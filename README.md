@@ -33,6 +33,38 @@ node --test tests/  # Verify installation
 
 ---
 
+## Demo Suite
+
+**Explore ActiveMirrorOS** through interactive demonstrations — no AI API required.
+
+### 🌐 Web Demo
+Browser-based interface with mode switching and LingOS Lite toggle.
+```bash
+cd demo/web
+npm install && npm run dev
+```
+**Features**: Three dialogue modes, uncertainty markers ⟨⟩, real-time chat
+
+### 📱 Mobile Demo
+Native mobile app for iOS and Android with persistent storage.
+```bash
+cd demo/mobile
+npm install && npm start
+```
+**Features**: Touch-optimized UI, session continuity, offline-first
+
+### ⌨️ CLI Demo
+Command-line journaling and reflection tool.
+```bash
+cd demo/cli
+./amos-demo.js write "My first reflection"
+```
+**Features**: Fast entry, vault storage, scriptable
+
+**→ Full guide**: [docs/demos_overview.md](docs/demos_overview.md)
+
+---
+
 ## What Does It Do?
 
 ActiveMirrorOS provides:
@@ -73,13 +105,17 @@ ActiveMirrorOS provides:
 
 ```
 ActiveMirrorOS/
+├── demo/
+│   ├── web/             # React+Vite browser demo
+│   ├── mobile/          # Expo React Native demo
+│   └── cli/             # Command-line demo
 ├── sdk/
 │   ├── python/          # Python SDK + packaging
 │   └── javascript/      # JavaScript/Node.js SDK
 ├── apps/
-│   ├── example-cli/     # CLI journaling tool
+│   ├── example-cli/     # Full CLI tool
 │   ├── example-desktop/ # Electron chat app
-│   └── example-mobile/  # React Native mobile app
+│   └── example-mobile/  # Full React Native app
 ├── docs/                # Complete documentation
 ├── examples/            # Python usage examples
 └── tests/               # Test suite (83 tests)
@@ -91,6 +127,7 @@ ActiveMirrorOS/
 
 | Document | Purpose |
 |----------|---------|
+| [Demos Overview](docs/demos_overview.md) | Interactive demos guide |
 | [Quickstart](docs/quickstart.md) | Get started in 5 minutes |
 | [Architecture](docs/architecture.md) | System design and components |
 | [API Reference](docs/api-reference.md) | Complete SDK documentation |
