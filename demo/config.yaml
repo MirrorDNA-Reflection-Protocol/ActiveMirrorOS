@@ -1,0 +1,19 @@
+# ActiveMirrorOS Demo Configuration
+# Edit these settings to customize your demo experience
+
+# User settings
+user_name: "Explorer"
+
+# Reflection mode: exploratory, analytical, creative, or strategic
+mode: "exploratory"
+
+# Log storage path (relative to demo directory)
+log_path: "logs"
+
+# Display settings
+show_timestamps: true
+show_session_history: true
+
+# Demo behavior
+auto_save: true
+verbose: false

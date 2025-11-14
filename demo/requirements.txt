@@ -1,0 +1,4 @@
+# ActiveMirrorOS Demo Dependencies
+# Minimal requirements for running the demo
+
+pyyaml>=6.0
