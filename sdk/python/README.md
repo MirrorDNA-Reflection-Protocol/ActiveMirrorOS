@@ -4,16 +4,24 @@ The Python SDK for ActiveMirrorOS - a consumer OS layer for persistent, reflecti
 
 ## Installation
 
+### From Source (Current)
+
+```bash
+git clone https://github.com/MirrorDNA-Reflection-Protocol/ActiveMirrorOS.git
+cd ActiveMirrorOS/sdk/python
+pip install -e .
+```
+
+### From PyPI (Coming Soon)
+
 ```bash
 pip install activemirror
 ```
 
-Or from source:
+## Requirements
 
-```bash
-cd sdk/python
-pip install -e .
-```
+- Python 3.8 or higher
+- Dependencies: `pyyaml>=6.0`, `cryptography>=41.0`
 
 ## Quick Start
 
@@ -68,6 +76,31 @@ vault = VaultMemory(encryption_key="your-key")
 vault.store("personal_goal", "Launch my startup by Q2")
 vault.retrieve("personal_goal")
 ```
+
+## Testing
+
+Run the test suite:
+
+```bash
+# Install with dev dependencies
+pip install -e ".[dev]"
+
+# Run all tests
+python -m pytest tests/ -v
+
+# Run with coverage
+python -m pytest tests/ --cov=activemirror --cov-report=html
+```
+
+## Development
+
+See [CONTRIBUTING.md](../../CONTRIBUTING.md) for development guidelines.
+
+## Support
+
+- **Documentation**: [../../docs/](../../docs/)
+- **Issues**: [GitHub Issues](https://github.com/MirrorDNA-Reflection-Protocol/ActiveMirrorOS/issues)
+- **Main README**: [../../README.md](../../README.md)
 
 ## License
 

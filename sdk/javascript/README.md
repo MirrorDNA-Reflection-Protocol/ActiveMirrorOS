@@ -4,36 +4,42 @@ The JavaScript/Node.js SDK for ActiveMirrorOS - a consumer OS layer for persiste
 
 ## Installation
 
+### From Source (Current)
+
+```bash
+git clone https://github.com/MirrorDNA-Reflection-Protocol/ActiveMirrorOS.git
+cd ActiveMirrorOS/sdk/javascript
+npm install
+```
+
+### From npm (Coming Soon)
+
 ```bash
 npm install @activemirror/sdk
 ```
 
-Or from source:
+## Requirements
 
-```bash
-cd sdk/javascript
-npm install
-```
+- Node.js 16 or higher
+- No external dependencies (uses built-in crypto)
 
 ## Quick Start
 
 ```javascript
-import { ActiveMirror, ReflectiveClient, VaultMemory } from '@activemirror/sdk';
+const { ActiveMirror } = require('./activemirror');
 
 // Create instance with persistent memory
-const mirror = new ActiveMirror({ storagePath: './my_memory' });
-await mirror.initialize();
+const mirror = new ActiveMirror('./my_memory');
 
-// Start a reflective conversation
-const session = await mirror.createSession('Daily Journal');
-const response = await session.send("I'm feeling uncertain about my career path");
+// Create a session
+const session = mirror.createSession('Daily Journal');
 
-// Memory persists across sessions
-await session.save();
+// Add messages to session
+session.addMessage('user', "I'm feeling uncertain about my career path");
+session.addMessage('assistant', "Let's explore what's causing this uncertainty...");
 
-// Later - resume the conversation
-const loaded = await mirror.loadSession(session.id);
-await loaded.send("I've been thinking more about what we discussed...");
+// Export session
+mirror.exportSession(session.id, 'markdown');
 ```
 
 ## Features
@@ -47,48 +53,37 @@ await loaded.send("I've been thinking more about what we discussed...");
 ## Reflective Client
 
 ```javascript
-import { ReflectiveClient, ReflectivePattern } from '@activemirror/sdk';
+const { ReflectiveClient } = require('./reflective-client');
 
 const client = new ReflectiveClient();
 
-const reflection = await client.reflect(
+const reflection = client.generateReflection(
   "I accomplished three major goals today",
-  { pattern: ReflectivePattern.EXPLORATORY }
+  'exploratory'
 );
 
 console.log(reflection.response);
 console.log(reflection.uncertainty);
-console.log(reflection.meta);
+console.log(reflection.pattern);
 ```
 
 ## Vault Memory
 
 ```javascript
-import { VaultMemory, VaultCategory } from '@activemirror/sdk';
+const { VaultMemory } = require('./vault');
 
-const vault = new VaultMemory({ password: 'your-secure-password' });
-await vault.initialize();
+const vault = new VaultMemory('./vault-data', 'your-secure-password');
 
 // Store encrypted data
-await vault.store('personal_goal', 'Launch my startup by Q2', {
-  category: VaultCategory.GOALS,
-});
+vault.store('personal_goal', 'Launch my startup by Q2');
 
 // Retrieve data
-const goal = await vault.retrieve('personal_goal');
+const goal = vault.get('personal_goal');
 console.log(goal); // 'Launch my startup by Q2'
 
-// Search vault
-const results = await vault.search('startup');
+// List all entries
+const entries = vault.list();
 ```
-
-## Examples
-
-See the `examples/` directory for complete examples:
-
-- `basic.js` - Simple conversation with memory
-- `reflective.js` - Using the reflective client
-- `vault.js` - Encrypted vault storage
 
 ## Documentation
 
@@ -97,6 +92,31 @@ See the main [docs](../../docs/) directory for complete documentation:
 - [Architecture](../../docs/architecture.md)
 - [API Reference](../../docs/api-reference.md)
 - [Quickstart](../../docs/quickstart.md)
+
+## Testing
+
+Run the test suite:
+
+```bash
+# Install dependencies
+npm install
+
+# Run all tests
+node --test tests/
+
+# Run specific test
+node --test tests/test_memory.js
+```
+
+## Development
+
+See [CONTRIBUTING.md](../../CONTRIBUTING.md) for development guidelines.
+
+## Support
+
+- **Documentation**: [../../docs/](../../docs/)
+- **Issues**: [GitHub Issues](https://github.com/MirrorDNA-Reflection-Protocol/ActiveMirrorOS/issues)
+- **Main README**: [../../README.md](../../README.md)
 
 ## License
 
