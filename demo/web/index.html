@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ActiveMirrorOS Demo - Reflective Memory</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>✦ ActiveMirrorOS</h1>
+            <p class="subtitle">Experience AI with memory and reflection</p>
+        </header>
+
+        <div class="demo-container">
+            <!-- Chat Area -->
+            <div class="chat-area" id="chatArea">
+                <div class="welcome-message">
+                    <p><strong>Welcome to ActiveMirrorOS</strong></p>
+                    <p>This demo shows three core principles:</p>
+                    <ul>
+                        <li><strong>Reflective Interaction:</strong> AI that thinks before responding</li>
+                        <li><strong>Continuity:</strong> Your conversations persist in memory</li>
+                        <li><strong>Local-First:</strong> Everything stays in your browser</li>
+                    </ul>
+                    <p class="hint">Try asking: "What have I told you so far?" or "What patterns do you notice?"</p>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="input-container">
+                <input
+                    type="text"
+                    id="userInput"
+                    placeholder="Type your message here..."
+                    autocomplete="off"
+                />
+                <button id="sendButton" class="send-btn">Send ✦</button>
+            </div>
+
+            <!-- Continuity Log -->
+            <div class="continuity-panel">
+                <h3>Continuity Log</h3>
+                <div class="continuity-stats">
+                    <span>Interactions: <strong id="interactionCount">0</strong></span>
+                    <span>Session: <strong id="sessionStart">--</strong></span>
+                </div>
+                <div class="continuity-list" id="continuitySummary">
+                    <p class="empty-state">Your interaction history will appear here...</p>
+                </div>
+                <button id="clearButton" class="clear-btn">Clear Session</button>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>This is a demo showcasing ActiveMirrorOS concepts. Data stored in browser localStorage.</p>
+            <p><a href="https://github.com/MirrorDNA-Reflection-Protocol/ActiveMirrorOS" target="_blank">View on GitHub</a></p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

@@ -33,6 +33,35 @@ node --test tests/  # Verify installation
 
 ---
 
+## ✦ Try the Interactive Demos
+
+Experience ActiveMirrorOS concepts in 60 seconds:
+
+**🌐 Web Demo** (recommended for first-time users):
+```bash
+cd demo/web
+python3 -m http.server 8000
+# Visit: http://localhost:8000
+```
+
+**💻 CLI Demo** (for developers):
+```bash
+cd demo/cli
+python demo_cli.py
+```
+
+**📱 Mobile Demo** (React Native):
+```bash
+cd apps/example-mobile
+npm install && npm start
+```
+
+Each demo shows: **Reflective Interaction** | **Continuity** | **Local-First Storage**
+
+See [docs/demos_overview.md](docs/demos_overview.md) for detailed guides and learning paths.
+
+---
+
 ## What Does It Do?
 
 ActiveMirrorOS provides:
@@ -73,6 +102,9 @@ ActiveMirrorOS provides:
 
 ```
 ActiveMirrorOS/
+├── demo/                # Interactive demos (start here!)
+│   ├── web/            # Browser-based demo (HTML/CSS/JS)
+│   └── cli/            # Command-line demo (Python)
 ├── sdk/
 │   ├── python/          # Python SDK + packaging
 │   └── javascript/      # JavaScript/Node.js SDK
@@ -91,6 +123,7 @@ ActiveMirrorOS/
 
 | Document | Purpose |
 |----------|---------|
+| [Demos Overview](docs/demos_overview.md) | Interactive demos and learning paths |
 | [Quickstart](docs/quickstart.md) | Get started in 5 minutes |
 | [Architecture](docs/architecture.md) | System design and components |
 | [API Reference](docs/api-reference.md) | Complete SDK documentation |
