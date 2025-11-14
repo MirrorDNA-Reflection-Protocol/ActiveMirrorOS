@@ -1,5 +1,9 @@
 # API Reference
 
+**At a Glance**: Complete API documentation for both Python and JavaScript SDKs. Includes classes, methods, parameters, return types, and usage examples for all public APIs.
+
+---
+
 Complete API documentation for ActiveMirrorOS SDKs.
 
 ## Python SDK

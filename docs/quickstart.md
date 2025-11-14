@@ -1,5 +1,9 @@
 # Quick Start Guide
 
+**At a Glance**: Get up and running with ActiveMirrorOS in under 5 minutes. This guide shows you five different ways to start using persistent AI memory — pick the path that fits your workflow.
+
+---
+
 Get up and running with ActiveMirrorOS in under 5 minutes.
 
 ## What is ActiveMirrorOS?
@@ -104,7 +108,7 @@ const mirror = new ActiveMirror({ storagePath: './memory' });
 await mirror.initialize();
 
 // Start conversation
-const session = await mirror.create Session('Daily Reflection');
+const session = await mirror.createSession('Daily Reflection');
 const response = await session.send("Exploring new ideas");
 
 console.log(response.content);

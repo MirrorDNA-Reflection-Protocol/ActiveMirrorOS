@@ -84,8 +84,8 @@ Each example prints its progress and results to the console. The multi-session a
 
 After running these examples:
 
-1. **Explore the API** - See [docs/api.md](../docs/api.md) for detailed API reference
-2. **Read Integration Guide** - Check [docs/integration.md](../docs/integration.md) for advanced usage
+1. **Explore the API** - See [docs/api-reference.md](../docs/api-reference.md) for detailed API reference
+2. **Read Architecture** - Check [docs/architecture.md](../docs/architecture.md) for system design
 3. **Try Custom Storage** - Implement your own storage backend
 4. **Build an Application** - Use ActiveMirrorOS in your own project
 
@@ -176,4 +176,4 @@ Have a useful example? Contributions welcome!
 
 - **Issues**: Report problems on GitHub
 - **Documentation**: See [docs/](../docs/) directory
-- **API Reference**: [docs/api.md](../docs/api.md)
+- **API Reference**: [docs/api-reference.md](../docs/api-reference.md)

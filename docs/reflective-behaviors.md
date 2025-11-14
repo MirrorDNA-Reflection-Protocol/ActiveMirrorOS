@@ -1,10 +1,16 @@
 # Reflective Behaviors
 
+**At a Glance**: Learn how ActiveMirrorOS implements LingOS Lite patterns for thoughtful, uncertainty-aware dialogue. This doc covers uncertainty markers, reflective patterns, and meta-cognitive awareness in AI interactions.
+
+---
+
 How ActiveMirrorOS implements LingOS Lite patterns for thoughtful, uncertainty-aware dialogue.
 
 ## Overview
 
 ActiveMirrorOS uses **LingOS Lite** - a simplified version of the LingOS reflective dialogue protocol. It brings **meta-cognitive awareness** and **epistemic humility** to AI interactions.
+
+**LingOS** is a standalone project in the MirrorDNA ecosystem that defines reflective dialogue patterns for AI systems. ActiveMirrorOS implements a practical subset of LingOS (called "LingOS Lite") focused on production use cases.
 
 ## Core Principles
 

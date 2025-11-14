@@ -1,5 +1,9 @@
 # Architecture
 
+**At a Glance**: ActiveMirrorOS is a multi-layer consumer OS that sits atop the MirrorDNA/LingOS ecosystem. This document explains the system design, component architecture, and how the pieces fit together.
+
+---
+
 ## System Overview
 
 ActiveMirrorOS is a **multi-layer consumer OS** for building persistent, reflective AI experiences. It sits at the top of the MirrorDNA/LingOS ecosystem stack.
@@ -69,9 +73,25 @@ See [quickstart.md](quickstart.md) for usage and [api-reference.md](api-referenc
 
 ## Integration Points
 
-- MirrorDNA (identity/continuity)
-- LingOS (reflective dialogue)
-- Custom LLM providers
-- Storage backends
+ActiveMirrorOS integrates with:
+
+- **MirrorDNA** — Core identity and continuity protocols for persistent AI agents
+- **LingOS** — Reflective dialogue framework providing uncertainty markers and patterns
+- **Custom LLM providers** — Plug in OpenAI, Anthropic, local models, or custom providers
+- **Storage backends** — Extend with PostgreSQL, MongoDB, or custom storage systems
+
+## Ecosystem Context
+
+ActiveMirrorOS is part of the broader MirrorDNA ecosystem:
+
+- **MirrorDNA** — Foundation for AI identity and memory continuity
+- **LingOS** — Reflective dialogue protocols with uncertainty awareness
+- **ActiveMirrorOS** (this project) — Consumer-facing SDK and OS layer
+- **Glyphtrail** — Visual language for AI communication patterns
+- **TrustByDesign** — Security and privacy frameworks
+
+These projects work together to enable trustworthy, persistent AI experiences.
+
+---
 
 For complete architectural details, see the expanded architecture documentation in the repository.

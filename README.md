@@ -55,6 +55,20 @@ ActiveMirrorOS provides:
 
 ---
 
+## Where to Start
+
+**New to ActiveMirrorOS?** Follow this path:
+
+1. **Quick Try** → Run the [CLI example](#quick-start) to see it work (2 minutes)
+2. **Understand** → Read the [Quickstart Guide](docs/quickstart.md) (10 minutes)
+3. **Build** → Pick your SDK ([Python](sdk/python/) or [JavaScript](sdk/javascript/)) and integrate
+4. **Deep Dive** → Explore [Architecture](docs/architecture.md) and [API Reference](docs/api-reference.md)
+5. **Extend** → Check [examples/](examples/) for advanced patterns
+
+**Just want to try it?** Jump to [Quick Start](#quick-start) below.
+
+---
+
 ## Features
 
 | Feature | Description |
@@ -197,6 +211,20 @@ ActiveMirrorOS is built on these principles:
 3. **Simplicity over cleverness** — Clear, maintainable, understandable code
 4. **No lock-in** — Works without paid APIs or cloud services
 5. **Open and extensible** — Built to be modified and extended
+
+---
+
+## Part of the MirrorDNA Ecosystem
+
+ActiveMirrorOS is the consumer OS layer within the broader MirrorDNA ecosystem:
+
+- **MirrorDNA** — Core identity and continuity protocols for AI agents
+- **LingOS** — Reflective dialogue framework with uncertainty markers and meta-cognition
+- **ActiveMirrorOS** (this repo) — Product-ready SDK for building persistent AI applications
+- **Glyphtrail** — Visual language system for AI communication patterns
+- **TrustByDesign** — Security and privacy framework for AI systems
+
+These components work together to enable AI experiences that are persistent, reflective, and trustworthy. ActiveMirrorOS provides the practical SDK layer that developers use to build applications with these capabilities.
 
 ---
 

@@ -1,5 +1,9 @@
 # State Persistence
 
+**At a Glance**: Understand ActiveMirrorOS's three-tier memory model (RAM → Disk → Encrypted Vault) and how to manage state across sessions, devices, and time.
+
+---
+
 How ActiveMirrorOS manages memory across sessions, devices, and time.
 
 ## Overview
