@@ -1,0 +1,35 @@
+{
+  "name": "@activemirror/sdk",
+  "version": "0.2.0",
+  "description": "JavaScript SDK for ActiveMirrorOS - Consumer OS layer for persistent, reflective AI",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "example": "node examples/basic.js"
+  },
+  "keywords": [
+    "ai",
+    "memory",
+    "reflection",
+    "mirrordna",
+    "lingos",
+    "conversation",
+    "persistence"
+  ],
+  "author": "MirrorDNA-Reflection-Protocol",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MirrorDNA-Reflection-Protocol/ActiveMirrorOS"
+  },
+  "dependencies": {
+    "better-sqlite3": "^9.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
