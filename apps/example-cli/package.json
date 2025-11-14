@@ -1,0 +1,26 @@
+{
+  "name": "amos-cli",
+  "version": "0.2.0",
+  "description": "ActiveMirrorOS CLI - Journaling and reflective assistant from the command line",
+  "main": "amos-cli.js",
+  "type": "module",
+  "bin": {
+    "amos": "./amos-cli.js"
+  },
+  "scripts": {
+    "start": "node amos-cli.js"
+  },
+  "keywords": [
+    "activemirror",
+    "cli",
+    "journal",
+    "reflection",
+    "ai"
+  ],
+  "author": "MirrorDNA-Reflection-Protocol",
+  "license": "MIT",
+  "dependencies": {},
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

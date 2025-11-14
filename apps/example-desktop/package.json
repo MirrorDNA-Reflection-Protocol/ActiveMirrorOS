@@ -1,0 +1,31 @@
+{
+  "name": "activemirror-desktop",
+  "version": "0.2.0",
+  "description": "ActiveMirrorOS Desktop - Chat interface with persistent memory",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "keywords": ["activemirror", "electron", "desktop", "ai", "chat"],
+  "author": "MirrorDNA-Reflection-Protocol",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.0.0"
+  },
+  "dependencies": {},
+  "build": {
+    "appId": "com.mirrordna.activemirror",
+    "productName": "ActiveMirror",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "renderer.js",
+      "index.html",
+      "styles.css"
+    ]
+  }
+}
