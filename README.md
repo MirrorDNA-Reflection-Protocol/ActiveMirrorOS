@@ -6,6 +6,20 @@ ActiveMirrorOS is the product layer SDK for building AI applications with memory
 
 ---
 
+## Continuity
+
+**ActiveMirrorOS currently operates under Master Citation v15.2**, integrating:
+
+- Zero-Drift Layer (ZDL)
+- Auto-FEU truth-state enforcement
+- Reflective Integrity System (RIS)
+- Claude Code Ecosystem Compliance
+- Vault-First Continuity Law
+
+All product logic, user-facing behavior, and internal agents must align with v15.2.
+
+---
+
 ## Quick Start
 
 **Try the CLI** (fastest way to see it in action):
