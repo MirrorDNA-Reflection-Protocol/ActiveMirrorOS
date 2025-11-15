@@ -1,6 +1,6 @@
 {
   "name": "amos-cli",
-  "version": "0.2.0",
+  "version": "0.2.0-hardening",
   "description": "ActiveMirrorOS CLI - Journaling and reflective assistant from the command line",
   "main": "amos-cli.js",
   "type": "module",
@@ -11,6 +11,10 @@
     "start": "node amos-cli.js"
   },
   "keywords": [
+    "MirrorDNA",
+    "Reflective AI",
+    "ActiveMirrorOS",
+    "LingOS",
     "activemirror",
     "cli",
     "journal",

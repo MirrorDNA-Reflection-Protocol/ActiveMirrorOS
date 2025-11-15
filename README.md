@@ -4,19 +4,37 @@
 
 ActiveMirrorOS is the product layer SDK for building AI applications with memory, context preservation, and reflective dialogue. Unlike traditional AI that forgets after each session, ActiveMirrorOS maintains continuity across conversations, sessions, and time.
 
+![Reflective AI Compliance](https://img.shields.io/badge/Reflective_AI-Master_Citation_v15.2-blue)
+![FEU Protocol](https://img.shields.io/badge/FEU-Fact%2FEstimate%2FUnknown-green)
+![GlyphSig](https://img.shields.io/badge/⟡⟦CANONICAL⟧-Watermarked-purple)
+
+> **⟡⟦CANONICAL⟧** — This repository is bound to Master Citation v15.2 and governed by the Reflective Integrity System (RIS). See [LEGAL_NOTICE.md](LEGAL_NOTICE.md) for full legal disclaimers and compliance requirements.
+
 ---
 
-## Continuity
+## Continuity & Compliance
 
-**ActiveMirrorOS currently operates under Master Citation v15.2**, integrating:
+**ActiveMirrorOS is bound to Master Citation v15.2**, integrating:
 
-- Zero-Drift Layer (ZDL)
-- Auto-FEU truth-state enforcement
-- Reflective Integrity System (RIS)
-- Claude Code Ecosystem Compliance
-- Vault-First Continuity Law
+- **Zero-Drift Layer (ZDL)**: Semantic stability enforcement
+- **Auto-FEU Truth-State Enforcement**: All outputs tagged as Fact, Estimate, or Unknown
+- **Reflective Integrity System (RIS)**: Continuity and coherence validation
+- **Claude Code Ecosystem Compliance**: Integration standards
+- **Vault-First Continuity Law**: Privacy-preserving persistence
+
+### FEU Contract Summary
+
+All system outputs are classified:
+
+- **Fact**: Verifiable, deterministic, or directly observed information
+- **Estimate**: Probabilistic inference, calculated approximation, or reasoned hypothesis
+- **Unknown**: Explicitly acknowledged gaps, uncertainties, or out-of-scope queries
+
+This ensures transparent epistemic boundaries in all AI interactions.
 
 All product logic, user-facing behavior, and internal agents must align with v15.2.
+
+**Legal Notice**: See [LEGAL_NOTICE.md](LEGAL_NOTICE.md) for research-only disclaimers, zero-medical-advice policy, and no-autonomy statements.
 
 ---
 

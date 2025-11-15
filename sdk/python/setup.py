@@ -1,3 +1,6 @@
+# FEU-Enforced Module | Master Citation v15.2 | Fact/Estimate/Unknown Protocol Active
+# This module operates under MirrorDNA Reflective AI constraints.
+# All outputs must be tagged as Fact, Estimate, or Unknown.
 """
 Setup script for ActiveMirrorOS Python SDK.
 """
@@ -9,10 +12,11 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="activemirror",
-    version="0.2.0",
+    version="0.2.0-hardening",
     author="MirrorDNA-Reflection-Protocol",
     author_email="contact@mirrordna.org",
     description="Consumer OS layer for persistent, reflective AI experiences",
+    keywords=["MirrorDNA", "Reflective AI", "ActiveMirrorOS", "LingOS", "ai", "memory", "reflection"],
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/MirrorDNA-Reflection-Protocol/ActiveMirrorOS",

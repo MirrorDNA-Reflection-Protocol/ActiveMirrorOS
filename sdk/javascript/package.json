@@ -1,6 +1,6 @@
 {
   "name": "@activemirror/sdk",
-  "version": "0.2.0",
+  "version": "0.2.0-hardening",
   "description": "JavaScript SDK for ActiveMirrorOS - Consumer OS layer for persistent, reflective AI",
   "main": "index.js",
   "type": "module",
@@ -9,6 +9,10 @@
     "example": "node examples/basic.js"
   },
   "keywords": [
+    "MirrorDNA",
+    "Reflective AI",
+    "ActiveMirrorOS",
+    "LingOS",
     "ai",
     "memory",
     "reflection",
