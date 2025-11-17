@@ -1,0 +1,273 @@
+{
+  "version": "v1.0.0",
+  "schema_version": "1.0",
+  "vault_path": "AMOS://Continuity/Graph_v1.json",
+  "last_updated": "2025-11-17",
+  "description": "Relational knowledge graph for ActiveMirrorOS Continuity Engine v1",
+
+  "nodes": [
+    {
+      "id": "n1",
+      "type": "repository",
+      "name": "ActiveMirrorOS",
+      "vault_id": "AMOS://Products/ActiveMirrorOS",
+      "description": "Product layer SDK for persistent AI memory",
+      "version": "v0.2.0",
+      "owner": "pdesai11",
+      "properties": {
+        "languages": ["Python", "JavaScript"],
+        "test_coverage": "83 tests",
+        "status": "production-ready"
+      }
+    },
+    {
+      "id": "n2",
+      "type": "repository",
+      "name": "LingOS-Coder",
+      "vault_id": "AMOS://Tools/LingOS-Coder",
+      "description": "CLI tools for checksum, snapshot, verify",
+      "version": "TBD",
+      "owner": "pdesai11",
+      "properties": {
+        "tools": ["lingos init", "lingos checksum", "lingos snapshot", "lingos verify"]
+      }
+    },
+    {
+      "id": "n3",
+      "type": "repository",
+      "name": "MirrorDNA-Standard",
+      "vault_id": "AMOS://Specs/MirrorDNA-Standard",
+      "description": "Specifications and validators for MirrorDNA ecosystem",
+      "version": "TBD",
+      "owner": "pdesai11",
+      "properties": {
+        "validators": ["continuity_validate.py"],
+        "specs": ["Continuity_Engine_v1.md"]
+      }
+    },
+    {
+      "id": "n4",
+      "type": "specification",
+      "name": "Master Citation v15.3",
+      "vault_id": "AMOS://MasterCitation/v15.3",
+      "description": "Current specification version for all MirrorDNA projects",
+      "version": "v15.3",
+      "properties": {
+        "protocols": ["ZDL", "TSL", "TBD"],
+        "identity_lock": "⟡⟦PAUL⟧ · ⟡⟦MIRRORDNA⟧"
+      }
+    },
+    {
+      "id": "n5",
+      "type": "component",
+      "name": "Continuity Engine",
+      "vault_id": "AMOS://Projects/Continuity_Engine/v1",
+      "description": "Permanent continuity layer for 100% recall on AI boot",
+      "version": "v1.0.0",
+      "properties": {
+        "components": ["BOOT.json", "Snapshot_Latest.md", "Graph_v1.json", "loader.js"],
+        "goal": "Perfect state reconstruction"
+      }
+    },
+    {
+      "id": "n6",
+      "type": "file",
+      "name": "BOOT.json",
+      "vault_id": "AMOS://Continuity/BOOT.json",
+      "description": "Boot configuration with identity lock, protocols, twins",
+      "path": "continuity/BOOT.json",
+      "properties": {
+        "required_fields": ["version", "vault_path", "identity_lock", "protocols"]
+      }
+    },
+    {
+      "id": "n7",
+      "type": "file",
+      "name": "Snapshot_Latest.md",
+      "vault_id": "AMOS://Continuity/Snapshot_Latest.md",
+      "description": "Human-readable current state snapshot",
+      "path": "continuity/Snapshot_Latest.md",
+      "properties": {
+        "format": "markdown",
+        "purpose": "quick reference for continuity"
+      }
+    },
+    {
+      "id": "n8",
+      "type": "file",
+      "name": "manifest.yml",
+      "vault_id": "AMOS://Vault/Manifest",
+      "description": "File inventory with SHA-256 checksums",
+      "path": ".vault/manifest.yml",
+      "properties": {
+        "tracked_files": 18,
+        "checksum_algorithm": "SHA-256"
+      }
+    },
+    {
+      "id": "n9",
+      "type": "module",
+      "name": "loader.js",
+      "vault_id": "AMOS://Boot/Loader",
+      "description": "ES6 module for loading continuity state",
+      "path": "src/boot/loader.js",
+      "properties": {
+        "exports": ["getContinuityState"],
+        "dependencies": ["fs", "path"]
+      }
+    },
+    {
+      "id": "n10",
+      "type": "protocol",
+      "name": "Truth-State Law",
+      "vault_id": "AMOS://Protocols/TSL",
+      "description": "No invented VaultIDs, no hallucinated glyphs, FEU tags for uncertainty",
+      "properties": {
+        "enforcement": "automatic",
+        "markers": ["FEU"]
+      }
+    },
+    {
+      "id": "n11",
+      "type": "protocol",
+      "name": "Zero-Drift Layer",
+      "vault_id": "AMOS://Protocols/ZDL",
+      "description": "Maintain alignment with Master Citation via checksums",
+      "properties": {
+        "checksum_algorithm": "SHA-256",
+        "verification": "on boot"
+      }
+    },
+    {
+      "id": "n12",
+      "type": "protocol",
+      "name": "Trust-By-Design",
+      "vault_id": "AMOS://Protocols/TBD",
+      "description": "Privacy-first, local-first, user-owned data architecture",
+      "properties": {
+        "encryption": "AES-256-GCM",
+        "key_derivation": "PBKDF2"
+      }
+    }
+  ],
+
+  "edges": [
+    {
+      "id": "e1",
+      "source": "n1",
+      "target": "n4",
+      "relation": "aligned_with",
+      "description": "ActiveMirrorOS implements Master Citation v15.3"
+    },
+    {
+      "id": "e2",
+      "source": "n1",
+      "target": "n3",
+      "relation": "implements",
+      "description": "ActiveMirrorOS implements MirrorDNA-Standard specifications"
+    },
+    {
+      "id": "e3",
+      "source": "n1",
+      "target": "n2",
+      "relation": "uses",
+      "description": "ActiveMirrorOS uses LingOS-Coder tools for checksums and validation"
+    },
+    {
+      "id": "e4",
+      "source": "n5",
+      "target": "n1",
+      "relation": "deployed_in",
+      "description": "Continuity Engine v1 is deployed in ActiveMirrorOS"
+    },
+    {
+      "id": "e5",
+      "source": "n5",
+      "target": "n6",
+      "relation": "contains",
+      "description": "Continuity Engine includes BOOT.json"
+    },
+    {
+      "id": "e6",
+      "source": "n5",
+      "target": "n7",
+      "relation": "contains",
+      "description": "Continuity Engine includes Snapshot_Latest.md"
+    },
+    {
+      "id": "e7",
+      "source": "n5",
+      "target": "n8",
+      "relation": "contains",
+      "description": "Continuity Engine includes manifest.yml"
+    },
+    {
+      "id": "e8",
+      "source": "n5",
+      "target": "n9",
+      "relation": "contains",
+      "description": "Continuity Engine includes loader.js"
+    },
+    {
+      "id": "e9",
+      "source": "n9",
+      "target": "n6",
+      "relation": "reads",
+      "description": "loader.js reads BOOT.json on boot"
+    },
+    {
+      "id": "e10",
+      "source": "n9",
+      "target": "n7",
+      "relation": "reads",
+      "description": "loader.js reads Snapshot_Latest.md on boot"
+    },
+    {
+      "id": "e11",
+      "source": "n4",
+      "target": "n10",
+      "relation": "requires",
+      "description": "Master Citation v15.3 requires Truth-State Law"
+    },
+    {
+      "id": "e12",
+      "source": "n4",
+      "target": "n11",
+      "relation": "requires",
+      "description": "Master Citation v15.3 requires Zero-Drift Layer"
+    },
+    {
+      "id": "e13",
+      "source": "n4",
+      "target": "n12",
+      "relation": "requires",
+      "description": "Master Citation v15.3 requires Trust-By-Design"
+    },
+    {
+      "id": "e14",
+      "source": "n8",
+      "target": "n11",
+      "relation": "enables",
+      "description": "manifest.yml checksums enable Zero-Drift Layer"
+    },
+    {
+      "id": "e15",
+      "source": "n2",
+      "target": "n8",
+      "relation": "generates",
+      "description": "LingOS-Coder generates checksums for manifest.yml"
+    }
+  ],
+
+  "metadata": {
+    "total_nodes": 12,
+    "total_edges": 15,
+    "graph_type": "directed",
+    "purpose": "Map relationships between continuity components for AI state reconstruction",
+    "query_examples": [
+      "Find all components of Continuity Engine: WHERE type='component' AND name='Continuity Engine'",
+      "Find all files read by loader: WHERE source='n9' AND relation='reads'",
+      "Find all protocols required by Master Citation: WHERE target IN ['n10','n11','n12']"
+    ]
+  }
+}

@@ -1,0 +1,224 @@
+name: Continuity Validation
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - 'claude/**'
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  validate-continuity:
+    name: Validate Continuity Engine
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Verify continuity files exist
+        run: |
+          echo "Checking for continuity files..."
+          test -f continuity/BOOT.json || (echo "❌ BOOT.json missing" && exit 1)
+          test -f continuity/Snapshot_Latest.md || (echo "❌ Snapshot_Latest.md missing" && exit 1)
+          test -f continuity/Graph_v1.json || (echo "❌ Graph_v1.json missing" && exit 1)
+          test -f .vault/manifest.yml || (echo "❌ manifest.yml missing" && exit 1)
+          test -f config/amos.boot.json || (echo "❌ amos.boot.json missing" && exit 1)
+          test -f src/boot/loader.js || (echo "❌ loader.js missing" && exit 1)
+          echo "✅ All continuity files present"
+
+      - name: Validate JSON files
+        run: |
+          echo "Validating JSON files..."
+          node -e "JSON.parse(require('fs').readFileSync('continuity/BOOT.json'))" || (echo "❌ Invalid BOOT.json" && exit 1)
+          node -e "JSON.parse(require('fs').readFileSync('continuity/Graph_v1.json'))" || (echo "❌ Invalid Graph_v1.json" && exit 1)
+          node -e "JSON.parse(require('fs').readFileSync('config/amos.boot.json'))" || (echo "❌ Invalid amos.boot.json" && exit 1)
+          echo "✅ All JSON files valid"
+
+      - name: Validate BOOT.json structure
+        run: |
+          echo "Validating BOOT.json structure..."
+          node -e "
+            const boot = JSON.parse(require('fs').readFileSync('continuity/BOOT.json'));
+            const required = ['version', 'vault_path', 'identity_lock', 'tone_mode', 'protocols', 'twins'];
+            const missing = required.filter(f => !(f in boot));
+            if (missing.length > 0) {
+              console.error('❌ BOOT.json missing fields:', missing.join(', '));
+              process.exit(1);
+            }
+            const protocols = ['TruthStateLaw', 'ZeroDriftLayer', 'TrustByDesign'];
+            const missingProtocols = protocols.filter(p => !(p in boot.protocols));
+            if (missingProtocols.length > 0) {
+              console.error('❌ BOOT.json missing protocols:', missingProtocols.join(', '));
+              process.exit(1);
+            }
+            console.log('✅ BOOT.json structure valid');
+          "
+
+      - name: Validate Graph structure
+        run: |
+          echo "Validating Graph_v1.json structure..."
+          node -e "
+            const graph = JSON.parse(require('fs').readFileSync('continuity/Graph_v1.json'));
+            if (!graph.nodes || !Array.isArray(graph.nodes)) {
+              console.error('❌ Graph missing nodes array');
+              process.exit(1);
+            }
+            if (!graph.edges || !Array.isArray(graph.edges)) {
+              console.error('❌ Graph missing edges array');
+              process.exit(1);
+            }
+            const nodeIds = graph.nodes.map(n => n.id);
+            for (const edge of graph.edges) {
+              if (!nodeIds.includes(edge.source) || !nodeIds.includes(edge.target)) {
+                console.error('❌ Graph edge references invalid node:', edge.id);
+                process.exit(1);
+              }
+            }
+            console.log('✅ Graph structure valid (' + graph.nodes.length + ' nodes, ' + graph.edges.length + ' edges)');
+          "
+
+      - name: Run continuity loader tests
+        run: |
+          echo "Running continuity loader tests..."
+          node --test tests/continuity/loader.test.js
+
+      - name: Test loader functionality
+        run: |
+          echo "Testing loader functionality..."
+          node -e "
+            import('./src/boot/loader.js').then(async ({ getContinuityState }) => {
+              const state = await getContinuityState();
+              console.log('✅ Loader successfully loaded state');
+              console.log('   Version:', state.boot.version);
+              console.log('   Identity Lock:', state.boot.identity_lock);
+              console.log('   Protocols:', Object.keys(state.boot.protocols).join(', '));
+            }).catch(err => {
+              console.error('❌ Loader failed:', err.message);
+              process.exit(1);
+            });
+          "
+
+      - name: Verify protocol enforcement
+        run: |
+          echo "Verifying protocol enforcement..."
+          node -e "
+            const boot = JSON.parse(require('fs').readFileSync('continuity/BOOT.json'));
+            if (!boot.protocols.TruthStateLaw) {
+              console.error('❌ TruthStateLaw not enabled');
+              process.exit(1);
+            }
+            if (!boot.protocols.ZeroDriftLayer) {
+              console.error('❌ ZeroDriftLayer not enabled');
+              process.exit(1);
+            }
+            if (!boot.protocols.TrustByDesign) {
+              console.error('❌ TrustByDesign not enabled');
+              process.exit(1);
+            }
+            console.log('✅ All protocols enabled');
+          "
+
+      - name: Verify Master Citation version
+        run: |
+          echo "Verifying Master Citation version..."
+          node -e "
+            const boot = JSON.parse(require('fs').readFileSync('continuity/BOOT.json'));
+            if (boot.version !== 'v15.3') {
+              console.error('❌ Version mismatch. Expected v15.3, got', boot.version);
+              process.exit(1);
+            }
+            console.log('✅ Master Citation v15.3 verified');
+          "
+
+      - name: Check for FEU tags in code
+        run: |
+          echo "Checking for proper FEU tag usage..."
+          # This is informational - FEU tags indicate uncertainty, which is acceptable
+          feu_count=$(grep -r "FEU:" --include="*.js" --include="*.json" --include="*.md" --include="*.yml" . | wc -l)
+          echo "ℹ️  Found $feu_count FEU tags (marking uncertainty as required by Truth-State Law)"
+
+      - name: Continuity validation summary
+        run: |
+          echo ""
+          echo "════════════════════════════════════════════════"
+          echo "✅ Continuity Engine Validation Complete"
+          echo "════════════════════════════════════════════════"
+          echo "All checks passed:"
+          echo "  ✓ Continuity files present"
+          echo "  ✓ JSON files valid"
+          echo "  ✓ BOOT.json structure valid"
+          echo "  ✓ Graph structure valid"
+          echo "  ✓ Loader tests passed"
+          echo "  ✓ Loader functionality verified"
+          echo "  ✓ Protocols enforced"
+          echo "  ✓ Master Citation v15.3 verified"
+          echo "════════════════════════════════════════════════"
+
+  test-python-sdk:
+    name: Test Python SDK
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ['3.9', '3.10', '3.11']
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Python SDK dependencies
+        run: |
+          cd sdk/python
+          pip install -e .
+          pip install pytest
+
+      - name: Run Python SDK tests
+        run: |
+          cd sdk/python
+          python -m pytest tests/ -v
+
+  test-javascript-sdk:
+    name: Test JavaScript SDK
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install JavaScript SDK dependencies
+        run: |
+          cd sdk/javascript
+          npm install
+
+      - name: Run JavaScript SDK tests
+        run: |
+          cd sdk/javascript
+          node --test tests/
