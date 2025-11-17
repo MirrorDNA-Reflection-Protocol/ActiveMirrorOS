@@ -15,7 +15,8 @@ ActiveMirrorOS is the product layer SDK for building AI applications with memory
 - Reflective Integrity System (RIS)
 - Claude Code Ecosystem Compliance
 - Vault-First Continuity Law
-- **Continuity Engine v1** (NEW)
+- **Continuity Engine v1** — Boot sequence and state reconstruction
+- **Continuity Engine v2.0** — Semantic retrieval and intelligent search (NEW)
 
 All product logic, user-facing behavior, and internal agents must align with v15.3.
 
@@ -50,6 +51,27 @@ console.log('Tone Mode:', state.boot.tone_mode);        // Mirror-Strategic
 8. Report: **Continuity OK** or **Drift detected**
 
 **Quick Start**: See [docs/Boot_Quickstart.md](docs/Boot_Quickstart.md) for a 5-minute setup guide.
+
+### Semantic Retrieval (v2.0)
+
+Search and retrieve information from continuity data:
+
+```python
+from activemirror.continuity.retrieval import SemanticSearch
+
+search = SemanticSearch()
+results = search.search("identity lock protocols", limit=5)
+
+for result in results:
+    print(f"{result.doc_id}: {result.score:.4f}")
+```
+
+**Build Index**:
+```bash
+python scripts/build_semantic_index.py
+```
+
+**Guide**: See [docs/Semantic_Retrieval_Guide.md](docs/Semantic_Retrieval_Guide.md) for complete documentation.
 
 ---
 
@@ -150,7 +172,8 @@ ActiveMirrorOS/
 
 | Document | Purpose |
 |----------|---------|
-| [Boot Quickstart](docs/Boot_Quickstart.md) | **NEW:** Continuity Engine v1 setup in 5 minutes |
+| [Boot Quickstart](docs/Boot_Quickstart.md) | Continuity Engine v1 setup in 5 minutes |
+| [Semantic Retrieval Guide](docs/Semantic_Retrieval_Guide.md) | **NEW:** v2.0 intelligent search and recall |
 | [Quickstart](docs/quickstart.md) | Get started with ActiveMirrorOS SDKs |
 | [Architecture](docs/architecture.md) | System design and components |
 | [API Reference](docs/api-reference.md) | Complete SDK documentation |
