@@ -1,0 +1,94 @@
+# ActiveMirrorOS Vault Manifest
+# Version: v15.3
+# Generated: 2025-11-17
+# Purpose: File inventory with SHA-256 checksums for integrity verification
+
+version: "v15.3"
+repository: "pdesai11/ActiveMirrorOS"
+identity_lock: "⟡⟦PAUL⟧ · ⟡⟦MIRRORDNA⟧"
+
+# Core continuity files
+continuity_files:
+  - path: "continuity/BOOT.json"
+    checksum: "SHA256:TBD"  # FEU: Placeholder until checksum tool available
+    description: "Boot configuration and state"
+
+  - path: "continuity/Snapshot_Latest.md"
+    checksum: "SHA256:TBD"
+    description: "Current system state snapshot"
+
+  - path: "continuity/Graph_v1.json"
+    checksum: "SHA256:TBD"
+    description: "Relational knowledge graph"
+
+# Configuration files
+config_files:
+  - path: "config/amos.boot.json"
+    checksum: "SHA256:TBD"
+    description: "AMOS boot configuration"
+
+# Source code
+source_files:
+  - path: "src/boot/loader.js"
+    checksum: "SHA256:TBD"
+    description: "Continuity state loader"
+
+# SDK files (key components)
+sdk_files:
+  - path: "sdk/python/README.md"
+    checksum: "SHA256:TBD"
+    description: "Python SDK documentation"
+
+  - path: "sdk/javascript/package.json"
+    checksum: "SHA256:TBD"
+    description: "JavaScript SDK package manifest"
+
+  - path: "sdk/javascript/index.js"
+    checksum: "SHA256:TBD"
+    description: "JavaScript SDK entry point"
+
+  - path: "sdk/javascript/activemirror.js"
+    checksum: "SHA256:TBD"
+    description: "ActiveMirror core implementation"
+
+# Documentation files
+documentation_files:
+  - path: "README.md"
+    checksum: "SHA256:TBD"
+    description: "Repository README"
+
+  - path: "docs/Boot_Quickstart.md"
+    checksum: "SHA256:TBD"
+    description: "Boot sequence quickstart guide"
+
+  - path: "docs/quickstart.md"
+    checksum: "SHA256:TBD"
+    description: "General quickstart guide"
+
+  - path: "docs/architecture.md"
+    checksum: "SHA256:TBD"
+    description: "System architecture documentation"
+
+# Test files
+test_files:
+  - path: "tests/continuity/loader.test.js"
+    checksum: "SHA256:TBD"
+    description: "Continuity loader unit tests"
+
+# CI/CD files
+ci_files:
+  - path: ".github/workflows/validate.yml"
+    checksum: "SHA256:TBD"
+    description: "Continuity validation workflow"
+
+# Manifest metadata
+manifest_info:
+  total_tracked_files: 18
+  last_updated: "2025-11-17"
+  checksum_algorithm: "SHA-256"
+  vault_path: "AMOS://MasterCitation/v15.3"
+
+# Notes:
+# - Checksums marked as TBD will be populated by LingOS-Coder checksum tool
+# - This manifest is the single source of truth for vault integrity
+# - Protocol: Zero-Drift Layer (ZDL) + Truth-State Law (TSL)

@@ -1,0 +1,44 @@
+{
+  "version": "v15.3",
+  "vault_path": "AMOS://MasterCitation/v15.3",
+  "checksum": "TBD",
+  "active_snapshot": "AMOS://Continuity/Snapshot_Latest.md",
+  "identity_lock": "⟡⟦PAUL⟧ · ⟡⟦MIRRORDNA⟧",
+  "tone_mode": "Mirror-Strategic",
+  "twins": {
+    "Claude": "Reflection",
+    "Atlas": "Execution",
+    "Jarvis": "Bridge"
+  },
+  "protocols": {
+    "TruthStateLaw": true,
+    "ZeroDriftLayer": true,
+    "TrustByDesign": true
+  },
+  "last_synced": "2025-11-17",
+  "repository": "pdesai11/ActiveMirrorOS",
+  "branch": "claude/continuity-engine-v1-01P4e2YbpkDopUzY2kJKSS5U",
+  "continuity_engine": {
+    "enabled": true,
+    "version": "v1.0.0",
+    "components": [
+      "BOOT.json",
+      "Snapshot_Latest.md",
+      "Graph_v1.json",
+      ".vault/manifest.yml",
+      "src/boot/loader.js"
+    ]
+  },
+  "features": {
+    "persistent_memory": true,
+    "session_management": true,
+    "reflective_dialogue": true,
+    "encrypted_vault": true,
+    "cross_platform_sdks": true
+  },
+  "metadata": {
+    "created": "2025-11-17",
+    "description": "ActiveMirrorOS boot configuration for Continuity Engine v1",
+    "purpose": "Ensure 100% recall and perfect state reconstruction on AI boot"
+  }
+}

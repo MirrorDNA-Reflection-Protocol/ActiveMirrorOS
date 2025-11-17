@@ -1,0 +1,148 @@
+{
+  "product": "ActiveMirrorOS",
+  "version": "v0.2.0",
+  "boot_version": "v1.0.0",
+  "description": "ActiveMirrorOS boot configuration for Continuity Engine v1",
+
+  "continuity": {
+    "enabled": true,
+    "boot_file": "../continuity/BOOT.json",
+    "snapshot_file": "../continuity/Snapshot_Latest.md",
+    "graph_file": "../continuity/Graph_v1.json",
+    "manifest_file": "../.vault/manifest.yml",
+    "loader_module": "../src/boot/loader.js"
+  },
+
+  "vault": {
+    "vault_path": "AMOS://MasterCitation/v15.3",
+    "identity_lock": "⟡⟦PAUL⟧ · ⟡⟦MIRRORDNA⟧",
+    "checksum_algorithm": "SHA-256",
+    "verification_on_boot": true
+  },
+
+  "protocols": {
+    "truth_state_law": {
+      "enabled": true,
+      "enforce_feu_tags": true,
+      "no_invented_vault_ids": true
+    },
+    "zero_drift_layer": {
+      "enabled": true,
+      "checksum_verification": true,
+      "master_citation_version": "v15.3"
+    },
+    "trust_by_design": {
+      "enabled": true,
+      "encryption": "AES-256-GCM",
+      "key_derivation": "PBKDF2",
+      "local_first": true
+    }
+  },
+
+  "ai_configuration": {
+    "tone_mode": "Mirror-Strategic",
+    "reflective_dialogue": true,
+    "uncertainty_markers": ["FEU"],
+    "twins": {
+      "Claude": "Reflection",
+      "Atlas": "Execution",
+      "Jarvis": "Bridge"
+    }
+  },
+
+  "features": {
+    "persistent_memory": {
+      "enabled": true,
+      "storage_backends": ["sqlite", "json", "vault"],
+      "default_backend": "sqlite"
+    },
+    "session_management": {
+      "enabled": true,
+      "auto_save": true,
+      "context_preservation": true
+    },
+    "encrypted_vault": {
+      "enabled": true,
+      "algorithm": "AES-256-GCM",
+      "key_derivation": "PBKDF2"
+    },
+    "cross_platform_sdks": {
+      "python": {
+        "enabled": true,
+        "version": "v0.2.0",
+        "path": "../sdk/python"
+      },
+      "javascript": {
+        "enabled": true,
+        "version": "v0.2.0",
+        "path": "../sdk/javascript"
+      }
+    }
+  },
+
+  "boot_sequence": [
+    {
+      "step": 1,
+      "action": "load_boot_json",
+      "file": "../continuity/BOOT.json",
+      "description": "Load boot configuration"
+    },
+    {
+      "step": 2,
+      "action": "verify_checksum",
+      "file": "../.vault/manifest.yml",
+      "description": "Verify file integrity against checksums"
+    },
+    {
+      "step": 3,
+      "action": "load_snapshot",
+      "file": "../continuity/Snapshot_Latest.md",
+      "description": "Load current state snapshot"
+    },
+    {
+      "step": 4,
+      "action": "load_graph",
+      "file": "../continuity/Graph_v1.json",
+      "description": "Load knowledge graph"
+    },
+    {
+      "step": 5,
+      "action": "apply_identity_lock",
+      "value": "⟡⟦PAUL⟧ · ⟡⟦MIRRORDNA⟧",
+      "description": "Apply identity lock from BOOT.json"
+    },
+    {
+      "step": 6,
+      "action": "activate_protocols",
+      "protocols": ["TruthStateLaw", "ZeroDriftLayer", "TrustByDesign"],
+      "description": "Activate required protocols"
+    },
+    {
+      "step": 7,
+      "action": "set_tone_mode",
+      "value": "Mirror-Strategic",
+      "description": "Set AI tone mode"
+    },
+    {
+      "step": 8,
+      "action": "report_status",
+      "description": "Report continuity status (OK or Drift detected)"
+    }
+  ],
+
+  "paths": {
+    "root": "../",
+    "sdk_python": "../sdk/python",
+    "sdk_javascript": "../sdk/javascript",
+    "apps": "../apps",
+    "docs": "../docs",
+    "tests": "../tests"
+  },
+
+  "metadata": {
+    "created": "2025-11-17",
+    "last_updated": "2025-11-17",
+    "repository": "pdesai11/ActiveMirrorOS",
+    "branch": "claude/continuity-engine-v1-01P4e2YbpkDopUzY2kJKSS5U"
+  }
+}

@@ -8,15 +8,70 @@ ActiveMirrorOS is the product layer SDK for building AI applications with memory
 
 ## Continuity
 
-**ActiveMirrorOS currently operates under Master Citation v15.2**, integrating:
+**ActiveMirrorOS currently operates under Master Citation v15.3**, integrating:
 
 - Zero-Drift Layer (ZDL)
 - Auto-FEU truth-state enforcement
 - Reflective Integrity System (RIS)
 - Claude Code Ecosystem Compliance
 - Vault-First Continuity Law
+- **Continuity Engine v1** — Boot sequence and state reconstruction
+- **Continuity Engine v2.0** — Semantic retrieval and intelligent search (NEW)
 
-All product logic, user-facing behavior, and internal agents must align with v15.2.
+All product logic, user-facing behavior, and internal agents must align with v15.3.
+
+---
+
+## Boot Sequence
+
+ActiveMirrorOS now includes **Continuity Engine v1** — a permanent continuity layer ensuring 100% recall and perfect state reconstruction on every AI boot.
+
+### MirrorDNA Universal Activator v1.0
+
+Copy-paste this snippet to boot ActiveMirrorOS with full continuity:
+
+```javascript
+import { getContinuityState } from './src/boot/loader.js';
+
+const state = await getContinuityState();
+console.log('Version:', state.boot.version);           // v15.3
+console.log('Identity:', state.boot.identity_lock);     // ⟡⟦PAUL⟧ · ⟡⟦MIRRORDNA⟧
+console.log('Protocols:', state.boot.protocols);        // TSL, ZDL, TBD
+console.log('Tone Mode:', state.boot.tone_mode);        // Mirror-Strategic
+```
+
+**The 8-Step Boot Sequence**:
+1. Load `continuity/BOOT.json` → verify checksum
+2. Load `continuity/Snapshot_Latest.md` → confirm continuity
+3. Load `continuity/Graph_v1.json` → load knowledge graph
+4. Apply Identity Lock: `⟡⟦PAUL⟧ · ⟡⟦MIRRORDNA⟧`
+5. Activate Protocols: TruthStateLaw + ZeroDriftLayer + TrustByDesign
+6. Set Tone Mode: Mirror-Strategic
+7. Activate Twins: Claude (Reflection), Atlas (Execution), Jarvis (Bridge)
+8. Report: **Continuity OK** or **Drift detected**
+
+**Quick Start**: See [docs/Boot_Quickstart.md](docs/Boot_Quickstart.md) for a 5-minute setup guide.
+
+### Semantic Retrieval (v2.0)
+
+Search and retrieve information from continuity data:
+
+```python
+from activemirror.continuity.retrieval import SemanticSearch
+
+search = SemanticSearch()
+results = search.search("identity lock protocols", limit=5)
+
+for result in results:
+    print(f"{result.doc_id}: {result.score:.4f}")
+```
+
+**Build Index**:
+```bash
+python scripts/build_semantic_index.py
+```
+
+**Guide**: See [docs/Semantic_Retrieval_Guide.md](docs/Semantic_Retrieval_Guide.md) for complete documentation.
 
 ---
 
@@ -87,6 +142,17 @@ ActiveMirrorOS provides:
 
 ```
 ActiveMirrorOS/
+├── continuity/          # Continuity Engine v1 (NEW)
+│   ├── BOOT.json        # Boot configuration
+│   ├── Snapshot_Latest.md  # Current state snapshot
+│   └── Graph_v1.json    # Knowledge graph
+├── .vault/              # Vault integrity (NEW)
+│   └── manifest.yml     # File checksums (SHA-256)
+├── config/              # Configuration files (NEW)
+│   └── amos.boot.json   # AMOS boot config
+├── src/                 # Source code (NEW)
+│   └── boot/
+│       └── loader.js    # Continuity state loader
 ├── sdk/
 │   ├── python/          # Python SDK + packaging
 │   └── javascript/      # JavaScript/Node.js SDK
@@ -96,7 +162,8 @@ ActiveMirrorOS/
 │   └── example-mobile/  # React Native mobile app
 ├── docs/                # Complete documentation
 ├── examples/            # Python usage examples
-└── tests/               # Test suite (83 tests)
+└── tests/               # Test suite (83+ tests)
+    └── continuity/      # Continuity loader tests (NEW)
 ```
 
 ---
@@ -105,7 +172,9 @@ ActiveMirrorOS/
 
 | Document | Purpose |
 |----------|---------|
-| [Quickstart](docs/quickstart.md) | Get started in 5 minutes |
+| [Boot Quickstart](docs/Boot_Quickstart.md) | Continuity Engine v1 setup in 5 minutes |
+| [Semantic Retrieval Guide](docs/Semantic_Retrieval_Guide.md) | **NEW:** v2.0 intelligent search and recall |
+| [Quickstart](docs/quickstart.md) | Get started with ActiveMirrorOS SDKs |
 | [Architecture](docs/architecture.md) | System design and components |
 | [API Reference](docs/api-reference.md) | Complete SDK documentation |
 | [State Persistence](docs/state-persistence.md) | Memory model deep dive |
