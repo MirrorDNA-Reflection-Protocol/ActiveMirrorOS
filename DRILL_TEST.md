@@ -1,0 +1,1 @@
+Sovereignty is absolute.
