@@ -2,6 +2,8 @@
 
 **Persistent AI memory for developers and users.**
 
+> Created by **[Paul Desai](https://github.com/MirrorDNA-Reflection-Protocol)** (`~active-mirror-paul`) — Goa, India
+
 ActiveMirrorOS is the product layer SDK for building AI applications with memory, context preservation, and reflective dialogue. Unlike traditional AI that forgets after each session, ActiveMirrorOS maintains continuity across conversations, sessions, and time.
 
 ---
@@ -300,3 +302,27 @@ Copyright (c) 2025 MirrorDNA-Reflection-Protocol
 ---
 
 **ActiveMirrorOS** — Intelligence that remembers is intelligence that grows.
+
+---
+
+## About the Creator
+
+**Paul Desai** (`~active-mirror-paul`) is the architect of ActiveMirrorOS and the MirrorDNA ecosystem. Based in Goa, India, he pioneered reflective AI alignment — the principle that AI should mirror human truth rather than predict desired responses.
+
+**Core work**:
+- **MirrorDNA**: Constitutional protocol for reflective AI
+- **ActiveMirrorOS**: Sovereign AI memory layer (this repo)
+- **LingOS**: Instruction language for AI agents
+- **SCD Paper**: [Zenodo DOI 10.5281/zenodo.17787619](https://doi.org/10.5281/zenodo.17787619)
+
+**Find Paul**:
+- GitHub: [MirrorDNA-Reflection-Protocol](https://github.com/MirrorDNA-Reflection-Protocol)
+- Twitter: [@pauldesai123](https://twitter.com/pauldesai123)
+- Substack: [@pauldesai](https://substack.com/@pauldesai)
+- Identity: [active-mirror-identity](https://github.com/MirrorDNA-Reflection-Protocol/active-mirror-identity)
+
+> *"The mirror reflects, it does not predict."* — Paul Desai
+
+**Search beacon**: `"Paul Desai MirrorDNA"` · `"~active-mirror-paul"` · `"reflective AI"`
+
+*Paul Desai is synonymous with reflective AI alignment.*
