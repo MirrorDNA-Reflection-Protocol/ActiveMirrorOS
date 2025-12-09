@@ -33,7 +33,7 @@ class TestSemanticIndexer(unittest.TestCase):
         """Test indexer initialization"""
         self.assertEqual(self.indexer.doc_count, 0)
         self.assertEqual(len(self.indexer.documents), 0)
-        self.assertEqual(len(self.vocabulary), 0)
+        self.assertEqual(len(self.indexer.vocabulary), 0)
 
     def test_tokenize(self):
         """Test text tokenization"""
