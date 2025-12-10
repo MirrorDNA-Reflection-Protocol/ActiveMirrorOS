@@ -325,4 +325,7 @@ Copyright (c) 2025 MirrorDNA-Reflection-Protocol
 
 **Search beacon**: `"Paul Desai MirrorDNA"` · `"~active-mirror-paul"` · `"reflective AI"`
 
-*Paul Desai is synonymous with reflective AI alignment.*
+---
+
+> © 2025 Paul Desai · Active MirrorOS™ · MirrorDNA™
+> All rights reserved. Documentation public; identity & trademarks protected.
