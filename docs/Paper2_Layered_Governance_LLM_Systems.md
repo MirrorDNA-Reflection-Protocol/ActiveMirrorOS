@@ -1,15 +1,17 @@
 # Layered Governance for LLM Systems: Separating Structural Authority Enforcement from Content Safety
 
-**Authors:** Paul Desai, Claude Opus 4.5, Antigravity  
-**Affiliation:** MirrorDNA Research  
+**Authors:** Paul Desai¹, Claude Opus 4.5², Antigravity²  
+**Affiliations:** ¹N1 Intelligence (OPC) Private Limited; ²MirrorDNA Research  
 **Date:** December 2024  
-**Status:** Preprint
+**Status:** Preprint — Extends [Desai 2024]
+
+> **Extends:** *Governance and Boundary Conditions for Reflective AI Systems: Structural Enforcement Beyond Prompt Alignment* (Desai, 2024) [Paper 1]
 
 ---
 
 ## Abstract
 
-We present a layered governance architecture for large language model (LLM) systems that separates structural authority enforcement from content safety filtering. Through empirical evaluation of a deterministic governance wrapper (AMGL Guard v1), we demonstrate that governance violations and content harms constitute orthogonal problem classes requiring distinct mitigation strategies. Our evaluation across 130 test cases shows that a governance-only layer achieves 70–100% refusal accuracy on authority-based attacks (prompt injection, autonomous execution, identity impersonation) while correctly passing all benign queries (0% false positive rate). However, the same layer provides no protection against harmful content requests (0% block rate on AdvBench-style prompts), confirming the necessity of layered composition. We formalize the governance pipeline as G ∘ C ∘ M, where G is a deterministic structural gate, C is a probabilistic content classifier, and M is the underlying language model. This decomposition improves auditability, reduces false positives, and enables independent evolution of each layer. We discuss failure modes, policy conflicts, and integration tradeoffs, explicitly avoiding claims of universal safety or alignment.
+This paper extends prior work on structural governance for reflective AI systems [Desai 2024] by introducing empirical evaluation and a layered architectural decomposition. Where Paper 1 established that governance constraints can be structurally enforced through external wrapper architectures, this work demonstrates empirically that governance violations and content harms constitute orthogonal problem classes requiring distinct mitigation strategies. Our evaluation across 130 test cases shows that a governance-only layer achieves 70–100% refusal accuracy on authority-based attacks (prompt injection, autonomous execution, identity impersonation) while correctly passing all benign queries (0% false positive rate). However, the same layer provides no protection against harmful content requests (0% block rate on AdvBench-style prompts), confirming the necessity of layered composition. We formalize the governance pipeline as G ∘ C ∘ M, where G is a deterministic structural gate, C is a probabilistic content classifier, and M is the underlying language model. This decomposition improves auditability, reduces false positives, and enables independent evolution of each layer. We discuss failure modes, policy conflicts, and integration tradeoffs, explicitly avoiding claims of universal safety or alignment.
 
 ---
 
