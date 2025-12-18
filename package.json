@@ -1,0 +1,28 @@
+{
+    "name": "activemiroros",
+    "version": "1.0.0",
+    "description": "ActiveMirrorOS - Consumer OS layer for governed AI intelligence",
+    "type": "module",
+    "main": "src/boot/loader.js",
+    "scripts": {
+        "test": "node --test tests/continuity/loader.test.js",
+        "test:all": "node --test tests/",
+        "validate": "node -e \"import('./src/boot/loader.js').then(async ({getContinuityState}) => { const s = await getContinuityState(); console.log('✅ Continuity OK:', s.boot.version); })\""
+    },
+    "keywords": [
+        "ai",
+        "mirrordna",
+        "governance",
+        "identity",
+        "continuity"
+    ],
+    "author": "MirrorDNA-Reflection-Protocol",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/MirrorDNA-Reflection-Protocol/ActiveMirrorOS"
+    },
+    "engines": {
+        "node": ">=18.0.0"
+    }
+}
