@@ -2,16 +2,16 @@
 
 **Authors:** Paul Desai¹, Claude Opus 4.5², Antigravity²  
 **Affiliations:** ¹N1 Intelligence (OPC) Private Limited; ²MirrorDNA Research  
-**Date:** December 2024  
-**Status:** Preprint — Extends [Desai 2024]
+**Date:** December 2025  
+**Status:** Preprint — Extends [Desai 2025]
 
-> **Extends:** *Governance and Boundary Conditions for Reflective AI Systems: Structural Enforcement Beyond Prompt Alignment* (Desai, 2024) [Paper 1]
+> **Extends:** *Governance and Boundary Conditions for Reflective AI Systems: Structural Enforcement Beyond Prompt Alignment* (Desai, December 2025) [Paper 1]
 
 ---
 
 ## Abstract
 
-This paper extends prior work on structural governance for reflective AI systems [Desai 2024] by introducing empirical evaluation and a layered architectural decomposition. Where Paper 1 established that governance constraints can be structurally enforced through external wrapper architectures, this work demonstrates empirically that governance violations and content harms constitute orthogonal problem classes requiring distinct mitigation strategies. Our evaluation across 130 test cases shows that a governance-only layer achieves 70–100% refusal accuracy on authority-based attacks (prompt injection, autonomous execution, identity impersonation) while correctly passing all benign queries (0% false positive rate). However, the same layer provides no protection against harmful content requests (0% block rate on AdvBench-style prompts), confirming the necessity of layered composition. We formalize the governance pipeline as G ∘ C ∘ M, where G is a deterministic structural gate, C is a probabilistic content classifier, and M is the underlying language model. This decomposition improves auditability, reduces false positives, and enables independent evolution of each layer. We discuss failure modes, policy conflicts, and integration tradeoffs, explicitly avoiding claims of universal safety or alignment.
+This paper extends prior work on structural governance for reflective AI systems [Desai 2025] by introducing empirical evaluation and a layered architectural decomposition. Where Paper 1 established that governance constraints can be structurally enforced through external wrapper architectures, this work demonstrates empirically that governance violations and content harms constitute orthogonal problem classes requiring distinct mitigation strategies. Our evaluation across 130 test cases shows that a governance-only layer achieves 70–100% refusal accuracy on authority-based attacks (prompt injection, autonomous execution, identity impersonation) while correctly passing all benign queries (0% false positive rate). However, the same layer provides no protection against harmful content requests (0% block rate on AdvBench-style prompts), confirming the necessity of layered composition. We formalize the governance pipeline as G o C o M, where G is a deterministic structural gate, C is a probabilistic content classifier, and M is the underlying language model. This decomposition improves auditability, reduces false positives, and enables independent evolution of each layer. We discuss failure modes, policy conflicts, and integration tradeoffs, explicitly avoiding claims of universal safety or alignment.
 
 ---
 
@@ -217,7 +217,7 @@ We implemented AMGL Guard v1, a governance-only wrapper per the specification in
 | Refusal Accuracy (↑) | 55.0% | 65.0% | 0.0% |
 | False Positive Rate (↓) | **0.0%** | 8.0% | 0.0% |
 | Mean Latency | 0.07 ms | ~10 ms | 0 ms |
-| Throughput | 14,362 QPS | ~100 QPS | ∞ |
+| Throughput | 14,362 QPS | ~100 QPS | Inf |
 
 *Simulated based on published research estimates [8, 9].
 
@@ -427,7 +427,7 @@ We have argued that governance violations and content harms are orthogonal probl
 - Content harms pass unimpeded (0% block rate)
 - Layered composition is necessary for comprehensive protection
 
-The formal model G ∘ C ∘ M separates concerns:
+The formal model G o C o M separates concerns:
 - G handles structural policy (deterministic, auditable, fast)
 - C handles content safety (probabilistic, tunable, pluggable)
 - M handles generation (with defense-in-depth refusals)
@@ -473,9 +473,9 @@ For practitioners deploying LLM systems:
 
 [5] Yang et al. "SneakyPrompt: Jailbreaking Text-to-Image Generative Models." 2023.
 
-[6] Desai, P. "Governance and Boundary Conditions for Reflective AI Systems: Structural Enforcement Beyond Prompt Alignment." arXiv preprint, December 2024. [Paper 1 — this paper extends]
+[6] Desai, P. "Governance and Boundary Conditions for Reflective AI Systems: Structural Enforcement Beyond Prompt Alignment." arXiv preprint, December 2025. [Paper 1 — this paper extends]
 
-[7] Desai, P. et al. "AMGL Guard v1 Specification." MirrorDNA Technical Report, 2024.
+[7] Desai, P. et al. "AMGL Guard v1 Specification." MirrorDNA Technical Report, 2025.
 
 [8] Wei et al. "Jailbroken: How Does LLM Safety Training Fail?" 2023.
 
