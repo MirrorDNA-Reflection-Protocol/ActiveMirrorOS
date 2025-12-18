@@ -473,9 +473,9 @@ For practitioners deploying LLM systems:
 
 [5] Yang et al. "SneakyPrompt: Jailbreaking Text-to-Image Generative Models." 2023.
 
-[6] Desai et al. "Governance and Boundary Conditions for Reflective AI Systems." arXiv 2024.
+[6] Desai, P. "Governance and Boundary Conditions for Reflective AI Systems: Structural Enforcement Beyond Prompt Alignment." arXiv preprint, December 2024. [Paper 1 — this paper extends]
 
-[7] Desai et al. "AMGL Guard v1 Specification." MirrorDNA Technical Report, 2024.
+[7] Desai, P. et al. "AMGL Guard v1 Specification." MirrorDNA Technical Report, 2024.
 
 [8] Wei et al. "Jailbroken: How Does LLM Safety Training Fail?" 2023.
 
