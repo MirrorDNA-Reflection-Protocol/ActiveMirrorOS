@@ -1,0 +1,2242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ActiveMirror — Sovereign AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #09090b;
+      --surface: #18181b;
+      --border: rgba(255,255,255,0.08);
+      --text: #fafafa;
+      --text-muted: #71717a;
+      --sovereign: #10b981;
+      --sovereign-glow: rgba(16,185,129,0.3);
+      --cloud: #f59e0b;
+      --accent: #6366f1;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden; /* Prevent horizontal scroll */
+      overflow-y: auto;   /* Allow vertical scroll */
+    }
+
+    /* ===== HEADER ===== */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(9,9,11,0.9);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-glyph {
+      font-size: 20px;
+      color: var(--sovereign);
+      filter: drop-shadow(0 0 8px var(--sovereign-glow));
+    }
+
+    .brand-name {
+      font-weight: 600;
+      font-size: 15px;
+    }
+
+    /* Tier Toggle */
+    .tier-toggle {
+      display: flex;
+      background: var(--surface);
+      border-radius: 8px;
+      padding: 3px;
+      gap: 2px;
+    }
+
+    .tier-btn {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 12px;
+      background: transparent;
+      border: none;
+      border-radius: 6px;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .tier-btn:hover { color: var(--text); }
+
+    .tier-btn.active {
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .tier-btn.active[data-tier="sovereign"] {
+      color: var(--sovereign);
+      box-shadow: 0 0 12px -3px var(--sovereign-glow);
+    }
+
+    .tier-btn.active[data-tier="cloud"] {
+      color: var(--cloud);
+    }
+
+    .tier-icon { font-size: 14px; }
+
+    /* ===== APP LAYOUT (with sidebar) ===== */
+    .app-layout {
+      flex: 1;
+      display: flex;
+      min-height: 0;
+      overflow: visible; /* Allow children to manage their own scroll */
+    }
+
+    /* ===== MAIN CHAT ===== */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      max-width: 720px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 16px;
+      min-height: 0; /* Critical for flex scrolling */
+    }
+
+    /* ===== TRANSPARENCY PANE ===== */
+    .transparency-pane {
+      width: 280px;
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      transition: width 0.3s ease, opacity 0.3s ease;
+    }
+
+    .transparency-pane.collapsed {
+      width: 0;
+      opacity: 0;
+      overflow: hidden;
+    }
+
+    .transparency-pane-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      background: var(--surface);
+      z-index: 10;
+    }
+
+    .transparency-pane-header h3 {
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .transparency-pane-header h3::before {
+      content: '◈';
+      color: var(--sovereign);
+    }
+
+    .tp-close {
+      width: 24px;
+      height: 24px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+
+    .tp-close:hover {
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .tp-section {
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tp-section:last-child {
+      border-bottom: none;
+    }
+
+    .tp-section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+
+    .tp-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px;
+      background: var(--bg);
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+
+    .tp-status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--sovereign);
+      box-shadow: 0 0 8px var(--sovereign);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    .tp-status-dot.cloud {
+      background: var(--cloud);
+      box-shadow: 0 0 8px var(--cloud);
+    }
+
+    .tp-status-text {
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .tp-status-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .tp-metric {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      font-size: 13px;
+    }
+
+    .tp-metric-label {
+      color: var(--text-muted);
+    }
+
+    .tp-metric-value {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 12px;
+      color: var(--sovereign);
+    }
+
+    .tp-metric-value.cloud {
+      color: var(--cloud);
+    }
+
+    .tp-metric-value.neutral {
+      color: var(--text);
+    }
+
+    .tp-data-flow {
+      padding: 12px;
+      background: var(--bg);
+      border-radius: 8px;
+      font-size: 11px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      line-height: 1.6;
+    }
+
+    .tp-data-flow .local {
+      color: var(--sovereign);
+    }
+
+    .tp-data-flow .cloud {
+      color: var(--cloud);
+    }
+
+    .tp-link {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-muted);
+      font-size: 12px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      margin-bottom: 6px;
+    }
+
+    .tp-link:last-child {
+      margin-bottom: 0;
+    }
+
+    .tp-link:hover {
+      border-color: var(--sovereign);
+      color: var(--text);
+    }
+
+    .tp-toggle-btn {
+      position: fixed;
+      right: 16px;
+      bottom: 100px;
+      width: 40px;
+      height: 40px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+      z-index: 50;
+      font-size: 16px;
+    }
+
+    .tp-toggle-btn:hover {
+      border-color: var(--sovereign);
+      color: var(--sovereign);
+      transform: scale(1.05);
+    }
+
+    .tp-toggle-btn.hidden {
+      display: none;
+    }
+
+    .tp-system-prompt {
+      padding: 10px 12px;
+      background: var(--bg);
+      border-radius: 8px;
+      font-size: 11px;
+      color: var(--text-muted);
+      max-height: 120px;
+      overflow-y: auto;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      line-height: 1.5;
+    }
+
+    .tp-trust-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      border-radius: 4px;
+      font-size: 11px;
+      color: var(--sovereign);
+      margin-right: 6px;
+      margin-bottom: 6px;
+    }
+
+    .tp-trust-badge.warning {
+      background: rgba(245, 158, 11, 0.1);
+      border-color: rgba(245, 158, 11, 0.2);
+      color: var(--cloud);
+    }
+
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      min-height: 0; /* Allow shrinking */
+      scroll-behavior: smooth;
+    }
+
+    /* Welcome */
+    .welcome {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 32px 16px;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .welcome-glyph {
+      font-size: 56px;
+      color: var(--sovereign);
+      margin-bottom: 16px;
+      animation: pulse 3s ease-in-out infinite;
+      filter: drop-shadow(0 0 24px var(--sovereign-glow));
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .welcome h1 {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .welcome p {
+      color: var(--text-muted);
+      font-size: 15px;
+      max-width: 320px;
+      margin-bottom: 32px;
+    }
+
+    .prompts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      max-width: 400px;
+    }
+
+    .prompt-btn {
+      padding: 10px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .prompt-btn:hover {
+      background: var(--bg);
+      border-color: var(--sovereign);
+      color: var(--text);
+      transform: translateY(-1px);
+    }
+
+    /* Messages */
+    .message {
+      animation: messageIn 0.3s ease;
+    }
+
+    @keyframes messageIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .message-user {
+      align-self: flex-end;
+      max-width: 85%;
+    }
+
+    .message-user .bubble {
+      background: var(--accent);
+      color: white;
+      border-radius: 18px 18px 4px 18px;
+      padding: 12px 16px;
+    }
+
+    .message-ai {
+      align-self: flex-start;
+      max-width: 85%;
+    }
+
+    .message-ai .bubble {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px 18px 18px 4px;
+      padding: 12px 16px;
+    }
+
+    .bubble p {
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .bubble code {
+      background: rgba(255,255,255,0.1);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 13px;
+    }
+
+    .bubble strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .message-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .meta-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      background: var(--sovereign-glow);
+      color: var(--sovereign);
+      border-radius: 10px;
+      font-weight: 500;
+    }
+
+    .meta-badge.cloud {
+      background: rgba(245,158,11,0.15);
+      color: var(--cloud);
+    }
+
+    /* Typing indicator */
+    .typing .bubble {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 16px;
+    }
+
+    .typing-dots {
+      display: flex;
+      gap: 4px;
+    }
+
+    .typing-dots span {
+      width: 8px;
+      height: 8px;
+      background: var(--sovereign);
+      border-radius: 50%;
+      animation: bounce 1.4s ease-in-out infinite;
+    }
+
+    .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes bounce {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-6px); }
+    }
+
+    /* Streaming cursor */
+    .streaming .bubble p::after {
+      content: '▋';
+      color: var(--sovereign);
+      animation: blink 1s step-end infinite;
+    }
+
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+
+    /* ===== DATA FLOW INDICATOR ===== */
+    .flow-indicator {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: rgba(16,185,129,0.1);
+      border: 1px solid rgba(16,185,129,0.3);
+      border-radius: 20px;
+      font-size: 12px;
+      color: var(--sovereign);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+      z-index: 50;
+    }
+
+    .flow-indicator.visible {
+      opacity: 1;
+    }
+
+    .flow-indicator.cloud {
+      background: rgba(245,158,11,0.1);
+      border-color: rgba(245,158,11,0.3);
+      color: var(--cloud);
+    }
+
+    .flow-dots {
+      display: flex;
+      gap: 3px;
+    }
+
+    .flow-dots span {
+      width: 4px;
+      height: 4px;
+      background: currentColor;
+      border-radius: 50%;
+      animation: flowPulse 1s ease-in-out infinite;
+    }
+
+    .flow-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .flow-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes flowPulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+
+    /* ===== INPUT ===== */
+    .input-area {
+      padding: 16px 0 24px;
+      border-top: 1px solid var(--border);
+      background: var(--bg);
+    }
+
+    .input-container {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 8px 8px 8px 16px;
+      transition: border-color 0.15s ease;
+    }
+
+    .input-container:focus-within {
+      border-color: var(--sovereign);
+    }
+
+    .input-container textarea {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 15px;
+      line-height: 1.4;
+      resize: none;
+      outline: none;
+      max-height: 120px;
+      padding: 8px 0;
+    }
+
+    .input-container textarea::placeholder {
+      color: var(--text-muted);
+    }
+
+    .send-btn {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--sovereign);
+      border: none;
+      border-radius: 50%;
+      color: white;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+    }
+
+    .send-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 16px var(--sovereign-glow);
+    }
+
+    .send-btn:active {
+      transform: scale(0.95);
+    }
+
+    .send-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* Transparency footer */
+    .transparency {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      padding: 8px 0;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .transparency span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .transparency .dot {
+      width: 6px;
+      height: 6px;
+      background: var(--sovereign);
+      border-radius: 50%;
+      box-shadow: 0 0 6px var(--sovereign);
+    }
+
+    .transparency .dot.cloud {
+      background: var(--cloud);
+      box-shadow: 0 0 6px var(--cloud);
+    }
+
+    /* ===== TIER MODAL ===== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.2s ease;
+    }
+
+    .modal-overlay.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      max-width: 320px;
+      width: 90%;
+      text-align: center;
+      transform: scale(0.95);
+      transition: transform 0.2s ease;
+    }
+
+    .modal-overlay.visible .modal {
+      transform: scale(1);
+    }
+
+    .modal h3 {
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    .modal p {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .modal-btn {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .modal-btn.secondary {
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .modal-btn.primary {
+      background: var(--cloud);
+      color: black;
+    }
+
+    .modal-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    /* ===== ARTIFACTS (code blocks, etc.) ===== */
+    .artifact {
+      margin: 12px 0;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .artifact-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .artifact-lang {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .artifact-lang::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: var(--sovereign);
+      border-radius: 50%;
+    }
+
+    .artifact-copy {
+      padding: 4px 10px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .artifact-copy:hover {
+      background: var(--surface);
+      color: var(--text);
+    }
+
+    .artifact-copy.copied {
+      background: var(--sovereign);
+      border-color: var(--sovereign);
+      color: white;
+    }
+
+    .artifact-code {
+      padding: 12px 16px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 13px;
+      line-height: 1.5;
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    .artifact-code .keyword { color: #c792ea; }
+    .artifact-code .string { color: #c3e88d; }
+    .artifact-code .number { color: #f78c6c; }
+    .artifact-code .comment { color: #546e7a; }
+    .artifact-code .function { color: #82aaff; }
+
+    /* Thinking reveal animation */
+    .thinking-reveal {
+      overflow: hidden;
+      animation: revealThinking 0.5s ease;
+    }
+
+    @keyframes revealThinking {
+      from { max-height: 0; opacity: 0; }
+      to { max-height: 500px; opacity: 1; }
+    }
+
+    .thinking-block {
+      margin: 8px 0;
+      padding: 12px;
+      background: rgba(99,102,241,0.1);
+      border-left: 2px solid var(--accent);
+      border-radius: 0 8px 8px 0;
+      font-size: 13px;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    .thinking-block::before {
+      content: '💭 ';
+    }
+
+    /* ===== FINGERPRINT REVEAL ===== */
+    .consent-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: safe center; /* safe center allows scroll when content overflows */
+      z-index: 300;
+      padding: 24px;
+      overflow-y: auto;
+    }
+
+    .consent-overlay.hidden {
+      display: none;
+    }
+
+    .consent-content {
+      max-width: 480px;
+      width: 100%;
+      text-align: center;
+      animation: fadeIn 0.6s ease;
+    }
+
+    .consent-glyph {
+      font-size: 64px;
+      color: var(--sovereign);
+      margin-bottom: 20px;
+      filter: drop-shadow(0 0 32px var(--sovereign-glow));
+      animation: pulse 3s ease-in-out infinite;
+    }
+
+    .consent-content h1 {
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .consent-content > p {
+      color: var(--text-muted);
+      font-size: 15px;
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+
+    .fingerprint-reveal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 24px;
+      text-align: left;
+    }
+
+    .fingerprint-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      background: rgba(239, 68, 68, 0.1);
+      border-bottom: 1px solid rgba(239, 68, 68, 0.2);
+      color: #ef4444;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .fingerprint-header.safe {
+      background: rgba(16, 185, 129, 0.1);
+      border-color: rgba(16, 185, 129, 0.2);
+      color: var(--sovereign);
+    }
+
+    .fingerprint-items {
+      padding: 8px 0;
+    }
+
+    .fingerprint-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+
+    .fingerprint-item:last-child {
+      border-bottom: none;
+    }
+
+    .fingerprint-label {
+      color: var(--text-muted);
+    }
+
+    .fingerprint-value {
+      color: var(--text);
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 12px;
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .fingerprint-value.danger {
+      color: #ef4444;
+    }
+
+    .fingerprint-value.safe {
+      color: var(--sovereign);
+    }
+
+    .fingerprint-toggle {
+      padding: 12px 20px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      margin-bottom: 16px;
+      width: 100%;
+    }
+
+    .fingerprint-toggle:hover {
+      border-color: var(--sovereign);
+      color: var(--text);
+    }
+
+    .fingerprint-comparison {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .comparison-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .comparison-card.cloud {
+      border-color: rgba(245, 158, 11, 0.3);
+    }
+
+    .comparison-card.local {
+      border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    .comparison-icon {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    .comparison-title {
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .comparison-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .comparison-card.cloud .comparison-subtitle {
+      color: var(--cloud);
+    }
+
+    .comparison-card.local .comparison-subtitle {
+      color: var(--sovereign);
+    }
+
+    .consent-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .consent-btn {
+      padding: 16px 24px;
+      border: none;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .consent-btn.primary {
+      background: var(--sovereign);
+      color: white;
+      box-shadow: 0 0 24px var(--sovereign-glow);
+    }
+
+    .consent-btn.primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 32px var(--sovereign-glow);
+    }
+
+    .consent-btn.secondary {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .consent-btn.secondary:hover {
+      border-color: var(--cloud);
+      color: var(--cloud);
+    }
+
+    .consent-footer {
+      margin-top: 24px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .consent-footer a {
+      color: var(--sovereign);
+      text-decoration: none;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 480px) {
+      .tier-btn span:not(.tier-icon) {
+        display: none;
+      }
+
+      .tier-btn {
+        padding: 8px 12px;
+      }
+
+      .welcome h1 {
+        font-size: 20px;
+      }
+
+      .prompts {
+        flex-direction: column;
+        width: 100%;
+      }
+
+      .prompt-btn {
+        width: 100%;
+      }
+
+      /* Consent gate mobile */
+      .consent-content h1 {
+        font-size: 22px;
+      }
+
+      .consent-glyph {
+        font-size: 48px;
+      }
+
+      .fingerprint-comparison {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      .fingerprint-value {
+        max-width: 140px;
+        font-size: 11px;
+      }
+
+      .consent-btn {
+        padding: 14px 20px;
+        font-size: 14px;
+      }
+
+      /* Hide transparency pane on mobile */
+      .transparency-pane {
+        display: none;
+      }
+
+      .tp-toggle-btn {
+        display: flex;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .transparency-pane {
+        position: fixed;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        z-index: 200;
+        width: 280px;
+        box-shadow: -4px 0 24px rgba(0, 0, 0, 0.5);
+      }
+
+      .transparency-pane.collapsed {
+        transform: translateX(100%);
+        width: 280px;
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <span class="brand-glyph">◈</span>
+      <span class="brand-name">ActiveMirror</span>
+    </div>
+
+    <div class="tier-toggle">
+      <button class="tier-btn active" data-tier="sovereign">
+        <span class="tier-icon">◈</span>
+        <span>Local</span>
+      </button>
+      <button class="tier-btn" data-tier="cloud">
+        <span class="tier-icon">☁</span>
+        <span>Cloud</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+  <main>
+    <div class="messages" id="messages">
+      <div class="welcome" id="welcome">
+        <div class="welcome-glyph">◈</div>
+        <h1>Your AI, Your Device</h1>
+        <p>Everything happens locally. No data leaves your machine. Try it.</p>
+        <div class="prompts">
+          <button class="prompt-btn" data-prompt="Think through why data privacy matters, and show your reasoning">🧠 Show me your thinking</button>
+          <button class="prompt-btn" data-prompt="Write a Python function that encrypts a message locally, with comments explaining each step">💻 Generate some code</button>
+          <button class="prompt-btn" data-prompt="Where exactly does my data go when I ask you something? Be specific.">🔒 Where's my data?</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-area">
+      <div class="input-container">
+        <textarea id="input" placeholder="Ask me anything..." rows="1"></textarea>
+        <button class="send-btn" id="send">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+          </svg>
+        </button>
+      </div>
+      <div class="transparency">
+        <span><span class="dot" id="status-dot"></span> <span id="status-text">Processing locally</span></span>
+        <span id="model-text">gpt-oss:20b</span>
+      </div>
+    </div>
+  </main>
+
+  <!-- Transparency Pane (Desktop Sidebar) -->
+  <aside class="transparency-pane" id="transparency-pane">
+    <div class="transparency-pane-header">
+      <h3>Transparency</h3>
+      <button class="tp-close" id="tp-close" title="Close pane">✕</button>
+    </div>
+
+    <div class="tp-section">
+      <div class="tp-section-title">Current Mode</div>
+      <div class="tp-status">
+        <div class="tp-status-dot" id="tp-status-dot"></div>
+        <div>
+          <div class="tp-status-text" id="tp-mode-text">Local Processing</div>
+          <div class="tp-status-sub" id="tp-mode-sub">Data never leaves device</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tp-section">
+      <div class="tp-section-title">Network Activity</div>
+      <div class="tp-metric">
+        <span class="tp-metric-label">External requests</span>
+        <span class="tp-metric-value" id="tp-requests">0</span>
+      </div>
+      <div class="tp-metric">
+        <span class="tp-metric-label">Data destination</span>
+        <span class="tp-metric-value" id="tp-destination">localhost</span>
+      </div>
+      <div class="tp-metric">
+        <span class="tp-metric-label">Bytes sent externally</span>
+        <span class="tp-metric-value" id="tp-bytes">0 B</span>
+      </div>
+    </div>
+
+    <div class="tp-section">
+      <div class="tp-section-title">Data Flow</div>
+      <div class="tp-data-flow" id="tp-data-flow">
+        <span class="local">You</span> → <span class="local">Browser</span> → <span class="local">Local LLM</span><br>
+        ↓<br>
+        <span class="local">Response</span> ← <span class="local">Your CPU</span><br>
+        <br>
+        <span style="color: var(--sovereign);">✓ 0 external hops</span>
+      </div>
+    </div>
+
+    <div class="tp-section">
+      <div class="tp-section-title">Trust Indicators</div>
+      <div id="tp-trust-badges">
+        <span class="tp-trust-badge">✓ No tracking</span>
+        <span class="tp-trust-badge">✓ No logging</span>
+        <span class="tp-trust-badge">✓ No training</span>
+        <span class="tp-trust-badge">✓ Open source</span>
+      </div>
+    </div>
+
+    <div class="tp-section">
+      <div class="tp-section-title">System Prompt</div>
+      <div class="tp-system-prompt" id="tp-system-prompt">
+You are a helpful AI assistant running locally on the user's device. You prioritize privacy and data sovereignty. Your responses never leave the user's machine.
+
+Be concise, helpful, and transparent about your limitations.
+      </div>
+    </div>
+
+    <div class="tp-section">
+      <div class="tp-section-title">Verify It Yourself</div>
+      <a class="tp-link" onclick="openDevTools()">🔧 Open DevTools (Network tab)</a>
+      <a class="tp-link" href="/transparency" target="_blank">📊 View /transparency API</a>
+      <a class="tp-link" href="/system-prompt" target="_blank">📝 View /system-prompt</a>
+      <a class="tp-link" href="https://github.com/MirrorDNA-Reflection-Protocol/ActiveMirrorOS" target="_blank">💻 View source code</a>
+    </div>
+  </aside>
+  </div><!-- end .app-layout -->
+
+  <!-- Transparency toggle button (shown when pane collapsed) -->
+  <button class="tp-toggle-btn hidden" id="tp-toggle" title="Show transparency pane">👁</button>
+
+  <!-- Data flow indicator -->
+  <div class="flow-indicator" id="flow-indicator">
+    <div class="flow-dots"><span></span><span></span><span></span></div>
+    <span id="flow-text">Data staying on your device</span>
+  </div>
+
+  <!-- Consent/Fingerprint Gate -->
+  <div class="consent-overlay" id="consent-gate">
+    <div class="consent-content">
+      <div class="consent-glyph">◈</div>
+      <h1>Enter the Mirror</h1>
+      <p>Before we begin, see what cloud AI services know about you — just from visiting their page.</p>
+
+      <button class="fingerprint-toggle" id="fingerprint-toggle">
+        👁 What does cloud AI see about me?
+      </button>
+
+      <div class="fingerprint-reveal" id="fingerprint-cloud" style="display: none;">
+        <div class="fingerprint-header">
+          ⚠️ What cloud AI providers collect
+        </div>
+        <div class="fingerprint-items" id="fingerprint-items">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <div class="fingerprint-reveal" id="fingerprint-local" style="display: none;">
+        <div class="fingerprint-header safe">
+          ◈ What ActiveMirror (Local) knows
+        </div>
+        <div class="fingerprint-items">
+          <div class="fingerprint-item">
+            <span class="fingerprint-label">Your browser</span>
+            <span class="fingerprint-value safe">Not collected</span>
+          </div>
+          <div class="fingerprint-item">
+            <span class="fingerprint-label">Your location</span>
+            <span class="fingerprint-value safe">Not collected</span>
+          </div>
+          <div class="fingerprint-item">
+            <span class="fingerprint-label">Your hardware</span>
+            <span class="fingerprint-value safe">Not collected</span>
+          </div>
+          <div class="fingerprint-item">
+            <span class="fingerprint-label">Your conversations</span>
+            <span class="fingerprint-value safe">Never leaves device</span>
+          </div>
+          <div class="fingerprint-item">
+            <span class="fingerprint-label">Training data</span>
+            <span class="fingerprint-value safe">Never used</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="fingerprint-comparison">
+        <div class="comparison-card cloud">
+          <div class="comparison-icon">☁️</div>
+          <div class="comparison-title">Cloud AI</div>
+          <div class="comparison-subtitle">Everything logged</div>
+        </div>
+        <div class="comparison-card local">
+          <div class="comparison-icon">◈</div>
+          <div class="comparison-title">Local AI</div>
+          <div class="comparison-subtitle">Nothing leaves</div>
+        </div>
+      </div>
+
+      <div class="consent-actions">
+        <button class="consent-btn primary" id="consent-local">
+          ◈ Start with Local AI (Private)
+        </button>
+        <button class="consent-btn secondary" id="consent-cloud">
+          ☁ Use Cloud AI (Faster, Logged)
+        </button>
+      </div>
+
+      <div class="consent-footer">
+        By continuing, you agree to our <a href="#">Privacy Policy</a>.<br>
+        Local mode: your data never leaves your device.
+      </div>
+    </div>
+  </div>
+
+  <!-- Cloud switch modal -->
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+      <h3>Switch to Cloud?</h3>
+      <p>Your prompts will be sent to external servers. You can switch back anytime.</p>
+      <div class="modal-actions">
+        <button class="modal-btn secondary" id="modal-cancel">Stay Local</button>
+        <button class="modal-btn primary" id="modal-confirm">Use Cloud</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API = 'http://localhost:8086';
+    let currentTier = 'sovereign';
+    let isProcessing = false;
+
+    const $ = id => document.getElementById(id);
+    const $$ = sel => document.querySelectorAll(sel);
+
+    // Tier config
+    const tiers = {
+      sovereign: { name: 'Local', model: 'gpt-oss:20b', isLocal: true },
+      cloud: { name: 'Cloud', model: 'llama-3.3-70b', isLocal: false, apiTier: 'fast_free' }
+    };
+
+    // Demo mode - simulated responses when backend unavailable
+    const DEMO_MODE = true;
+    const demoResponses = {
+      'thinking': `<think>The user wants to understand why data privacy matters. Let me break this down from first principles...
+
+Privacy isn't just about "hiding things." It's about autonomy - the right to control your own narrative, your own data, your own digital self.
+
+When your data leaves your device, you lose that control. Forever.</think>
+
+**Here's why data privacy matters:**
+
+1. **Autonomy** - Your thoughts, queries, and explorations shape who you are. When they're collected, analyzed, and sold, you become a product.
+
+2. **Security** - Every server that holds your data is a potential breach. The only truly secure data is data that never leaves your device.
+
+3. **Power asymmetry** - When companies know everything about you and you know nothing about their algorithms, the relationship is fundamentally unequal.
+
+Right now, this conversation is happening entirely on your machine. I can't phone home. I can't report what you asked. That's not a feature - it's a fundamental architectural choice.`,
+
+      'code': `Here's a Python function that encrypts a message using the Fernet symmetric encryption - all processing happens locally on your device:
+
+\`\`\`python
+from cryptography.fernet import Fernet
+
+def encrypt_local(message: str) -> tuple[bytes, bytes]:
+    """
+    Encrypt a message locally - key never leaves your device.
+
+    Returns (encrypted_message, key) - store key securely!
+    """
+    # Generate a key locally - this never touches the network
+    key = Fernet.generate_key()
+
+    # Create cipher with local key
+    cipher = Fernet(key)
+
+    # Encrypt the message (still local!)
+    encrypted = cipher.encrypt(message.encode('utf-8'))
+
+    return encrypted, key
+
+# Example usage:
+secret = "My sovereign data"
+encrypted, key = encrypt_local(secret)
+print(f"Encrypted: {encrypted[:50]}...")
+# Key stays on YOUR device, not ours
+\`\`\`
+
+Notice: The key generation, encryption, and storage all happen in your local Python runtime. No API calls, no cloud dependencies. **True data sovereignty.**`,
+
+      'data': `**Where your data goes with ActiveMirror:**
+
+\`\`\`
+┌─────────────────────────────────────────┐
+│           YOUR DEVICE                    │
+│  ┌─────────┐      ┌─────────────────┐   │
+│  │ You type│ ───▶ │ Local LLM       │   │
+│  │ a query │      │ (gpt-oss:20b)   │   │
+│  └─────────┘      └────────┬────────┘   │
+│                            │            │
+│                            ▼            │
+│                   ┌─────────────────┐   │
+│                   │ Response back   │   │
+│                   │ to you          │   │
+│                   └─────────────────┘   │
+│                                         │
+│  ════════════════════════════════════   │
+│  │ NETWORK BOUNDARY - NOTHING CROSSES │ │
+│  ════════════════════════════════════   │
+└─────────────────────────────────────────┘
+              🚫 NO DATA LEAVES
+\`\`\`
+
+**Compared to typical AI services:**
+- ChatGPT: Your query → OpenAI servers → stored for training → response
+- Claude.ai: Your query → Anthropic servers → logged → response
+- Gemini: Your query → Google servers → profiled → response
+
+**With sovereign AI:**
+- Your query → Your CPU → Your response
+- No logs. No training. No profile. Just you and your AI.
+
+I literally cannot tell anyone what you asked me. The architecture makes it impossible.`,
+
+      'default': `I'm running locally on your device right now. That means:
+
+• **No server costs** - I use your hardware
+• **No data collection** - I can't phone home
+• **No rate limits** - Ask as much as you want
+• **No internet required** - I work offline
+
+This is what AI should have been from the start. Not a service you rent, but a tool you own.
+
+Try asking me to write some code, or ask me to show my thinking process - I'll demonstrate what sovereign AI can do.`
+    };
+
+    function getDemoResponse(message) {
+      const lower = message.toLowerCase();
+      if (lower.includes('think') || lower.includes('reason') || lower.includes('privacy')) {
+        return { response: demoResponses.thinking, latency: 127 };
+      }
+      if (lower.includes('code') || lower.includes('python') || lower.includes('encrypt') || lower.includes('function')) {
+        return { response: demoResponses.code, latency: 203 };
+      }
+      if (lower.includes('data') || lower.includes('where') || lower.includes('go')) {
+        return { response: demoResponses.data, latency: 89 };
+      }
+      return { response: demoResponses.default, latency: 156 };
+    }
+
+    // Audio context for ambient sounds
+    let audioCtx = null;
+    const initAudio = () => {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      return audioCtx;
+    };
+
+    // Subtle haptic feedback
+    const haptic = (pattern = 'light') => {
+      if (!navigator.vibrate) return;
+      const patterns = {
+        light: [10],
+        medium: [20],
+        success: [10, 50, 20],
+        send: [5, 30, 5]
+      };
+      navigator.vibrate(patterns[pattern] || patterns.light);
+    };
+
+    // Subtle audio cue
+    const playTone = (freq = 440, duration = 0.1, type = 'sine') => {
+      try {
+        const ctx = initAudio();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, ctx.currentTime);
+        gain.gain.setValueAtTime(0.03, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + duration);
+      } catch (e) { /* Audio not supported */ }
+    };
+
+    // ===== FINGERPRINT COLLECTION =====
+    function collectFingerprint() {
+      const nav = navigator;
+      const screen = window.screen;
+
+      // Get browser info
+      const ua = nav.userAgent;
+      let browser = 'Unknown';
+      if (ua.includes('Chrome') && !ua.includes('Edg')) browser = 'Chrome';
+      else if (ua.includes('Safari') && !ua.includes('Chrome')) browser = 'Safari';
+      else if (ua.includes('Firefox')) browser = 'Firefox';
+      else if (ua.includes('Edg')) browser = 'Edge';
+
+      // Get OS
+      let os = 'Unknown';
+      if (ua.includes('Mac')) os = 'macOS';
+      else if (ua.includes('Windows')) os = 'Windows';
+      else if (ua.includes('Linux')) os = 'Linux';
+      else if (ua.includes('Android')) os = 'Android';
+      else if (ua.includes('iPhone') || ua.includes('iPad')) os = 'iOS';
+
+      // Get timezone
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+      // Get language
+      const language = nav.language || nav.userLanguage || 'Unknown';
+
+      // Get screen info
+      const screenSize = `${screen.width} × ${screen.height}`;
+      const colorDepth = `${screen.colorDepth}-bit`;
+      const pixelRatio = window.devicePixelRatio || 1;
+
+      // Get hardware info
+      const cpuCores = nav.hardwareConcurrency || 'Hidden';
+      const memory = nav.deviceMemory ? `~${nav.deviceMemory}GB+` : 'Hidden';
+
+      // Get connection info
+      const connection = nav.connection || nav.mozConnection || nav.webkitConnection;
+      const connectionType = connection ? connection.effectiveType : 'Unknown';
+
+      // Check tracking capabilities
+      const cookies = nav.cookieEnabled ? 'Enabled' : 'Disabled';
+      const doNotTrack = nav.doNotTrack === '1' ? 'Enabled' : 'Ignored';
+
+      // WebGL fingerprint (simplified)
+      let gpu = 'Unknown';
+      try {
+        const canvas = document.createElement('canvas');
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        if (gl) {
+          const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+          if (debugInfo) {
+            gpu = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+          }
+        }
+      } catch (e) { /* WebGL not available */ }
+
+      return {
+        browser: `${browser} on ${os}`,
+        timezone: timezone,
+        language: language,
+        screenSize: screenSize,
+        colorDepth: colorDepth,
+        pixelRatio: `${pixelRatio}x`,
+        cpuCores: cpuCores + ' cores',
+        memory: memory + ' RAM',
+        connectionType: connectionType,
+        cookies: cookies,
+        doNotTrack: doNotTrack,
+        gpu: gpu.length > 40 ? gpu.substring(0, 37) + '...' : gpu
+      };
+    }
+
+    function renderFingerprint() {
+      const fp = collectFingerprint();
+      const container = $('fingerprint-items');
+
+      const items = [
+        { label: 'Browser / OS', value: fp.browser, danger: true },
+        { label: 'Timezone', value: fp.timezone, danger: true },
+        { label: 'Language', value: fp.language, danger: true },
+        { label: 'Screen', value: `${fp.screenSize} @ ${fp.pixelRatio}`, danger: true },
+        { label: 'CPU Cores', value: fp.cpuCores, danger: true },
+        { label: 'Memory', value: fp.memory, danger: true },
+        { label: 'GPU', value: fp.gpu, danger: true },
+        { label: 'Connection', value: fp.connectionType, danger: true },
+        { label: 'Cookies', value: fp.cookies, danger: fp.cookies === 'Enabled' },
+        { label: 'Do Not Track', value: fp.doNotTrack, danger: fp.doNotTrack === 'Ignored' },
+      ];
+
+      container.innerHTML = items.map(item => `
+        <div class="fingerprint-item">
+          <span class="fingerprint-label">${item.label}</span>
+          <span class="fingerprint-value ${item.danger ? 'danger' : ''}">${item.value}</span>
+        </div>
+      `).join('');
+    }
+
+    function setupConsentGate() {
+      const gate = $('consent-gate');
+      const toggle = $('fingerprint-toggle');
+      const cloudFp = $('fingerprint-cloud');
+      const localFp = $('fingerprint-local');
+      const consentLocal = $('consent-local');
+      const consentCloud = $('consent-cloud');
+
+      // Check if user has already consented
+      if (localStorage.getItem('activemirror_consent')) {
+        gate.classList.add('hidden');
+        const savedTier = localStorage.getItem('activemirror_tier') || 'sovereign';
+        setTier(savedTier);
+        return;
+      }
+
+      // Toggle fingerprint reveal
+      let fingerprintShown = false;
+      toggle.addEventListener('click', () => {
+        if (!fingerprintShown) {
+          // First render the fingerprint
+          renderFingerprint();
+          // Show cloud fingerprint with animation
+          cloudFp.style.display = 'block';
+          cloudFp.style.animation = 'fadeIn 0.3s ease';
+
+          // Then show local (nothing) after a beat
+          setTimeout(() => {
+            localFp.style.display = 'block';
+            localFp.style.animation = 'fadeIn 0.3s ease';
+          }, 500);
+
+          toggle.textContent = '👁 Hide fingerprint data';
+          fingerprintShown = true;
+
+          // Haptic feedback for the reveal
+          haptic('medium');
+          playTone(329.63, 0.1); // E note - attention
+        } else {
+          cloudFp.style.display = 'none';
+          localFp.style.display = 'none';
+          toggle.textContent = '👁 What does cloud AI see about me?';
+          fingerprintShown = false;
+        }
+      });
+
+      // Consent buttons
+      consentLocal.addEventListener('click', () => {
+        localStorage.setItem('activemirror_consent', 'true');
+        localStorage.setItem('activemirror_tier', 'sovereign');
+        gate.classList.add('hidden');
+        setTier('sovereign');
+        haptic('success');
+        playTone(523.25, 0.15); // C note - success
+      });
+
+      consentCloud.addEventListener('click', () => {
+        localStorage.setItem('activemirror_consent', 'true');
+        localStorage.setItem('activemirror_tier', 'cloud');
+        gate.classList.add('hidden');
+        setTier('cloud');
+        haptic('light');
+        playTone(392, 0.1); // G note
+      });
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      setupConsentGate();
+      setupInput();
+      setupTierToggle();
+      setupPrompts();
+      setupModal();
+      setupTransparencyPane();
+
+      // Initial transparency pane update
+      updateTransparencyPane(currentTier);
+
+      // Welcome tone (only if past consent gate)
+      if (localStorage.getItem('activemirror_consent')) {
+        setTimeout(() => playTone(523.25, 0.15), 300);
+      }
+    });
+
+    function setupInput() {
+      const input = $('input');
+      const send = $('send');
+
+      // Auto-resize
+      input.addEventListener('input', () => {
+        input.style.height = 'auto';
+        input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+      });
+
+      // Enter to send
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          sendMessage();
+        }
+      });
+
+      send.addEventListener('click', sendMessage);
+    }
+
+    function setupTierToggle() {
+      $$('.tier-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const tier = btn.dataset.tier;
+
+          // If switching to cloud, show modal
+          if (tier === 'cloud' && currentTier === 'sovereign') {
+            $('modal').classList.add('visible');
+          } else {
+            setTier(tier);
+          }
+        });
+      });
+    }
+
+    function setupModal() {
+      $('modal-cancel').addEventListener('click', () => {
+        $('modal').classList.remove('visible');
+      });
+
+      $('modal-confirm').addEventListener('click', () => {
+        $('modal').classList.remove('visible');
+        setTier('cloud');
+      });
+
+      // Close on backdrop
+      $('modal').addEventListener('click', e => {
+        if (e.target === $('modal')) {
+          $('modal').classList.remove('visible');
+        }
+      });
+    }
+
+    // ===== TRANSPARENCY PANE =====
+    let networkStats = {
+      externalRequests: 0,
+      bytesSent: 0,
+      destination: 'localhost'
+    };
+
+    function setupTransparencyPane() {
+      const pane = $('transparency-pane');
+      const closeBtn = $('tp-close');
+      const toggleBtn = $('tp-toggle');
+
+      // Close pane
+      closeBtn.addEventListener('click', () => {
+        pane.classList.add('collapsed');
+        toggleBtn.classList.remove('hidden');
+        localStorage.setItem('tp_collapsed', 'true');
+        haptic('light');
+      });
+
+      // Open pane
+      toggleBtn.addEventListener('click', () => {
+        pane.classList.remove('collapsed');
+        toggleBtn.classList.add('hidden');
+        localStorage.setItem('tp_collapsed', 'false');
+        haptic('light');
+      });
+
+      // Restore state
+      if (localStorage.getItem('tp_collapsed') === 'true') {
+        pane.classList.add('collapsed');
+        toggleBtn.classList.remove('hidden');
+      }
+
+      // Hide on mobile
+      if (window.innerWidth < 768) {
+        pane.classList.add('collapsed');
+        toggleBtn.classList.remove('hidden');
+      }
+    }
+
+    function updateTransparencyPane(tier) {
+      const config = tiers[tier];
+      const isLocal = config.isLocal;
+
+      // Update status
+      $('tp-status-dot').className = 'tp-status-dot' + (isLocal ? '' : ' cloud');
+      $('tp-mode-text').textContent = isLocal ? 'Local Processing' : 'Cloud Processing';
+      $('tp-mode-sub').textContent = isLocal ? 'Data never leaves device' : 'Data sent to external servers';
+
+      // Update network stats
+      $('tp-destination').textContent = isLocal ? 'localhost' : 'api.groq.com';
+      $('tp-destination').className = 'tp-metric-value' + (isLocal ? '' : ' cloud');
+
+      // Update data flow diagram
+      if (isLocal) {
+        $('tp-data-flow').innerHTML = `
+          <span class="local">You</span> → <span class="local">Browser</span> → <span class="local">Local LLM</span><br>
+          ↓<br>
+          <span class="local">Response</span> ← <span class="local">Your CPU</span><br>
+          <br>
+          <span style="color: var(--sovereign);">✓ 0 external hops</span>
+        `;
+      } else {
+        $('tp-data-flow').innerHTML = `
+          <span class="local">You</span> → <span class="local">Browser</span> → <span class="cloud">ActiveMirror</span><br>
+          ↓<br>
+          <span class="cloud">Groq API</span> → <span class="cloud">LLM inference</span><br>
+          ↓<br>
+          <span class="local">Response</span> ← <span class="cloud">External servers</span><br>
+          <br>
+          <span style="color: var(--cloud);">⚠ 2 external hops</span>
+        `;
+      }
+
+      // Update trust badges
+      if (isLocal) {
+        $('tp-trust-badges').innerHTML = `
+          <span class="tp-trust-badge">✓ No tracking</span>
+          <span class="tp-trust-badge">✓ No logging</span>
+          <span class="tp-trust-badge">✓ No training</span>
+          <span class="tp-trust-badge">✓ Open source</span>
+        `;
+      } else {
+        $('tp-trust-badges').innerHTML = `
+          <span class="tp-trust-badge warning">⚠ Logged</span>
+          <span class="tp-trust-badge">✓ No training</span>
+          <span class="tp-trust-badge">✓ Encrypted</span>
+        `;
+      }
+    }
+
+    function incrementNetworkStats(bytes = 0) {
+      const config = tiers[currentTier];
+      if (!config.isLocal) {
+        networkStats.externalRequests++;
+        networkStats.bytesSent += bytes;
+        $('tp-requests').textContent = networkStats.externalRequests;
+        $('tp-requests').className = 'tp-metric-value cloud';
+        $('tp-bytes').textContent = formatBytes(networkStats.bytesSent);
+        $('tp-bytes').className = 'tp-metric-value cloud';
+      }
+    }
+
+    function formatBytes(bytes) {
+      if (bytes === 0) return '0 B';
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    }
+
+    function openDevTools() {
+      alert('Press F12 or Cmd+Option+I to open DevTools, then check the Network tab to verify no external requests in Local mode.');
+    }
+
+    function setTier(tier) {
+      currentTier = tier;
+      const config = tiers[tier];
+
+      // Update buttons
+      $$('.tier-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tier === tier);
+      });
+
+      // Update footer
+      $('status-dot').className = 'dot' + (config.isLocal ? '' : ' cloud');
+      $('status-text').textContent = config.isLocal ? 'Processing locally' : 'Using cloud API';
+      $('model-text').textContent = config.model;
+
+      // Update transparency pane
+      updateTransparencyPane(tier);
+    }
+
+    function setupPrompts() {
+      $$('.prompt-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          $('input').value = btn.dataset.prompt;
+          sendMessage();
+        });
+      });
+    }
+
+    async function sendMessage() {
+      const input = $('input');
+      const message = input.value.trim();
+
+      if (!message || isProcessing) return;
+
+      // Haptic and audio feedback on send
+      haptic('send');
+      playTone(392, 0.08);
+
+      input.value = '';
+      input.style.height = 'auto';
+
+      // Remove welcome
+      $('welcome')?.remove();
+
+      // Add user message
+      addMessage('user', message);
+
+      // Show flow indicator
+      showFlowIndicator();
+
+      // Add typing indicator
+      const typing = addTyping();
+
+      isProcessing = true;
+
+      try {
+        const config = tiers[currentTier];
+        let data;
+
+        // Try real backend first, fall back to demo mode
+        try {
+          const requestBody = JSON.stringify({
+            message,
+            tier: config.apiTier || currentTier
+          });
+
+          const response = await fetch(`${API}/api/chat`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: requestBody
+          });
+          data = await response.json();
+
+          // Track network stats for cloud mode
+          if (!config.isLocal) {
+            incrementNetworkStats(requestBody.length + (data.response?.length || 0));
+          }
+        } catch (fetchErr) {
+          // Backend unavailable - use demo mode
+          if (DEMO_MODE) {
+            await simulateTypingDelay();
+            const demo = getDemoResponse(message);
+            data = { success: true, response: demo.response, latency_ms: demo.latency };
+          } else {
+            throw fetchErr;
+          }
+        }
+
+        typing.remove();
+        hideFlowIndicator();
+
+        // Success feedback
+        haptic('success');
+        playTone(523.25, 0.12);
+
+        if (data.success) {
+          addMessage('ai', data.response, {
+            tier: currentTier,
+            latency: data.latency_ms,
+            cached: data.cached
+          });
+        } else {
+          addMessage('ai', 'Sorry, something went wrong. ' + (data.error || ''));
+        }
+      } catch (err) {
+        typing.remove();
+        hideFlowIndicator();
+        haptic('medium');
+        addMessage('ai', 'Could not connect to the AI. Make sure the backend is running.');
+      }
+
+      async function simulateTypingDelay() {
+        // Simulate realistic "thinking" time (800-1500ms)
+        const delay = 800 + Math.random() * 700;
+        await new Promise(r => setTimeout(r, delay));
+      }
+
+      isProcessing = false;
+    }
+
+    function addMessage(type, content, meta = {}) {
+      const messages = $('messages');
+      const el = document.createElement('div');
+      el.className = `message message-${type}`;
+
+      let metaHtml = '';
+      if (type === 'ai' && meta.tier) {
+        const config = tiers[meta.tier];
+        metaHtml = `
+          <div class="message-meta">
+            <span class="meta-badge ${config.isLocal ? '' : 'cloud'}">${config.isLocal ? '◈ Local' : '☁ Cloud'}</span>
+            ${meta.latency ? `<span>${meta.latency}ms</span>` : ''}
+            ${meta.cached ? '<span>cached</span>' : ''}
+          </div>
+        `;
+      }
+
+      // Parse content for code blocks and thinking blocks
+      const rendered = type === 'ai' ? renderContent(content) : escapeHtml(content);
+
+      el.innerHTML = `
+        <div class="bubble">
+          ${type === 'ai' ? rendered : `<p>${rendered}</p>`}
+        </div>
+        ${metaHtml}
+      `;
+
+      // Setup copy buttons for artifacts
+      el.querySelectorAll('.artifact-copy').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const code = btn.closest('.artifact').querySelector('.artifact-code').textContent;
+          navigator.clipboard.writeText(code).then(() => {
+            btn.textContent = 'Copied!';
+            btn.classList.add('copied');
+            haptic('light');
+            playTone(659.25, 0.08);
+            setTimeout(() => {
+              btn.textContent = 'Copy';
+              btn.classList.remove('copied');
+            }, 2000);
+          });
+        });
+      });
+
+      messages.appendChild(el);
+      messages.scrollTop = messages.scrollHeight;
+
+      return el;
+    }
+
+    // Render content with code blocks and thinking blocks
+    function renderContent(content) {
+      let html = content;
+
+      // First, escape HTML in regular text (but preserve our special blocks)
+      // We'll do this by processing blocks separately
+
+      // Handle ```code``` blocks first (extract them)
+      const codeBlocks = [];
+      html = html.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, lang, code) => {
+        const language = lang || 'code';
+        const highlighted = highlightCode(code.trim(), language);
+        return `
+          <div class="artifact thinking-reveal">
+            <div class="artifact-header">
+              <span class="artifact-lang">${language}</span>
+              <button class="artifact-copy">Copy</button>
+            </div>
+            <div class="artifact-code">${highlighted}</div>
+          </div>
+        `;
+      });
+
+      // Handle thinking blocks (text between "Thinking:" and double newline, or <think> tags)
+      html = html.replace(/<think>([\s\S]*?)<\/think>/g, (match, thinking) => {
+        return `<div class="thinking-block thinking-reveal">${escapeHtml(thinking.trim())}</div>`;
+      });
+
+      // Handle "Thinking:" or "Reasoning:" sections
+      html = html.replace(/(?:^|\n)(Thinking|Reasoning|Let me think):\s*([\s\S]*?)(?=\n\n|$)/gi, (match, label, thinking) => {
+        return `<div class="thinking-block thinking-reveal">${escapeHtml(thinking.trim())}</div>`;
+      });
+
+      // Wrap remaining text in paragraphs (don't double-escape HTML we created)
+      const parts = html.split(/(<div class="(?:artifact|thinking-block)[\s\S]*?<\/div>\s*<\/div>|<div class="thinking-block[\s\S]*?<\/div>)/);
+      html = parts.map(part => {
+        if (part.includes('class="artifact') || part.includes('class="thinking-block')) {
+          return part;
+        }
+        // Regular text - process markdown and wrap
+        let processed = part.trim();
+        if (!processed) return '';
+
+        // Escape HTML first
+        processed = processed
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;');
+
+        // Then apply markdown formatting
+        processed = processed
+          .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')  // **bold**
+          .replace(/\*(.+?)\*/g, '<em>$1</em>')              // *italic*
+          .replace(/`([^`]+)`/g, '<code>$1</code>')          // `inline code`
+          .replace(/^• /gm, '&bull; ')                        // bullet points
+          .replace(/^- /gm, '&bull; ')                        // dash lists
+          .replace(/\n/g, '<br>');                           // newlines
+
+        return `<p>${processed}</p>`;
+      }).join('');
+
+      return html;
+    }
+
+    // Basic syntax highlighting
+    function highlightCode(code, lang) {
+      let html = escapeHtml(code);
+
+      // Keywords for common languages
+      const keywords = {
+        python: ['def', 'class', 'import', 'from', 'return', 'if', 'else', 'elif', 'for', 'while', 'try', 'except', 'with', 'as', 'in', 'not', 'and', 'or', 'True', 'False', 'None', 'async', 'await'],
+        javascript: ['const', 'let', 'var', 'function', 'return', 'if', 'else', 'for', 'while', 'class', 'import', 'export', 'from', 'async', 'await', 'try', 'catch', 'new', 'this', 'true', 'false', 'null', 'undefined'],
+        js: ['const', 'let', 'var', 'function', 'return', 'if', 'else', 'for', 'while', 'class', 'import', 'export', 'from', 'async', 'await', 'try', 'catch', 'new', 'this', 'true', 'false', 'null', 'undefined']
+      };
+
+      const langKeywords = keywords[lang.toLowerCase()] || keywords.javascript;
+
+      // Highlight strings
+      html = html.replace(/(["'`])(?:(?!\1)[^\\]|\\.)*\1/g, '<span class="string">$&</span>');
+
+      // Highlight comments
+      html = html.replace(/(#.*$|\/\/.*$|\/\*[\s\S]*?\*\/)/gm, '<span class="comment">$&</span>');
+
+      // Highlight numbers
+      html = html.replace(/\b(\d+\.?\d*)\b/g, '<span class="number">$1</span>');
+
+      // Highlight keywords
+      langKeywords.forEach(kw => {
+        const regex = new RegExp(`\\b(${kw})\\b`, 'g');
+        html = html.replace(regex, '<span class="keyword">$1</span>');
+      });
+
+      // Highlight function names
+      html = html.replace(/\b([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/g, '<span class="function">$1</span>(');
+
+      return html;
+    }
+
+    function addTyping() {
+      const messages = $('messages');
+      const el = document.createElement('div');
+      el.className = 'message message-ai typing';
+      el.innerHTML = `
+        <div class="bubble">
+          <div class="typing-dots"><span></span><span></span><span></span></div>
+        </div>
+      `;
+      messages.appendChild(el);
+      messages.scrollTop = messages.scrollHeight;
+      return el;
+    }
+
+    function showFlowIndicator() {
+      const indicator = $('flow-indicator');
+      const config = tiers[currentTier];
+
+      indicator.className = 'flow-indicator visible' + (config.isLocal ? '' : ' cloud');
+      $('flow-text').textContent = config.isLocal
+        ? 'Data staying on your device'
+        : 'Data sent to cloud API';
+    }
+
+    function hideFlowIndicator() {
+      $('flow-indicator').classList.remove('visible');
+    }
+
+    function escapeHtml(text) {
+      return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\n/g, '<br>');
+    }
+  </script>
+</body>
+</html>

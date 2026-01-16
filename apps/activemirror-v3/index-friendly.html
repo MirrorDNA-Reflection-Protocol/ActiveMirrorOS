@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ActiveMirror — AI That Stays Private</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #fafbfc;
+      --surface: #ffffff;
+      --surface-hover: #f8f9fa;
+      --border: #e5e7eb;
+      --border-light: #f0f1f3;
+      --text: #1f2937;
+      --text-muted: #6b7280;
+      --text-light: #9ca3af;
+      --primary: #10b981;
+      --primary-light: #d1fae5;
+      --primary-dark: #059669;
+      --warning: #f59e0b;
+      --warning-light: #fef3c7;
+      --danger: #ef4444;
+      --danger-light: #fee2e2;
+      --accent: #6366f1;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+      --radius: 12px;
+      --radius-lg: 16px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      min-height: 100dvh;
+    }
+
+    /* ===== HEADER ===== */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-logo {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 20px;
+    }
+
+    /* Glyph styling */
+    .glyph {
+      color: var(--primary);
+    }
+
+    .glyph-light {
+      color: var(--primary-light);
+    }
+
+    .brand-name {
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--text);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Mode Toggle */
+    .mode-toggle {
+      display: flex;
+      background: var(--bg);
+      border-radius: 10px;
+      padding: 4px;
+      gap: 4px;
+    }
+
+    .mode-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: transparent;
+      border: none;
+      border-radius: 8px;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .mode-btn:hover {
+      color: var(--text);
+      background: var(--surface);
+    }
+
+    .mode-btn.active {
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .mode-btn.active[data-mode="local"] {
+      color: var(--primary);
+    }
+
+    .mode-btn.active[data-mode="cloud"] {
+      color: var(--warning);
+    }
+
+    .mode-icon { font-size: 16px; }
+
+    .help-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      transition: all 0.2s ease;
+    }
+
+    .help-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* ===== MAIN LAYOUT ===== */
+    .app-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 24px;
+      min-height: calc(100vh - 70px);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ===== WELCOME STATE ===== */
+    .welcome {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .welcome-illustration {
+      width: 160px;
+      height: 160px;
+      margin-bottom: 32px;
+      background: linear-gradient(135deg, var(--primary-light) 0%, #d1fae5 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 72px;
+      color: var(--primary);
+      box-shadow: 0 0 60px rgba(16, 185, 129, 0.2);
+    }
+
+    .welcome h1 {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+
+    .welcome p {
+      font-size: 18px;
+      color: var(--text-muted);
+      max-width: 480px;
+      line-height: 1.6;
+      margin-bottom: 40px;
+    }
+
+    .starter-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      max-width: 640px;
+      width: 100%;
+    }
+
+    .starter-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .starter-card:hover {
+      border-color: var(--primary);
+      box-shadow: var(--shadow);
+      transform: translateY(-2px);
+    }
+
+    .starter-icon {
+      font-size: 28px;
+      margin-bottom: 12px;
+    }
+
+    .starter-title {
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 4px;
+      color: var(--text);
+    }
+
+    .starter-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    /* ===== CHAT MESSAGES ===== */
+    .messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .message {
+      display: flex;
+      gap: 12px;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .message-user {
+      flex-direction: row-reverse;
+    }
+
+    .message-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .message-ai .message-avatar {
+      background: linear-gradient(135deg, var(--primary-light) 0%, #d1fae5 100%);
+    }
+
+    .message-user .message-avatar {
+      background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+    }
+
+    .message-content {
+      max-width: 70%;
+    }
+
+    .message-bubble {
+      padding: 14px 18px;
+      border-radius: var(--radius-lg);
+      line-height: 1.6;
+      font-size: 15px;
+    }
+
+    .message-ai .message-bubble {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg) var(--radius-lg) var(--radius-lg) 4px;
+    }
+
+    .message-user .message-bubble {
+      background: var(--primary);
+      color: white;
+      border-radius: var(--radius-lg) var(--radius-lg) 4px var(--radius-lg);
+    }
+
+    .message-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--text-light);
+    }
+
+    .message-user .message-meta {
+      justify-content: flex-end;
+    }
+
+    .meta-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      background: var(--primary-light);
+      color: var(--primary-dark);
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .meta-badge.cloud {
+      background: var(--warning-light);
+      color: #b45309;
+    }
+
+    /* ===== TYPING INDICATOR ===== */
+    .typing {
+      display: flex;
+      gap: 12px;
+      padding: 0;
+    }
+
+    .typing-dots {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 14px 18px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg) var(--radius-lg) var(--radius-lg) 4px;
+    }
+
+    .typing-dots span {
+      width: 8px;
+      height: 8px;
+      background: var(--text-light);
+      border-radius: 50%;
+      animation: bounce 1.4s infinite;
+    }
+
+    .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes bounce {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-6px); }
+    }
+
+    /* ===== INPUT AREA ===== */
+    .input-area {
+      padding: 16px 0;
+      border-top: 1px solid var(--border-light);
+      background: var(--bg);
+    }
+
+    .input-container {
+      display: flex;
+      align-items: flex-end;
+      gap: 12px;
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 12px 16px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .input-container:focus-within {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-light);
+    }
+
+    .input-container textarea {
+      flex: 1;
+      border: none;
+      background: none;
+      font-family: inherit;
+      font-size: 15px;
+      color: var(--text);
+      resize: none;
+      outline: none;
+      line-height: 1.5;
+      max-height: 120px;
+    }
+
+    .input-container textarea::placeholder {
+      color: var(--text-light);
+    }
+
+    .send-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--primary);
+      border: none;
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .send-btn:hover {
+      background: var(--primary-dark);
+      transform: scale(1.05);
+    }
+
+    .send-btn:disabled {
+      background: var(--border);
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .send-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* Status bar */
+    .status-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--primary);
+    }
+
+    .status-dot.cloud {
+      background: var(--warning);
+    }
+
+    /* ===== PRIVACY BADGE ===== */
+    .privacy-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: var(--primary-light);
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--primary-dark);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .privacy-badge:hover {
+      background: #a7f3d0;
+    }
+
+    .privacy-badge.cloud {
+      background: var(--warning-light);
+      color: #b45309;
+    }
+
+    /* ===== CONSENT OVERLAY ===== */
+    .consent-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: safe center;
+      z-index: 1000;
+      padding: 24px;
+      overflow-y: auto;
+    }
+
+    .consent-overlay.hidden {
+      display: none;
+    }
+
+    .consent-card {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      max-width: 520px;
+      width: 100%;
+      overflow: hidden;
+      animation: fadeUp 0.4s ease;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .consent-header {
+      padding: 32px 32px 24px;
+      text-align: center;
+    }
+
+    .consent-logo {
+      width: 72px;
+      height: 72px;
+      background: linear-gradient(135deg, var(--primary-light) 0%, #d1fae5 100%);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 36px;
+    }
+
+    .consent-header h1 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .consent-header p {
+      color: var(--text-muted);
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .consent-body {
+      padding: 0 32px 32px;
+    }
+
+    /* Fingerprint reveal */
+    .fingerprint-toggle {
+      width: 100%;
+      padding: 14px 20px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      margin-bottom: 20px;
+    }
+
+    .fingerprint-toggle:hover {
+      border-color: var(--primary);
+      background: var(--surface);
+    }
+
+    .fingerprint-reveal {
+      background: var(--bg);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .fingerprint-reveal.hidden {
+      display: none;
+    }
+
+    .fp-section {
+      padding: 16px;
+    }
+
+    .fp-section + .fp-section {
+      border-top: 1px solid var(--border);
+    }
+
+    .fp-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .fp-header.danger {
+      color: var(--danger);
+    }
+
+    .fp-header.safe {
+      color: var(--primary);
+    }
+
+    .fp-items {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .fp-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .fp-label {
+      color: var(--text-muted);
+    }
+
+    .fp-value {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 12px;
+      color: var(--text);
+      max-width: 180px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .fp-value.danger {
+      color: var(--danger);
+    }
+
+    .fp-value.safe {
+      color: var(--primary);
+    }
+
+    /* Comparison cards */
+    .comparison-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .comparison-card {
+      padding: 16px;
+      border-radius: var(--radius);
+      text-align: center;
+    }
+
+    .comparison-card.cloud {
+      background: var(--warning-light);
+    }
+
+    .comparison-card.local {
+      background: var(--primary-light);
+    }
+
+    .comparison-icon {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    .comparison-title {
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 2px;
+    }
+
+    .comparison-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .comparison-card.cloud .comparison-subtitle {
+      color: #b45309;
+    }
+
+    .comparison-card.local .comparison-subtitle {
+      color: var(--primary-dark);
+    }
+
+    /* Consent buttons */
+    .consent-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .consent-btn {
+      padding: 16px 24px;
+      border-radius: var(--radius);
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .consent-btn.primary {
+      background: var(--primary);
+      border: none;
+      color: white;
+    }
+
+    .consent-btn.primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow);
+    }
+
+    .consent-btn.secondary {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .consent-btn.secondary:hover {
+      border-color: var(--text-muted);
+      background: var(--surface-hover);
+    }
+
+    .consent-footer {
+      padding: 16px 32px;
+      background: var(--bg);
+      border-top: 1px solid var(--border);
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .consent-footer a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 640px) {
+      header {
+        padding: 12px 16px;
+      }
+
+      .brand-name {
+        display: none;
+      }
+
+      .mode-btn span:not(.mode-icon) {
+        display: none;
+      }
+
+      .app-container {
+        padding: 16px;
+      }
+
+      .welcome h1 {
+        font-size: 24px;
+      }
+
+      .welcome p {
+        font-size: 16px;
+      }
+
+      .starter-cards {
+        grid-template-columns: 1fr;
+      }
+
+      .welcome-illustration {
+        width: 140px;
+        height: 140px;
+        font-size: 60px;
+      }
+
+      .message-content {
+        max-width: 85%;
+      }
+
+      .consent-card {
+        margin: 0;
+      }
+
+      .consent-header, .consent-body {
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+
+      .comparison-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="brand-logo">◈</div>
+      <span class="brand-name">ActiveMirror</span>
+    </div>
+
+    <div class="header-actions">
+      <div class="mode-toggle">
+        <button class="mode-btn active" data-mode="local">
+          <span class="mode-icon">◈</span>
+          <span>Private</span>
+        </button>
+        <button class="mode-btn" data-mode="cloud">
+          <span class="mode-icon">☁️</span>
+          <span>Cloud</span>
+        </button>
+      </div>
+      <button class="help-btn" title="Help">?</button>
+    </div>
+  </header>
+
+  <div class="app-container">
+    <div class="messages" id="messages">
+      <div class="welcome" id="welcome">
+        <div class="welcome-illustration">◈</div>
+        <h1>Your private AI assistant</h1>
+        <p>Chat with AI that keeps your conversations on your device. No data sent to the cloud, no tracking, no training on your data.</p>
+        <div class="starter-cards">
+          <div class="starter-card" data-prompt="Explain how my data stays private when I use this">
+            <div class="starter-icon">🔐</div>
+            <div class="starter-title">How it works</div>
+            <div class="starter-desc">Learn about local AI</div>
+          </div>
+          <div class="starter-card" data-prompt="Help me write a professional email to reschedule a meeting">
+            <div class="starter-icon">✉️</div>
+            <div class="starter-title">Write an email</div>
+            <div class="starter-desc">Draft messages privately</div>
+          </div>
+          <div class="starter-card" data-prompt="What are some creative gift ideas for someone who loves cooking?">
+            <div class="starter-icon">💡</div>
+            <div class="starter-title">Get ideas</div>
+            <div class="starter-desc">Brainstorm anything</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="input-area">
+      <div class="input-container">
+        <textarea id="input" placeholder="Type your message..." rows="1"></textarea>
+        <button class="send-btn" id="send">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+          </svg>
+        </button>
+      </div>
+      <div class="status-bar">
+        <div class="status-indicator">
+          <span class="status-dot" id="status-dot"></span>
+          <span id="status-text">Running privately on your device</span>
+        </div>
+        <div class="privacy-badge" id="privacy-badge">
+          ◈ Private mode
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Consent Gate -->
+  <div class="consent-overlay" id="consent-gate">
+    <div class="consent-card">
+      <div class="consent-header">
+        <div class="consent-logo">◈</div>
+        <h1>Welcome to ActiveMirror</h1>
+        <p>AI that respects your privacy. See what makes us different.</p>
+      </div>
+
+      <div class="consent-body">
+        <button class="fingerprint-toggle" id="fingerprint-toggle">
+          👁️ What do other AI services know about you?
+        </button>
+
+        <div class="fingerprint-reveal hidden" id="fingerprint-reveal">
+          <div class="fp-section">
+            <div class="fp-header danger">⚠️ What cloud AI collects</div>
+            <div class="fp-items" id="fp-cloud-items">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+          <div class="fp-section">
+            <div class="fp-header safe">✓ What we collect</div>
+            <div class="fp-items">
+              <div class="fp-item">
+                <span class="fp-label">Your browser</span>
+                <span class="fp-value safe">Nothing</span>
+              </div>
+              <div class="fp-item">
+                <span class="fp-label">Your conversations</span>
+                <span class="fp-value safe">Stays on your device</span>
+              </div>
+              <div class="fp-item">
+                <span class="fp-label">Training data</span>
+                <span class="fp-value safe">Never used</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="comparison-row">
+          <div class="comparison-card cloud">
+            <div class="comparison-icon">☁️</div>
+            <div class="comparison-title">Cloud AI</div>
+            <div class="comparison-subtitle">Data sent to servers</div>
+          </div>
+          <div class="comparison-card local">
+            <div class="comparison-icon" style="color: var(--primary);">◈</div>
+            <div class="comparison-title">Private AI</div>
+            <div class="comparison-subtitle">Stays on your device</div>
+          </div>
+        </div>
+
+        <div class="consent-actions">
+          <button class="consent-btn primary" id="consent-local">
+            ◈ Start with Private Mode
+          </button>
+          <button class="consent-btn secondary" id="consent-cloud">
+            ☁️ Use Cloud Mode (faster)
+          </button>
+        </div>
+      </div>
+
+      <div class="consent-footer">
+        By continuing, you agree to our <a href="#">Privacy Policy</a>.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const $ = id => document.getElementById(id);
+    const $$ = sel => document.querySelectorAll(sel);
+
+    const API = '';
+    const DEMO_MODE = true;
+
+    let currentMode = 'local';
+    let isProcessing = false;
+
+    const modes = {
+      local: {
+        isLocal: true,
+        model: 'Local AI',
+        statusText: 'Running privately on your device'
+      },
+      cloud: {
+        isLocal: false,
+        model: 'Cloud AI',
+        statusText: 'Connected to cloud servers'
+      }
+    };
+
+    // Demo responses
+    function getDemoResponse(message) {
+      const lower = message.toLowerCase();
+
+      if (lower.includes('private') || lower.includes('data') || lower.includes('how it works')) {
+        return {
+          response: `Great question! Here's how ActiveMirror keeps your data private:\n\n**When you use Private Mode:**\n• The AI runs directly in your browser\n• Your conversations never leave your device\n• Nothing is sent to external servers\n• No one can see what you're asking\n\n**This is different from cloud AI** (like ChatGPT or Claude) which sends every message to remote servers where it could be logged, analyzed, or used for training.\n\nWant to try it? Ask me anything - it all stays between us! 🔒`,
+          latency: 800
+        };
+      }
+
+      if (lower.includes('email') || lower.includes('write')) {
+        return {
+          response: `I'd be happy to help you draft that email! Here's a professional version:\n\n---\n\n**Subject:** Request to Reschedule Our Meeting\n\nHi [Name],\n\nI hope this message finds you well. I'm writing to request if we could reschedule our upcoming meeting.\n\nDue to [brief reason], I'm no longer available at our originally planned time. Would any of the following alternatives work for you?\n\n• [Date/Time Option 1]\n• [Date/Time Option 2]\n\nI apologize for any inconvenience this may cause and appreciate your flexibility.\n\nBest regards,\n[Your name]\n\n---\n\nWould you like me to adjust the tone or add anything specific?`,
+          latency: 1200
+        };
+      }
+
+      if (lower.includes('gift') || lower.includes('idea') || lower.includes('cooking')) {
+        return {
+          response: `Here are some thoughtful gift ideas for a cooking enthusiast! 🍳\n\n**Kitchen Tools**\n• A quality chef's knife (game-changer!)\n• Cast iron skillet - lasts forever\n• Digital instant-read thermometer\n• Microplane zester\n\n**Experience Gifts**\n• Cooking class (pasta making, sushi, etc.)\n• Food tour of your city\n• Subscription to a meal kit service\n\n**Unique Ideas**\n• Artisan spice collection\n• Cookbook from their favorite cuisine\n• Custom cutting board with their name\n• High-quality olive oil or vinegar set\n\nWhat's your budget range? I can give more specific recommendations!`,
+          latency: 1000
+        };
+      }
+
+      return {
+        response: `Thanks for your message! I'm here to help with anything you need - writing, brainstorming, answering questions, or just having a conversation.\n\nAnd remember: in Private Mode, everything you share stays right here on your device. No tracking, no data collection.\n\nWhat would you like to explore?`,
+        latency: 600
+      };
+    }
+
+    // Fingerprint collection
+    function collectFingerprint() {
+      const nav = navigator;
+      const screen = window.screen;
+
+      let browser = 'Unknown';
+      const ua = nav.userAgent;
+      if (ua.includes('Chrome') && !ua.includes('Edg')) browser = 'Chrome';
+      else if (ua.includes('Safari') && !ua.includes('Chrome')) browser = 'Safari';
+      else if (ua.includes('Firefox')) browser = 'Firefox';
+      else if (ua.includes('Edg')) browser = 'Edge';
+
+      let os = 'Unknown';
+      if (ua.includes('Mac')) os = 'macOS';
+      else if (ua.includes('Windows')) os = 'Windows';
+      else if (ua.includes('Linux')) os = 'Linux';
+      else if (ua.includes('Android')) os = 'Android';
+      else if (ua.includes('iPhone') || ua.includes('iPad')) os = 'iOS';
+
+      return {
+        browser: `${browser} on ${os}`,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        language: nav.language,
+        screen: `${screen.width}×${screen.height}`,
+        cores: nav.hardwareConcurrency ? `${nav.hardwareConcurrency} cores` : 'Hidden',
+        memory: nav.deviceMemory ? `${nav.deviceMemory}GB` : 'Hidden'
+      };
+    }
+
+    function renderFingerprint() {
+      const fp = collectFingerprint();
+      const container = $('fp-cloud-items');
+
+      const items = [
+        { label: 'Your browser', value: fp.browser },
+        { label: 'Your timezone', value: fp.timezone },
+        { label: 'Your screen', value: fp.screen },
+        { label: 'CPU cores', value: fp.cores },
+        { label: 'Memory', value: fp.memory }
+      ];
+
+      container.innerHTML = items.map(item => `
+        <div class="fp-item">
+          <span class="fp-label">${item.label}</span>
+          <span class="fp-value danger">${item.value}</span>
+        </div>
+      `).join('');
+    }
+
+    function setupConsentGate() {
+      const gate = $('consent-gate');
+      const toggle = $('fingerprint-toggle');
+      const reveal = $('fingerprint-reveal');
+      const consentLocal = $('consent-local');
+      const consentCloud = $('consent-cloud');
+
+      if (localStorage.getItem('activemirror_consent')) {
+        gate.classList.add('hidden');
+        const savedMode = localStorage.getItem('activemirror_mode') || 'local';
+        setMode(savedMode);
+        return;
+      }
+
+      let shown = false;
+      toggle.addEventListener('click', () => {
+        if (!shown) {
+          renderFingerprint();
+          reveal.classList.remove('hidden');
+          toggle.textContent = '👁️ Hide details';
+          shown = true;
+        } else {
+          reveal.classList.add('hidden');
+          toggle.textContent = '👁️ What do other AI services know about you?';
+          shown = false;
+        }
+      });
+
+      consentLocal.addEventListener('click', () => {
+        localStorage.setItem('activemirror_consent', 'true');
+        localStorage.setItem('activemirror_mode', 'local');
+        gate.classList.add('hidden');
+        setMode('local');
+      });
+
+      consentCloud.addEventListener('click', () => {
+        localStorage.setItem('activemirror_consent', 'true');
+        localStorage.setItem('activemirror_mode', 'cloud');
+        gate.classList.add('hidden');
+        setMode('cloud');
+      });
+    }
+
+    function setMode(mode) {
+      currentMode = mode;
+      const config = modes[mode];
+
+      $$('.mode-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.mode === mode);
+      });
+
+      $('status-dot').className = 'status-dot' + (config.isLocal ? '' : ' cloud');
+      $('status-text').textContent = config.statusText;
+
+      const badge = $('privacy-badge');
+      badge.textContent = config.isLocal ? '◈ Private mode' : '☁️ Cloud mode';
+      badge.className = 'privacy-badge' + (config.isLocal ? '' : ' cloud');
+    }
+
+    function setupModeToggle() {
+      $$('.mode-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const mode = btn.dataset.mode;
+          localStorage.setItem('activemirror_mode', mode);
+          setMode(mode);
+        });
+      });
+    }
+
+    function setupInput() {
+      const input = $('input');
+      const send = $('send');
+
+      input.addEventListener('input', () => {
+        input.style.height = 'auto';
+        input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+      });
+
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          sendMessage();
+        }
+      });
+
+      send.addEventListener('click', sendMessage);
+    }
+
+    function setupStarters() {
+      $$('.starter-card').forEach(card => {
+        card.addEventListener('click', () => {
+          $('input').value = card.dataset.prompt;
+          sendMessage();
+        });
+      });
+    }
+
+    async function sendMessage() {
+      const input = $('input');
+      const message = input.value.trim();
+      if (!message || isProcessing) return;
+
+      input.value = '';
+      input.style.height = 'auto';
+      $('welcome')?.remove();
+
+      addMessage('user', message);
+      const typing = addTyping();
+
+      isProcessing = true;
+
+      try {
+        await new Promise(r => setTimeout(r, 800 + Math.random() * 600));
+        const demo = getDemoResponse(message);
+
+        typing.remove();
+        addMessage('ai', demo.response, {
+          mode: currentMode,
+          latency: demo.latency
+        });
+      } catch (err) {
+        typing.remove();
+        addMessage('ai', 'Sorry, something went wrong. Please try again.', { mode: currentMode });
+      }
+
+      isProcessing = false;
+    }
+
+    function addMessage(type, content, meta = {}) {
+      const messages = $('messages');
+      const el = document.createElement('div');
+      el.className = `message message-${type}`;
+
+      const avatar = type === 'ai' ? '◈' : '👤';
+
+      let metaHtml = '';
+      if (type === 'ai' && meta.mode) {
+        const config = modes[meta.mode];
+        metaHtml = `
+          <div class="message-meta">
+            <span class="meta-badge ${config.isLocal ? '' : 'cloud'}">${config.isLocal ? '◈ Private' : '☁️ Cloud'}</span>
+            ${meta.latency ? `<span>${meta.latency}ms</span>` : ''}
+          </div>
+        `;
+      }
+
+      // Simple markdown-like rendering
+      let rendered = content
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\n\n/g, '</p><p>')
+        .replace(/\n/g, '<br>')
+        .replace(/^• /gm, '&bull; ');
+
+      el.innerHTML = `
+        <div class="message-avatar">${avatar}</div>
+        <div class="message-content">
+          <div class="message-bubble"><p>${rendered}</p></div>
+          ${metaHtml}
+        </div>
+      `;
+
+      messages.appendChild(el);
+      messages.scrollTop = messages.scrollHeight;
+      return el;
+    }
+
+    function addTyping() {
+      const messages = $('messages');
+      const el = document.createElement('div');
+      el.className = 'message message-ai typing';
+      el.innerHTML = `
+        <div class="message-avatar">◈</div>
+        <div class="typing-dots">
+          <span></span><span></span><span></span>
+        </div>
+      `;
+      messages.appendChild(el);
+      messages.scrollTop = messages.scrollHeight;
+      return el;
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      setupConsentGate();
+      setupInput();
+      setupModeToggle();
+      setupStarters();
+    });
+  </script>
+</body>
+</html>

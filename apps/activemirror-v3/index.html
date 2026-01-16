@@ -1,0 +1,2060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ActiveMirror — Sovereign Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ============================================
+       CSS Variables & Reset
+       ============================================ */
+    :root {
+      --bg-primary: #0a0a0f;
+      --bg-secondary: #12121a;
+      --bg-tertiary: #1a1a24;
+      --bg-hover: #22222e;
+      --bg-active: #2a2a38;
+      
+      --glass-bg: rgba(255, 255, 255, 0.03);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --glass-hover: rgba(255, 255, 255, 0.06);
+      
+      --text-primary: #f0f0f5;
+      --text-secondary: #a0a0b0;
+      --text-muted: #606070;
+      --text-dim: #404050;
+      
+      --primary: #6366f1;
+      --primary-soft: rgba(99, 102, 241, 0.15);
+      --primary-glow: rgba(99, 102, 241, 0.3);
+      
+      --success: #10b981;
+      --success-soft: rgba(16, 185, 129, 0.15);
+      
+      --warning: #f59e0b;
+      --warning-soft: rgba(245, 158, 11, 0.15);
+      
+      --error: #ef4444;
+      --error-soft: rgba(239, 68, 68, 0.15);
+      
+      --sovereign: #10b981;
+      --cloud: #f59e0b;
+      --frontier: #8b5cf6;
+      
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
+      
+      --space-xs: 4px;
+      --space-sm: 8px;
+      --space-md: 16px;
+      --space-lg: 24px;
+      --space-xl: 32px;
+      
+      --font-sans: 'Inter', -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      
+      --transition-fast: 0.15s ease;
+      --transition-normal: 0.25s ease;
+      --transition-slow: 0.4s ease;
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    html, body {
+      height: 100%;
+      font-family: var(--font-sans);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--bg-active); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+    /* ============================================
+       Consent Gate
+       ============================================ */
+    .consent-gate {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-lg);
+      background: 
+        radial-gradient(ellipse at 30% 20%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 80%, rgba(16, 185, 129, 0.05) 0%, transparent 50%),
+        var(--bg-primary);
+    }
+    
+    .consent-card {
+      width: 100%;
+      max-width: 680px;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-xl);
+      padding: var(--space-xl);
+      backdrop-filter: blur(20px);
+      animation: fadeInUp 0.6s ease;
+    }
+    
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .consent-header {
+      text-align: center;
+      margin-bottom: var(--space-xl);
+    }
+    
+    .logo-mark {
+      font-size: 48px;
+      color: var(--primary);
+      margin-bottom: var(--space-md);
+      animation: pulse 3s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.8; transform: scale(1.05); }
+    }
+    
+    .consent-header h1 {
+      font-size: 28px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+      margin-bottom: var(--space-xs);
+    }
+    
+    .tagline { color: var(--text-secondary); font-size: 14px; }
+
+    /* Transparency Widgets */
+    .transparency-widget { margin-bottom: var(--space-sm); }
+    
+    .widget-toggle {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: var(--space-md);
+      background: var(--bg-secondary);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    
+    .widget-toggle:hover {
+      background: var(--bg-tertiary);
+      border-color: var(--primary);
+    }
+    
+    .widget-toggle.active .toggle-icon { transform: rotate(90deg); }
+    
+    .toggle-icon {
+      color: var(--text-muted);
+      font-size: 10px;
+      transition: transform var(--transition-fast);
+    }
+    
+    .toggle-title { flex: 1; text-align: left; }
+    
+    .badge {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+    
+    .badge-sovereign { background: var(--success-soft); color: var(--success); }
+    .badge-info { background: var(--primary-soft); color: var(--primary); }
+    .badge-warning { background: var(--warning-soft); color: var(--warning); }
+    .badge-live { background: var(--success-soft); color: var(--success); }
+    
+    .widget-content {
+      overflow: hidden;
+      max-height: 600px;
+      padding: var(--space-md);
+      background: var(--bg-secondary);
+      border: 1px solid var(--glass-border);
+      border-top: none;
+      border-radius: 0 0 var(--radius-md) var(--radius-md);
+      margin-top: -1px;
+      transition: all var(--transition-normal);
+    }
+    
+    .widget-content.collapsed {
+      max-height: 0;
+      padding-top: 0;
+      padding-bottom: 0;
+      border: none;
+    }
+
+    /* ============================================
+       ANIMATED DATA FLOW SVG
+       ============================================ */
+    .architecture-flow { padding-top: var(--space-sm); }
+    
+    .flow-diagram { margin-bottom: var(--space-lg); }
+    
+    .data-flow-svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    
+    .node-box {
+      fill: rgba(255, 255, 255, 0.03);
+      stroke: rgba(255, 255, 255, 0.15);
+      stroke-width: 1.5;
+      transition: all 0.3s ease;
+    }
+    
+    .node-box.device {
+      fill: rgba(99, 102, 241, 0.1);
+      stroke: var(--primary);
+    }
+    
+    .node-box.local {
+      fill: rgba(16, 185, 129, 0.1);
+      stroke: var(--success);
+    }
+    
+    .node-box.output {
+      fill: rgba(248, 250, 252, 0.05);
+      stroke: rgba(255, 255, 255, 0.3);
+    }
+    
+    .node-label {
+      fill: var(--text-primary);
+      font-size: 11px;
+      font-weight: 500;
+      text-anchor: middle;
+      font-family: var(--font-sans);
+    }
+    
+    .node-sublabel {
+      fill: var(--text-muted);
+      font-size: 9px;
+      text-anchor: middle;
+      font-family: var(--font-sans);
+    }
+    
+    .flow-path {
+      fill: none;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      opacity: 0.7;
+    }
+    
+    .flow-path.primary {
+      stroke: rgba(99, 102, 241, 0.6);
+      stroke-dasharray: 8 4;
+      animation: flow-animation 2s linear infinite;
+    }
+    
+    .flow-path.secondary {
+      stroke: rgba(16, 185, 129, 0.5);
+      stroke-dasharray: 6 3;
+      animation: flow-animation 2.5s linear infinite reverse;
+    }
+    
+    @keyframes flow-animation {
+      0% { stroke-dashoffset: 24; }
+      100% { stroke-dashoffset: 0; }
+    }
+    
+    .status-indicator {
+      transition: all 0.3s ease;
+    }
+    
+    .status-indicator.active {
+      fill: var(--success);
+      filter: drop-shadow(0 0 6px var(--success));
+      animation: status-pulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes status-pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    /* Data Destinations */
+    .data-destinations h4 {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: var(--space-sm);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .destination-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+    
+    .destination-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: var(--space-sm) var(--space-md);
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+    }
+    
+    .destination-item.local .dest-icon { color: var(--success); }
+    .destination-item.blocked .dest-icon { color: var(--error); }
+    
+    .dest-name { flex: 1; color: var(--text-secondary); }
+    .dest-status { font-size: 11px; color: var(--text-muted); }
+
+    /* Processing Modes */
+    .modes-comparison {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-sm);
+    }
+    
+    .mode-card {
+      padding: var(--space-md);
+      background: var(--bg-tertiary);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-md);
+      text-align: center;
+      transition: all var(--transition-fast);
+    }
+    
+    .mode-card.active {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+    }
+    
+    .mode-icon {
+      font-size: 20px;
+      color: var(--text-muted);
+      margin-bottom: var(--space-xs);
+    }
+    
+    .mode-card.active .mode-icon { color: var(--primary); }
+    
+    .mode-card h5 {
+      font-size: 12px;
+      font-weight: 500;
+      margin-bottom: var(--space-xs);
+    }
+    
+    .mode-desc {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-bottom: var(--space-sm);
+    }
+    
+    .mode-visibility {
+      font-size: 9px;
+      padding: 2px 6px;
+      background: var(--bg-active);
+      border-radius: 10px;
+      color: var(--text-muted);
+    }
+    
+    .mode-card.active .mode-visibility {
+      background: var(--primary);
+      color: white;
+    }
+
+    /* Limitations */
+    .limitations-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+    
+    .limitations-list li {
+      display: flex;
+      gap: var(--space-sm);
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+    
+    .limit-icon { flex-shrink: 0; width: 18px; text-align: center; }
+
+    /* Consent Agreement */
+    .consent-agreement { margin: var(--space-lg) 0; }
+    
+    .checkbox-container {
+      display: flex;
+      gap: var(--space-md);
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    
+    .checkbox-container input { display: none; }
+    
+    .checkmark {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--glass-border);
+      border-radius: var(--radius-sm);
+      transition: all var(--transition-fast);
+      position: relative;
+    }
+    
+    .checkbox-container input:checked + .checkmark {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+    
+    .checkbox-container input:checked + .checkmark::after {
+      content: '✓';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 12px;
+    }
+
+    /* Enter Button */
+    .btn-enter {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-sm);
+      padding: var(--space-md) var(--space-lg);
+      background: var(--primary);
+      border: none;
+      border-radius: var(--radius-md);
+      color: white;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    
+    .btn-enter:hover:not(:disabled) {
+      background: #5558e3;
+      box-shadow: 0 0 20px var(--primary-glow);
+      transform: translateY(-1px);
+    }
+    
+    .btn-enter:disabled { opacity: 0.5; cursor: not-allowed; }
+    
+    .btn-icon { transition: transform var(--transition-fast); }
+    .btn-enter:hover:not(:disabled) .btn-icon { transform: translateX(4px); }
+
+    /* ============================================
+       Main App Layout
+       ============================================ */
+    .main-app {
+      display: flex;
+      height: 100vh;
+      background: var(--bg-primary);
+    }
+    
+    .main-app.hidden { display: none; }
+
+    /* ============================================
+       COLLAPSIBLE SIDE TABS
+       ============================================ */
+    
+    /* Left Tab (Widgets) */
+    .side-tab {
+      position: relative;
+      display: flex;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .side-tab.left {
+      border-right: 1px solid var(--glass-border);
+    }
+    
+    .side-tab.right {
+      border-left: 1px solid var(--glass-border);
+    }
+    
+    .side-tab.collapsed {
+      width: 48px !important;
+      min-width: 48px !important;
+      max-width: 48px !important;
+    }
+    
+    .side-tab.expanded {
+      width: 300px;
+      min-width: 300px;
+    }
+    
+    /* Tab Handle */
+    .tab-handle {
+      width: 48px;
+      min-width: 48px;
+      background: var(--bg-secondary);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: var(--space-md) 0;
+      gap: var(--space-md);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    
+    .tab-handle:hover {
+      background: var(--bg-tertiary);
+    }
+    
+    .tab-icon {
+      font-size: 18px;
+      color: var(--text-muted);
+      transition: color var(--transition-fast);
+    }
+    
+    .side-tab.expanded .tab-icon {
+      color: var(--primary);
+    }
+    
+    .tab-label {
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      transform: rotate(180deg);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+    
+    .side-tab.left .tab-label {
+      transform: rotate(180deg);
+    }
+    
+    .side-tab.right .tab-label {
+      transform: rotate(0deg);
+    }
+    
+    .tab-status {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 8px var(--success);
+      animation: status-pulse 2s ease-in-out infinite;
+    }
+    
+    /* Tab Content */
+    .tab-content {
+      flex: 1;
+      background: var(--bg-secondary);
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .side-tab.collapsed .tab-content {
+      width: 0;
+      padding: 0;
+      opacity: 0;
+      pointer-events: none;
+    }
+    
+    .side-tab.expanded .tab-content {
+      width: 252px;
+      padding: var(--space-md);
+      opacity: 1;
+    }
+    
+    .tab-content-inner {
+      height: 100%;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+    
+    /* Widget Preview (collapsed state) */
+    .widget-preview {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+      padding: var(--space-sm) 0;
+    }
+    
+    .preview-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      font-size: 10px;
+      color: var(--text-muted);
+      padding: 2px var(--space-sm);
+      border-radius: 4px;
+      background: var(--bg-tertiary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 44px;
+    }
+    
+    /* Sidebar Header inside tab */
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: var(--space-sm);
+      margin-bottom: var(--space-sm);
+      border-bottom: 1px solid var(--glass-border);
+    }
+    
+    .sidebar-title {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+    
+    .add-widget-btn {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 14px;
+      transition: all var(--transition-fast);
+    }
+    
+    .add-widget-btn:hover {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+    
+    .sidebar-widget {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      transition: all var(--transition-fast);
+    }
+    
+    .sidebar-widget:hover { border-color: rgba(255, 255, 255, 0.12); }
+    
+    .sidebar-widget .widget-toggle {
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      padding: var(--space-sm) var(--space-md);
+      font-size: 13px;
+    }
+    
+    .sidebar-widget .widget-content {
+      background: transparent;
+      border: none;
+      border-top: 1px solid var(--glass-border);
+      padding: var(--space-sm) var(--space-md);
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    /* Widget Content Types */
+    .tasks-list, .notes-content, .links-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+    
+    .task-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    
+    .task-text {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .task-delete, .link-delete {
+      opacity: 0;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 14px;
+      padding: 2px 4px;
+      transition: all var(--transition-fast);
+    }
+    
+    .task-item:hover .task-delete,
+    .link-row:hover .link-delete {
+      opacity: 1;
+    }
+    
+    .task-delete:hover, .link-delete:hover {
+      color: var(--error);
+    }
+    
+    .task-checkbox {
+      width: 14px;
+      height: 14px;
+      border: 2px solid var(--glass-border);
+      border-radius: 3px;
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    
+    .task-checkbox:hover { border-color: var(--primary); }
+    .task-checkbox.completed { background: var(--success); border-color: var(--success); }
+    
+    .link-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+    
+    .link-item {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: 6px var(--space-sm);
+      background: var(--bg-active);
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 12px;
+      transition: all var(--transition-fast);
+      min-width: 0;
+    }
+    
+    .link-item:hover { background: var(--primary-soft); color: var(--primary); }
+    .link-icon { font-size: 12px; flex-shrink: 0; }
+    .link-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    
+    .add-link-btn {
+      width: 100%;
+      padding: 6px;
+      background: transparent;
+      border: 1px dashed var(--glass-border);
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      font-size: 11px;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      margin-top: var(--space-sm);
+    }
+    
+    .add-link-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-soft);
+    }
+    
+    .task-input {
+      width: 100%;
+      background: var(--bg-active);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-sm);
+      padding: 6px var(--space-sm);
+      color: var(--text-primary);
+      font-size: 12px;
+      font-family: var(--font-sans);
+      margin-top: var(--space-sm);
+    }
+    
+    .task-input:focus { outline: none; border-color: var(--primary); }
+    
+    .notes-textarea {
+      width: 100%;
+      min-height: 80px;
+      background: var(--bg-active);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-sm);
+      padding: var(--space-sm);
+      color: var(--text-primary);
+      font-size: 12px;
+      font-family: var(--font-sans);
+      resize: vertical;
+    }
+    
+    .notes-textarea:focus { outline: none; border-color: var(--primary); }
+    
+    /* Help Button */
+    .help-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--glass-border);
+      border-radius: 50%;
+      color: var(--text-muted);
+      font-size: 14px;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      margin-left: var(--space-sm);
+    }
+    
+    .help-btn:hover {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+    
+    /* Help Modal */
+    .help-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all var(--transition-normal);
+    }
+    
+    .help-modal.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .help-content {
+      width: 90%;
+      max-width: 500px;
+      max-height: 80vh;
+      background: var(--bg-secondary);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .help-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-md) var(--space-lg);
+      border-bottom: 1px solid var(--glass-border);
+      background: var(--bg-tertiary);
+    }
+    
+    .help-header h3 {
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+    
+    .help-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 20px;
+      cursor: pointer;
+      padding: 4px;
+    }
+    
+    .help-close:hover { color: var(--text-primary); }
+    
+    .help-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--space-lg);
+    }
+    
+    .help-chat {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+    
+    .help-message {
+      padding: var(--space-md);
+      border-radius: var(--radius-md);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    
+    .help-message.system {
+      background: var(--primary-soft);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+    
+    .help-message.user {
+      background: var(--bg-tertiary);
+      margin-left: 20%;
+    }
+    
+    .help-input-area {
+      display: flex;
+      gap: var(--space-sm);
+      padding: var(--space-md) var(--space-lg);
+      border-top: 1px solid var(--glass-border);
+    }
+    
+    .help-input {
+      flex: 1;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-sm) var(--space-md);
+      color: var(--text-primary);
+      font-size: 13px;
+    }
+    
+    .help-input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+    
+    .help-send {
+      padding: var(--space-sm) var(--space-md);
+      background: var(--primary);
+      border: none;
+      border-radius: var(--radius-md);
+      color: white;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    
+    .help-send:hover { background: #5558e3; }
+
+    /* Main Chat Area */
+    .app-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-primary);
+      position: relative;
+      min-width: 0;
+    }
+    
+    .chat-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      padding: var(--space-md) var(--space-lg);
+      border-bottom: 1px solid var(--glass-border);
+      background: var(--bg-secondary);
+    }
+    
+    .chat-header h2 { font-size: 18px; font-weight: 600; }
+    
+    .header-status {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--text-muted);
+    }
+    
+    .status-dot.active {
+      background: var(--success);
+      box-shadow: 0 0 8px var(--success);
+    }
+
+    /* ============================================
+       TIER SELECTOR — FIXED PILLS
+       ============================================ */
+    .tier-selector {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+    
+    .tier-pills {
+      display: flex;
+      gap: 2px;
+      background: var(--bg-tertiary);
+      padding: 3px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--glass-border);
+    }
+    
+    .tier-pill {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 8px 14px;
+      background: transparent;
+      border: none;
+      border-radius: 6px;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      white-space: nowrap;
+      font-family: var(--font-sans);
+    }
+    
+    .tier-pill:hover {
+      color: var(--text-secondary);
+      background: var(--bg-hover);
+    }
+    
+    .tier-pill.active {
+      color: var(--text-primary);
+      background: var(--bg-active);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+    
+    .tier-pill.active.sovereign {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.1));
+      color: var(--success);
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);
+    }
+    
+    .tier-pill.active.cloud {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(245, 158, 11, 0.1));
+      color: var(--warning);
+    }
+    
+    .tier-pill.active.frontier {
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(139, 92, 246, 0.1));
+      color: #8b5cf6;
+    }
+    
+    .tier-icon { font-size: 14px; }
+
+    /* Messages Container */
+    .messages-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--space-lg);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+    
+    .welcome-message {
+      text-align: center;
+      padding: var(--space-xl);
+      color: var(--text-secondary);
+    }
+    
+    .welcome-icon {
+      font-size: 48px;
+      color: var(--primary);
+      margin-bottom: var(--space-md);
+      opacity: 0.8;
+    }
+    
+    .welcome-message h3 {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: var(--space-sm);
+    }
+    
+    .welcome-message p {
+      font-size: 14px;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    /* Messages */
+    .message { animation: messageIn 0.3s ease; }
+    
+    @keyframes messageIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .message-user .message-content {
+      background: var(--primary-soft);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+      border-radius: var(--radius-lg) var(--radius-lg) var(--radius-sm) var(--radius-lg);
+      padding: var(--space-md);
+      margin-left: 15%;
+    }
+    
+    .message-assistant .message-content {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg) var(--radius-lg) var(--radius-lg) var(--radius-sm);
+      padding: var(--space-md);
+      margin-right: 15%;
+    }
+    
+    .message-system .message-content {
+      background: var(--error-soft);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      border-radius: var(--radius-md);
+      padding: var(--space-md);
+      text-align: center;
+      font-size: 13px;
+    }
+    
+    .message-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: var(--space-xs);
+    }
+    
+    .message-role { font-size: 12px; font-weight: 500; color: var(--text-secondary); }
+    .message-time { font-size: 11px; color: var(--text-muted); }
+    
+    .message-text {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-primary);
+    }
+    
+    .message-text code {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+    }
+    
+    .message-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+      margin-top: var(--space-sm);
+      padding-top: var(--space-sm);
+      border-top: 1px solid var(--glass-border);
+    }
+    
+    .meta-tag {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      padding: 2px 8px;
+      background: var(--bg-tertiary);
+      border-radius: 20px;
+      color: var(--text-muted);
+    }
+    
+    .meta-tag.sovereign { color: var(--success); background: var(--success-soft); }
+    .meta-tag.cloud { color: var(--warning); background: var(--warning-soft); }
+    .meta-tag.cached { color: var(--primary); background: var(--primary-soft); }
+
+    /* Typing Indicator */
+    .typing .message-content { padding: var(--space-md); }
+    
+    .typing-dots { display: flex; gap: 4px; }
+    
+    .typing-dots span {
+      width: 8px;
+      height: 8px;
+      background: var(--text-muted);
+      border-radius: 50%;
+      animation: typingBounce 1.4s infinite;
+    }
+    
+    .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+    
+    @keyframes typingBounce {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-6px); }
+    }
+    
+    .typing-label { font-size: 11px; color: var(--text-muted); margin-top: var(--space-xs); }
+
+    /* Transparency Bar */
+    .transparency-bar {
+      display: flex;
+      align-items: center;
+      gap: var(--space-lg);
+      padding: var(--space-sm) var(--space-lg);
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--glass-border);
+      font-size: 12px;
+    }
+    
+    .t-item { display: flex; align-items: center; gap: var(--space-xs); }
+    .t-label { color: var(--text-muted); }
+    .t-value { color: var(--text-secondary); font-weight: 500; }
+    .t-value.sovereign { color: var(--success); }
+    .t-value.cloud { color: var(--warning); }
+
+    /* Input Area */
+    .input-area {
+      display: flex;
+      gap: var(--space-sm);
+      padding: var(--space-md) var(--space-lg);
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--glass-border);
+    }
+    
+    .input-area textarea {
+      flex: 1;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-md);
+      color: var(--text-primary);
+      font-size: 14px;
+      font-family: var(--font-sans);
+      resize: none;
+      transition: all var(--transition-fast);
+    }
+    
+    .input-area textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-soft);
+    }
+    
+    .input-area textarea::placeholder { color: var(--text-muted); }
+    
+    .send-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-xs);
+      padding: var(--space-md) var(--space-lg);
+      background: var(--primary);
+      border: none;
+      border-radius: var(--radius-md);
+      color: white;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    
+    .send-btn:hover { background: #5558e3; transform: translateY(-1px); }
+    .send-btn:active { transform: translateY(0); }
+
+    /* Right Panel */
+    .app-panel {
+      background: var(--bg-secondary);
+      border-left: 1px solid var(--glass-border);
+      padding: var(--space-md);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+    
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: var(--space-sm);
+      border-bottom: 1px solid var(--glass-border);
+    }
+    
+    .panel-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+    }
+    
+    .panel-widget {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    /* ============================================
+       TRANSPARENCY PANE (Right Side Widget)
+       ============================================ */
+    .transparency-pane {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+    
+    .transparency-pane .pane-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: var(--space-md);
+      background: rgba(16, 185, 129, 0.05);
+      border-bottom: 1px solid var(--glass-border);
+    }
+    
+    .pane-status {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 8px var(--success);
+      animation: status-pulse 2s ease-in-out infinite;
+    }
+    
+    .pane-title {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+    
+    .pane-badge {
+      margin-left: auto;
+      font-size: 10px;
+      padding: 2px 6px;
+      background: var(--success-soft);
+      color: var(--success);
+      border-radius: 10px;
+    }
+    
+    .transparency-pane .pane-content { padding: var(--space-md); }
+    
+    .pane-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-sm) 0;
+      font-size: 12px;
+      border-bottom: 1px solid var(--glass-border);
+    }
+    
+    .pane-item:last-child { border-bottom: none; }
+    
+    .pane-label { color: var(--text-muted); }
+    .pane-value { color: var(--text-secondary); font-weight: 500; font-family: var(--font-mono); }
+    .pane-value.sovereign { color: var(--success); }
+    .pane-value.cloud { color: var(--warning); }
+    
+    .pane-flow {
+      margin-top: var(--space-sm);
+      padding: var(--space-sm);
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: var(--radius-sm);
+    }
+    
+    .flow-mini {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-xs);
+      font-size: 11px;
+    }
+    
+    .flow-node {
+      padding: 4px 8px;
+      border-radius: 4px;
+      background: var(--bg-active);
+      color: var(--text-muted);
+    }
+    
+    .flow-node.active {
+      background: var(--success-soft);
+      color: var(--success);
+    }
+    
+    .flow-arrow { color: var(--text-dim); }
+
+    /* Mini Browser */
+    .mini-browser {
+      display: flex;
+      flex-direction: column;
+      height: 300px;
+    }
+    
+    .browser-toolbar {
+      display: flex;
+      gap: var(--space-sm);
+      padding: var(--space-sm);
+      background: var(--bg-active);
+      border-bottom: 1px solid var(--glass-border);
+    }
+    
+    .browser-url {
+      flex: 1;
+      background: var(--bg-secondary);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-sm);
+      padding: 6px var(--space-sm);
+      color: var(--text-primary);
+      font-size: 12px;
+      font-family: var(--font-mono);
+    }
+    
+    .browser-url:focus { outline: none; border-color: var(--primary); }
+    
+    .browser-btn {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-secondary);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    
+    .browser-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+    
+    .browser-frame { flex: 1; border: none; background: white; }
+    
+    .browser-placeholder {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: 13px;
+      text-align: center;
+      padding: var(--space-lg);
+    }
+    
+    .browser-placeholder-icon { font-size: 32px; margin-bottom: var(--space-sm); opacity: 0.5; }
+
+    /* Session Stats */
+    .session-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-sm);
+      padding: var(--space-md);
+    }
+    
+    .stat-card {
+      background: var(--bg-active);
+      border-radius: var(--radius-sm);
+      padding: var(--space-sm);
+      text-align: center;
+    }
+    
+    .stat-value { font-size: 18px; font-weight: 600; color: var(--text-primary); }
+    .stat-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .side-tab { display: none; }
+    }
+
+    /* ============================================
+       Add Widget Menu
+       ============================================ */
+    .add-widget-menu { position: fixed; inset: 0; z-index: 1000; }
+    
+    .menu-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.3);
+    }
+    
+    .menu-dropdown {
+      position: fixed;
+      background: var(--bg-secondary);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-sm);
+      min-width: 180px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      z-index: 1001;
+    }
+    
+    .menu-header {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      padding: var(--space-sm) var(--space-md);
+      border-bottom: 1px solid var(--glass-border);
+      margin-bottom: var(--space-xs);
+    }
+    
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: var(--space-sm) var(--space-md);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    
+    .menu-item:hover {
+      background: var(--primary-soft);
+    }
+    
+    .menu-icon {
+      font-size: 14px;
+      width: 20px;
+      text-align: center;
+    }
+    
+    .menu-title {
+      font-size: 13px;
+      color: var(--text-primary);
+    }
+    
+    .menu-divider {
+      height: 1px;
+      background: var(--glass-border);
+      margin: var(--space-xs) 0;
+    }
+    
+    .menu-item.danger .menu-title {
+      color: var(--error);
+    }
+    
+    .menu-item.danger:hover {
+      background: var(--error-soft);
+    }
+
+    /* Empty Widgets State */
+    .empty-widgets {
+      text-align: center;
+      padding: var(--space-xl) var(--space-md);
+      color: var(--text-muted);
+    }
+    
+    .empty-icon {
+      font-size: 32px;
+      opacity: 0.5;
+      margin-bottom: var(--space-sm);
+    }
+    
+    .empty-widgets p {
+      font-size: 13px;
+      margin-bottom: var(--space-xs);
+    }
+    
+    .empty-hint {
+      font-size: 11px;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+  <!-- Consent Gate -->
+  <div id="consent-gate" class="consent-gate">
+    <div class="consent-card">
+      <div class="consent-header">
+        <div class="logo-mark">◈</div>
+        <h1>ActiveMirror</h1>
+        <p class="tagline">Sovereign Intelligence Stack</p>
+      </div>
+
+      <!-- SYSTEM ARCHITECTURE with Animated Data Flow -->
+      <div class="transparency-widget">
+        <button class="widget-toggle active" data-target="architecture-section">
+          <span class="toggle-icon">▸</span>
+          <span class="toggle-title">System Architecture</span>
+          <span class="badge badge-sovereign">100% Local</span>
+        </button>
+        <div id="architecture-section" class="widget-content">
+          <div class="architecture-flow">
+            <div class="flow-diagram">
+              <!-- ANIMATED SANKEY-STYLE DATA FLOW -->
+              <svg class="data-flow-svg" viewBox="0 0 600 180" preserveAspectRatio="xMidYMid meet">
+                <!-- Mac Mini Node -->
+                <g class="node mac-mini">
+                  <rect x="10" y="60" width="110" height="60" rx="8" class="node-box device"/>
+                  <text x="65" y="85" class="node-label">Mac Mini M4</text>
+                  <text x="65" y="100" class="node-sublabel">24GB · Ollama</text>
+                  <circle cx="115" cy="75" r="4" class="status-indicator active"/>
+                </g>
+                
+                <!-- Flow paths from Mac Mini -->
+                <path class="flow-path primary" d="M120,75 C160,75 160,50 200,50"/>
+                <path class="flow-path primary" d="M120,90 C160,90 160,90 200,90"/>
+                <path class="flow-path secondary" d="M120,105 C160,105 160,130 200,130"/>
+                
+                <!-- Pixel Node -->
+                <g class="node pixel">
+                  <rect x="200" y="25" width="100" height="50" rx="6" class="node-box local"/>
+                  <text x="250" y="47" class="node-label">Pixel 9 Pro</text>
+                  <text x="250" y="60" class="node-sublabel">SC1 · Sensors</text>
+                  <circle cx="295" cy="35" r="3" class="status-indicator active"/>
+                </g>
+                
+                <!-- Vault/Ollama Node -->
+                <g class="node ollama">
+                  <rect x="200" y="65" width="100" height="50" rx="6" class="node-box local"/>
+                  <text x="250" y="87" class="node-label">Local LLM</text>
+                  <text x="250" y="100" class="node-sublabel">gpt-oss:20b</text>
+                  <circle cx="295" cy="75" r="3" class="status-indicator active"/>
+                </g>
+                
+                <!-- OnePlus Node -->
+                <g class="node oneplus">
+                  <rect x="200" y="105" width="100" height="50" rx="6" class="node-box local"/>
+                  <text x="250" y="127" class="node-label">OnePlus</text>
+                  <text x="250" y="140" class="node-sublabel">SC1 · Edge</text>
+                  <circle cx="295" cy="115" r="3" class="status-indicator active"/>
+                </g>
+                
+                <!-- Flow to ChromaDB -->
+                <path class="flow-path secondary" d="M300,50 C340,50 340,70 380,70"/>
+                <path class="flow-path primary" d="M300,90 C340,90 340,90 380,90"/>
+                <path class="flow-path secondary" d="M300,130 C340,130 340,110 380,110"/>
+                
+                <!-- ChromaDB/Vault Node -->
+                <g class="node chroma">
+                  <rect x="380" y="55" width="90" height="50" rx="6" class="node-box local"/>
+                  <text x="425" y="77" class="node-label">Vault</text>
+                  <text x="425" y="90" class="node-sublabel">ChromaDB</text>
+                </g>
+                
+                <!-- Flow to Output -->
+                <path class="flow-path primary" d="M470,80 C500,80 500,80 530,80"/>
+                
+                <!-- Output Node -->
+                <g class="node output">
+                  <rect x="530" y="55" width="60" height="50" rx="6" class="node-box output"/>
+                  <text x="560" y="77" class="node-label">You</text>
+                  <text x="560" y="90" class="node-sublabel">Zero Cloud</text>
+                </g>
+                
+                <!-- Cloud Blocked indicator -->
+                <g class="node blocked" opacity="0.4">
+                  <rect x="380" y="135" width="90" height="35" rx="6" style="fill:rgba(239,68,68,0.1);stroke:var(--error);stroke-dasharray:4 2;"/>
+                  <text x="425" y="150" style="fill:var(--error);font-size:10px;text-anchor:middle;">☁ Cloud</text>
+                  <text x="425" y="162" style="fill:var(--error);font-size:8px;text-anchor:middle;opacity:0.7">BLOCKED</text>
+                </g>
+              </svg>
+            </div>
+            
+            <div class="data-destinations">
+              <h4>Data Destinations</h4>
+              <div class="destination-list">
+                <div class="destination-item local">
+                  <span class="dest-icon">◈</span>
+                  <span class="dest-name">Local Vault (ChromaDB)</span>
+                  <span class="dest-status">✓ Active</span>
+                </div>
+                <div class="destination-item local">
+                  <span class="dest-icon">⬢</span>
+                  <span class="dest-name">Ollama (gpt-oss:20b)</span>
+                  <span class="dest-status">✓ Active</span>
+                </div>
+                <div class="destination-item local">
+                  <span class="dest-icon">📱</span>
+                  <span class="dest-name">SC1 Fleet (Pixel + OnePlus)</span>
+                  <span class="dest-status">✓ Connected</span>
+                </div>
+                <div class="destination-item blocked">
+                  <span class="dest-icon">✕</span>
+                  <span class="dest-name">External Cloud Services</span>
+                  <span class="dest-status">Blocked</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Processing Modes -->
+      <div class="transparency-widget">
+        <button class="widget-toggle" data-target="modes-section">
+          <span class="toggle-icon">▸</span>
+          <span class="toggle-title">Processing Modes</span>
+          <span class="badge badge-info">3 Layers</span>
+        </button>
+        <div id="modes-section" class="widget-content collapsed">
+          <div class="modes-comparison">
+            <div class="mode-card">
+              <div class="mode-icon">◇</div>
+              <h5>Internal</h5>
+              <p class="mode-desc">Chain-of-thought</p>
+              <span class="mode-visibility">Hidden</span>
+            </div>
+            <div class="mode-card">
+              <div class="mode-icon">◈</div>
+              <h5>Reflective</h5>
+              <p class="mode-desc">Pattern recognition</p>
+              <span class="mode-visibility">On request</span>
+            </div>
+            <div class="mode-card active">
+              <div class="mode-icon">✦</div>
+              <h5>Output</h5>
+              <p class="mode-desc">Final response</p>
+              <span class="mode-visibility">Visible</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Known Limitations -->
+      <div class="transparency-widget">
+        <button class="widget-toggle" data-target="limits-section">
+          <span class="toggle-icon">▸</span>
+          <span class="toggle-title">Known Limitations</span>
+          <span class="badge badge-warning">Important</span>
+        </button>
+        <div id="limits-section" class="widget-content collapsed">
+          <ul class="limitations-list">
+            <li>
+              <span class="limit-icon">⚠</span>
+              <span>Local models have fewer parameters than cloud — responses may be less nuanced</span>
+            </li>
+            <li>
+              <span class="limit-icon">⚠</span>
+              <span>No real-time internet — knowledge limited to training data + your Vault</span>
+            </li>
+            <li>
+              <span class="limit-icon">✓</span>
+              <span>Complete data sovereignty — nothing leaves your device mesh</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="consent-agreement">
+        <label class="checkbox-container">
+          <input type="checkbox" id="consent-checkbox">
+          <span class="checkmark"></span>
+          <span class="consent-text">
+            I understand this is a <strong>sovereign AI system</strong> with different capabilities than cloud services.
+          </span>
+        </label>
+      </div>
+
+      <button id="enter-btn" class="btn-enter" disabled>
+        <span>Enter ActiveMirror</span>
+        <span class="btn-icon">→</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Main App -->
+  <div id="main-app" class="main-app hidden">
+    
+    <!-- LEFT TAB (Widgets) -->
+    <div class="side-tab left collapsed" id="left-tab">
+      <div class="tab-handle" onclick="toggleTab('left')">
+        <span class="tab-icon">📋</span>
+        <span class="tab-label">Widgets</span>
+        <div class="widget-preview" id="widget-preview">
+          <!-- Preview items shown when collapsed -->
+        </div>
+      </div>
+      <div class="tab-content">
+        <div class="tab-content-inner">
+          <div class="sidebar-header">
+            <span class="sidebar-title">Widgets</span>
+            <button class="add-widget-btn" id="add-widget-btn" title="Add widget">+</button>
+          </div>
+          <div id="widgets-container">
+            <!-- Widgets rendered by JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Chat Area -->
+    <div class="app-main">
+      <div class="chat-header">
+        <h2>◈ ActiveMirror</h2>
+        <div class="header-status">
+          <span class="status-dot active" id="status-dot"></span>
+          <span id="status-text">Ready</span>
+        </div>
+        
+        <div class="tier-selector">
+          <div class="tier-pills" id="tier-pills">
+            <button class="tier-pill active sovereign" data-tier="sovereign" title="100% Local Processing">
+              <span class="tier-icon">◈</span>
+              <span>Sovereign</span>
+            </button>
+            <button class="tier-pill" data-tier="fast_free" title="Fast Cloud (Groq)">
+              <span class="tier-icon">⚡</span>
+              <span>Fast</span>
+            </button>
+            <button class="tier-pill" data-tier="budget" title="Budget Cloud (DeepSeek)">
+              <span class="tier-icon">☁</span>
+              <span>Budget</span>
+            </button>
+            <button class="tier-pill" data-tier="frontier" title="Frontier (OpenAI/Claude)">
+              <span class="tier-icon">✦</span>
+              <span>Frontier</span>
+            </button>
+          </div>
+        </div>
+        
+        <button class="help-btn" id="help-btn" title="Get Help">?</button>
+      </div>
+      
+      <div id="messages" class="messages-container">
+        <div class="welcome-message">
+          <div class="welcome-icon">◈</div>
+          <h3>Welcome to Sovereign AI</h3>
+          <p>Your conversations are processed on your local hardware by default. Switch tiers above to explore different inference options.</p>
+        </div>
+      </div>
+      
+      <div class="transparency-bar">
+        <div class="t-item">
+          <span class="t-label">Tier:</span>
+          <span class="t-value sovereign" id="t-tier">◈ Sovereign</span>
+        </div>
+        <div class="t-item">
+          <span class="t-label">Data:</span>
+          <span class="t-value sovereign" id="t-data">Local only</span>
+        </div>
+        <div class="t-item">
+          <span class="t-label">Latency:</span>
+          <span class="t-value" id="t-latency">—</span>
+        </div>
+        <div class="t-item">
+          <span class="t-label">Session:</span>
+          <span class="t-value" id="t-cost">$0.00</span>
+        </div>
+      </div>
+      
+      <div class="input-area">
+        <textarea id="user-input" placeholder="What's on your mind?" rows="2"></textarea>
+        <button id="send-btn" class="send-btn">
+          <span>Send</span>
+          <span>↑</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- RIGHT TAB (Transparency) -->
+    <div class="side-tab right collapsed" id="right-tab">
+      <div class="tab-content">
+        <div class="tab-content-inner">
+          <div class="sidebar-header">
+            <span class="sidebar-title">Transparency</span>
+          </div>
+          
+          <!-- LIVE TRANSPARENCY PANE -->
+          <div class="transparency-pane">
+            <div class="pane-header">
+              <span class="pane-status"></span>
+              <span class="pane-title">Data Flow</span>
+              <span class="pane-badge" id="pane-mode">SOVEREIGN</span>
+            </div>
+            <div class="pane-content">
+              <div class="pane-item">
+                <span class="pane-label">Processing</span>
+                <span class="pane-value sovereign" id="pane-processing">Local</span>
+              </div>
+              <div class="pane-item">
+                <span class="pane-label">Model</span>
+                <span class="pane-value" id="pane-model">gpt-oss:20b</span>
+              </div>
+              <div class="pane-item">
+                <span class="pane-label">Vault</span>
+                <span class="pane-value sovereign" id="pane-vault">Active</span>
+              </div>
+              <div class="pane-item">
+                <span class="pane-label">Cloud</span>
+                <span class="pane-value" id="pane-cloud" style="color: var(--error);">Blocked</span>
+              </div>
+              
+              <div class="pane-flow">
+                <div class="flow-mini">
+                  <span class="flow-node active" id="flow-input">You</span>
+                  <span class="flow-arrow">→</span>
+                  <span class="flow-node active" id="flow-llm">LLM</span>
+                  <span class="flow-arrow">→</span>
+                  <span class="flow-node active" id="flow-vault">Vault</span>
+                  <span class="flow-arrow">→</span>
+                  <span class="flow-node active" id="flow-output">Out</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="sidebar-widget">
+            <button class="widget-toggle active" data-target="stats-widget">
+              <span class="toggle-icon">▸</span>
+              <span class="toggle-title">Session Stats</span>
+            </button>
+            <div id="stats-widget" class="widget-content">
+              <div class="session-stats">
+                <div class="stat-card">
+                  <div class="stat-value" id="stat-messages">0</div>
+                  <div class="stat-label">Messages</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-value" id="stat-tokens">0</div>
+                  <div class="stat-label">Tokens</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-value" id="stat-cache">0</div>
+                  <div class="stat-label">Cache</div>
+                </div>
+                <div class="stat-card">
+                  <div class="stat-value" id="stat-cost">$0</div>
+                  <div class="stat-label">Cost</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="sidebar-widget">
+            <button class="widget-toggle" data-target="shortcuts-widget">
+              <span class="toggle-icon">▸</span>
+              <span class="toggle-title">Shortcuts</span>
+            </button>
+            <div id="shortcuts-widget" class="widget-content collapsed">
+              <div style="font-size: 11px; color: var(--text-muted);">
+                <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--glass-border);">
+                  <span>Send</span>
+                  <span style="font-family: var(--font-mono);">Enter</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--glass-border);">
+                  <span>New line</span>
+                  <span style="font-family: var(--font-mono);">⇧+Enter</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--glass-border);">
+                  <span>Focus</span>
+                  <span style="font-family: var(--font-mono);">⌘+K</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 6px 0;">
+                  <span>Tier</span>
+                  <span style="font-family: var(--font-mono);">⌘+1-4</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tab-handle" onclick="toggleTab('right')">
+        <span class="tab-status"></span>
+        <span class="tab-icon">◈</span>
+        <span class="tab-label">Transparent</span>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Help Modal -->
+  <div id="help-modal" class="help-modal">
+    <div class="help-content">
+      <div class="help-header">
+        <h3>🛟 Support Agent</h3>
+        <button class="help-close" onclick="closeHelp()">×</button>
+      </div>
+      <div class="help-body">
+        <div class="help-chat" id="help-chat">
+          <div class="help-message system">
+            Hi! I'm your ActiveMirror support agent. What can I help you with today?
+            <br><br>
+            <strong>Quick topics:</strong>
+            <ul style="margin: 8px 0 0 16px; font-size: 12px;">
+              <li>How do I add widgets?</li>
+              <li>What are the different tiers?</li>
+              <li>How does sovereign mode work?</li>
+              <li>I found a bug</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="help-input-area">
+        <input type="text" class="help-input" id="help-input" placeholder="Describe your issue...">
+        <button class="help-send" onclick="sendHelpMessage()">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Tab toggle function
+    function toggleTab(side) {
+      const tab = document.getElementById(side + '-tab');
+      if (tab) {
+        tab.classList.toggle('collapsed');
+        tab.classList.toggle('expanded');
+      }
+    }
+    
+    // Help modal functions
+    function openHelp() {
+      document.getElementById('help-modal').classList.add('visible');
+      document.getElementById('help-input').focus();
+    }
+    
+    function closeHelp() {
+      document.getElementById('help-modal').classList.remove('visible');
+    }
+    
+    function sendHelpMessage() {
+      const input = document.getElementById('help-input');
+      const chat = document.getElementById('help-chat');
+      const message = input.value.trim();
+      
+      if (!message) return;
+      
+      // Add user message
+      chat.innerHTML += `<div class="help-message user">${message}</div>`;
+      input.value = '';
+      
+      // Simulate agent response (in production, this would call an API)
+      setTimeout(() => {
+        let response = getHelpResponse(message);
+        chat.innerHTML += `<div class="help-message system">${response}</div>`;
+        chat.scrollTop = chat.scrollHeight;
+      }, 500);
+    }
+    
+    function getHelpResponse(message) {
+      const lower = message.toLowerCase();
+      
+      if (lower.includes('widget')) {
+        return "To add widgets, click the <strong>📋 Widgets</strong> tab on the left, then click the <strong>+</strong> button. You can add Tasks, Notes, Scratchpad, Links, or Calendar widgets. To remove a widget, hover over it and click the × button.";
+      }
+      if (lower.includes('tier') || lower.includes('sovereign') || lower.includes('cloud')) {
+        return "ActiveMirror has 4 tiers:<br><br>• <strong>◈ Sovereign</strong> — 100% local, your data never leaves your device<br>• <strong>⚡ Fast</strong> — Groq cloud for speed<br>• <strong>☁ Budget</strong> — DeepSeek for cost efficiency<br>• <strong>✦ Frontier</strong> — OpenAI/Claude for maximum capability<br><br>Use ⌘+1-4 to switch quickly.";
+      }
+      if (lower.includes('bug') || lower.includes('error') || lower.includes('broken')) {
+        return "Sorry to hear you're having issues! Please describe the bug in detail and I'll log it. Include:<br>• What you were trying to do<br>• What happened instead<br>• Any error messages<br><br>You can also report bugs at <a href='https://github.com/n1intelligence' target='_blank' style='color: var(--primary);'>github.com/n1intelligence</a>";
+      }
+      if (lower.includes('link')) {
+        return "To add links, open the Links widget and click <strong>+ Add link</strong>. Enter the URL and optionally a title. Links open in a new tab. To delete a link, hover over it and click ×.";
+      }
+      if (lower.includes('task')) {
+        return "To add tasks, type in the input field and press Enter. Click the checkbox to mark complete. Hover and click × to delete. Completed tasks show with a strikethrough.";
+      }
+      
+      return "I understand you need help with: <em>" + message + "</em>.<br><br>For complex issues, try refreshing the page or check our docs. If the problem persists, describe it in more detail and I'll do my best to help!";
+    }
+    
+    // Setup help button
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('help-btn')?.addEventListener('click', openHelp);
+      document.getElementById('help-input')?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') sendHelpMessage();
+      });
+      
+      // Close on backdrop click
+      document.getElementById('help-modal')?.addEventListener('click', (e) => {
+        if (e.target.id === 'help-modal') closeHelp();
+      });
+    });
+  </script>
+  <script src="app.js"></script>
+</body>
+</html>
