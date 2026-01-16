@@ -33,6 +33,17 @@ class ContextPane {
       history: true
     };
 
+    // Clipboard history
+    this.clipboardHistory = this.loadClipboard();
+    this.lastClipboard = '';
+
+    // Connection graph data
+    this.connectionGraph = {
+      nodes: [],
+      edges: [],
+      clusters: []
+    };
+
     this.init();
   }
 
@@ -51,14 +62,12 @@ class ContextPane {
     pane.className = 'context-pane collapsed';
     pane.innerHTML = this.renderPaneContent();
 
-    // Create toggle button
-    const toggle = document.createElement('button');
+    // Create toggle button - styled like agent dock items
+    const toggle = document.createElement('div');
     toggle.id = 'context-pane-toggle';
     toggle.className = 'context-toggle';
-    toggle.innerHTML = `
-      <span class="toggle-icon">◧</span>
-      <span class="toggle-label">Context</span>
-    `;
+    toggle.innerHTML = `◧`;
+    toggle.title = 'Context Pane (⌘K)';
 
     document.body.appendChild(pane);
     document.body.appendChild(toggle);
@@ -76,6 +85,12 @@ class ContextPane {
           </button>
           <button class="cp-tab" data-tab="preview" title="Preview">
             <span>👁</span>
+          </button>
+          <button class="cp-tab" data-tab="graph" title="Connection Graph">
+            <span>🕸</span>
+          </button>
+          <button class="cp-tab" data-tab="clipboard" title="Clipboard History">
+            <span>📋</span>
           </button>
           <button class="cp-tab" data-tab="context" title="Session Context">
             <span>🧠</span>
@@ -134,6 +149,59 @@ class ContextPane {
               <span class="empty-icon">👁</span>
               <p>Click any link or file to preview</p>
               <p class="empty-hint">See content without leaving your flow</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- CONNECTION GRAPH TAB -->
+        <div class="cp-section" data-section="graph">
+          <div class="graph-container">
+            <div class="graph-header">
+              <h4>Connection Graph</h4>
+              <div class="graph-controls">
+                <button class="graph-btn" data-view="today" title="Today's connections">Today</button>
+                <button class="graph-btn active" data-view="session" title="This session">Session</button>
+                <button class="graph-btn" data-view="all" title="All time">All</button>
+              </div>
+            </div>
+            <div class="graph-canvas" id="graph-canvas">
+              <canvas id="connection-canvas"></canvas>
+            </div>
+            <div class="graph-legend">
+              <span class="legend-item"><span class="legend-dot web"></span>Web</span>
+              <span class="legend-item"><span class="legend-dot vault"></span>Vault</span>
+              <span class="legend-item"><span class="legend-dot file"></span>Files</span>
+              <span class="legend-item"><span class="legend-dot thought"></span>Thoughts</span>
+            </div>
+            <div class="graph-insights" id="graph-insights">
+              <div class="insight-card">
+                <span class="insight-icon">💡</span>
+                <span class="insight-text">Start exploring to see connections emerge</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CLIPBOARD HISTORY TAB -->
+        <div class="cp-section" data-section="clipboard">
+          <div class="clipboard-container">
+            <div class="clipboard-header">
+              <h4>Clipboard History</h4>
+              <button class="clipboard-clear" id="clear-clipboard" title="Clear history">Clear</button>
+            </div>
+            <div class="clipboard-search">
+              <input type="text" id="clipboard-search" placeholder="Search clipboard..." />
+            </div>
+            <div class="clipboard-list" id="clipboard-list">
+              <div class="clipboard-empty">
+                <span class="empty-icon">📋</span>
+                <p>Your clipboard history will appear here</p>
+                <p class="empty-hint">Copy text, code, links — all saved automatically</p>
+              </div>
+            </div>
+            <div class="clipboard-actions">
+              <button class="clip-action" id="clip-paste-all" title="Paste all as list">📝 Paste All</button>
+              <button class="clip-action" id="clip-export" title="Export to file">💾 Export</button>
             </div>
           </div>
         </div>
@@ -260,6 +328,33 @@ class ContextPane {
         this.switchTab('search');
         document.getElementById('unified-search')?.focus();
       }
+    });
+
+    // Clipboard monitoring
+    this.startClipboardMonitoring();
+
+    // Clear clipboard
+    document.getElementById('clear-clipboard')?.addEventListener('click', () => {
+      this.clearClipboard();
+    });
+
+    // Clipboard search
+    document.getElementById('clipboard-search')?.addEventListener('input', (e) => {
+      this.filterClipboard(e.target.value);
+    });
+
+    // Graph view controls
+    document.querySelectorAll('.graph-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.graph-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this.updateGraph(btn.dataset.view);
+      });
+    });
+
+    // Export clipboard
+    document.getElementById('clip-export')?.addEventListener('click', () => {
+      this.exportClipboard();
     });
   }
 
@@ -839,6 +934,314 @@ class ContextPane {
     }, 2000);
   }
 
+  // === CLIPBOARD ===
+
+  loadClipboard() {
+    return JSON.parse(localStorage.getItem('clipboard_history') || '[]');
+  }
+
+  saveClipboard() {
+    // Keep last 100 items
+    this.clipboardHistory = this.clipboardHistory.slice(0, 100);
+    localStorage.setItem('clipboard_history', JSON.stringify(this.clipboardHistory));
+  }
+
+  startClipboardMonitoring() {
+    // Check clipboard every 2 seconds
+    setInterval(async () => {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (text && text !== this.lastClipboard && text.trim().length > 0) {
+          this.lastClipboard = text;
+          this.addToClipboard(text);
+        }
+      } catch (e) {
+        // Clipboard access denied - that's ok
+      }
+    }, 2000);
+
+    // Also capture on copy events
+    document.addEventListener('copy', () => {
+      setTimeout(async () => {
+        try {
+          const text = await navigator.clipboard.readText();
+          if (text && text !== this.lastClipboard) {
+            this.lastClipboard = text;
+            this.addToClipboard(text);
+          }
+        } catch (e) {}
+      }, 100);
+    });
+  }
+
+  addToClipboard(text) {
+    // Detect type
+    let type = 'text';
+    if (text.match(/^https?:\/\//)) type = 'url';
+    else if (text.match(/^(const|let|var|function|class|import|export|def |async )/m)) type = 'code';
+    else if (text.match(/^[\s\S]*\{[\s\S]*\}[\s\S]*$/)) type = 'json';
+
+    const item = {
+      id: Date.now(),
+      text: text,
+      type: type,
+      preview: text.substring(0, 100),
+      timestamp: Date.now()
+    };
+
+    // Don't add duplicates
+    if (!this.clipboardHistory.some(c => c.text === text)) {
+      this.clipboardHistory.unshift(item);
+      this.saveClipboard();
+      this.renderClipboard();
+    }
+  }
+
+  renderClipboard() {
+    const container = document.getElementById('clipboard-list');
+    if (!container) return;
+
+    if (this.clipboardHistory.length === 0) {
+      container.innerHTML = `
+        <div class="clipboard-empty">
+          <span class="empty-icon">📋</span>
+          <p>Your clipboard history will appear here</p>
+          <p class="empty-hint">Copy text, code, links — all saved automatically</p>
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = this.clipboardHistory.map(item => `
+      <div class="clip-item" data-id="${item.id}">
+        <div class="clip-item-header">
+          <div class="clip-type">
+            <span class="clip-type-icon">${this.getClipIcon(item.type)}</span>
+            <span>${item.type}</span>
+          </div>
+          <span class="clip-time">${this.formatTime(item.timestamp)}</span>
+        </div>
+        <div class="clip-content ${item.type === 'code' ? 'code' : ''}">${this.escapeHtml(item.preview)}${item.text.length > 100 ? '...' : ''}</div>
+        <div class="clip-item-actions">
+          <button class="clip-btn clip-copy" title="Copy again">📋 Copy</button>
+          <button class="clip-btn clip-delete" title="Delete">🗑 Delete</button>
+        </div>
+      </div>
+    `).join('');
+
+    // Add click handlers
+    container.querySelectorAll('.clip-item').forEach(el => {
+      el.querySelector('.clip-copy')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const item = this.clipboardHistory.find(c => c.id === parseInt(el.dataset.id));
+        if (item) {
+          navigator.clipboard.writeText(item.text);
+          this.showToast('📋 Copied!');
+        }
+      });
+
+      el.querySelector('.clip-delete')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.clipboardHistory = this.clipboardHistory.filter(c => c.id !== parseInt(el.dataset.id));
+        this.saveClipboard();
+        this.renderClipboard();
+      });
+
+      el.addEventListener('click', () => {
+        const item = this.clipboardHistory.find(c => c.id === parseInt(el.dataset.id));
+        if (item) {
+          navigator.clipboard.writeText(item.text);
+          this.showToast('📋 Copied!');
+        }
+      });
+    });
+  }
+
+  filterClipboard(query) {
+    const container = document.getElementById('clipboard-list');
+    if (!container) return;
+
+    const filtered = query
+      ? this.clipboardHistory.filter(c => c.text.toLowerCase().includes(query.toLowerCase()))
+      : this.clipboardHistory;
+
+    // Re-render with filtered items
+    if (filtered.length === 0) {
+      container.innerHTML = `<div class="clipboard-empty"><p>No matches for "${query}"</p></div>`;
+    } else {
+      // Temporarily swap and render
+      const original = this.clipboardHistory;
+      this.clipboardHistory = filtered;
+      this.renderClipboard();
+      this.clipboardHistory = original;
+    }
+  }
+
+  clearClipboard() {
+    this.clipboardHistory = [];
+    this.saveClipboard();
+    this.renderClipboard();
+  }
+
+  exportClipboard() {
+    const content = this.clipboardHistory.map(c =>
+      `[${new Date(c.timestamp).toLocaleString()}] (${c.type})\n${c.text}\n`
+    ).join('\n---\n\n');
+
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `clipboard-history-${new Date().toISOString().split('T')[0]}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  getClipIcon(type) {
+    const icons = { text: '📝', url: '🔗', code: '💻', json: '📋' };
+    return icons[type] || '📝';
+  }
+
+  // === CONNECTION GRAPH ===
+
+  addConnection(from, to, type) {
+    const fromNode = this.ensureNode(from);
+    const toNode = this.ensureNode(to);
+
+    this.connectionGraph.edges.push({
+      from: fromNode.id,
+      to: toNode.id,
+      type: type,
+      timestamp: Date.now()
+    });
+
+    this.updateGraph('session');
+  }
+
+  ensureNode(item) {
+    let node = this.connectionGraph.nodes.find(n => n.title === item.title);
+    if (!node) {
+      node = {
+        id: Date.now() + Math.random(),
+        title: item.title,
+        type: item.type,
+        x: Math.random() * 300,
+        y: Math.random() * 200,
+        timestamp: Date.now()
+      };
+      this.connectionGraph.nodes.push(node);
+    }
+    return node;
+  }
+
+  updateGraph(view) {
+    const canvas = document.getElementById('connection-canvas');
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    const container = document.getElementById('graph-canvas');
+    canvas.width = container.offsetWidth;
+    canvas.height = 200;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Filter nodes based on view
+    let nodes = this.connectionGraph.nodes;
+    const now = Date.now();
+    if (view === 'today') {
+      const dayAgo = now - 24 * 60 * 60 * 1000;
+      nodes = nodes.filter(n => n.timestamp > dayAgo);
+    } else if (view === 'session') {
+      nodes = nodes.filter(n => n.timestamp > this.sessionContext.startTime);
+    }
+
+    if (nodes.length === 0) {
+      ctx.fillStyle = 'rgba(255,255,255,0.3)';
+      ctx.font = '12px Inter';
+      ctx.textAlign = 'center';
+      ctx.fillText('No connections yet', canvas.width / 2, canvas.height / 2);
+      return;
+    }
+
+    // Draw edges
+    ctx.strokeStyle = 'rgba(99, 102, 241, 0.3)';
+    ctx.lineWidth = 1;
+    this.connectionGraph.edges.forEach(edge => {
+      const from = nodes.find(n => n.id === edge.from);
+      const to = nodes.find(n => n.id === edge.to);
+      if (from && to) {
+        ctx.beginPath();
+        ctx.moveTo(from.x, from.y);
+        ctx.lineTo(to.x, to.y);
+        ctx.stroke();
+      }
+    });
+
+    // Draw nodes
+    nodes.forEach(node => {
+      const color = this.getNodeColor(node.type);
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(node.x, node.y, 8, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Label
+      ctx.fillStyle = 'rgba(255,255,255,0.7)';
+      ctx.font = '10px Inter';
+      ctx.textAlign = 'center';
+      ctx.fillText(node.title.substring(0, 15), node.x, node.y + 20);
+    });
+
+    // Update insights
+    this.updateGraphInsights(nodes);
+  }
+
+  getNodeColor(type) {
+    const colors = {
+      web: '#8b5cf6',
+      vault: '#10b981',
+      file: '#f59e0b',
+      thought: '#ec4899'
+    };
+    return colors[type] || '#6366f1';
+  }
+
+  updateGraphInsights(nodes) {
+    const container = document.getElementById('graph-insights');
+    if (!container) return;
+
+    const typeCount = {};
+    nodes.forEach(n => {
+      typeCount[n.type] = (typeCount[n.type] || 0) + 1;
+    });
+
+    const insights = [];
+
+    if (nodes.length > 5) {
+      insights.push(`You've explored ${nodes.length} topics this session`);
+    }
+
+    const topType = Object.entries(typeCount).sort((a, b) => b[1] - a[1])[0];
+    if (topType && topType[1] > 2) {
+      insights.push(`Most active: ${this.getTypeLabel(topType[0])} (${topType[1]})`);
+    }
+
+    if (this.connectionGraph.edges.length > 3) {
+      insights.push(`${this.connectionGraph.edges.length} connections forming`);
+    }
+
+    if (insights.length === 0) {
+      insights.push('Start exploring to see connections emerge');
+    }
+
+    container.innerHTML = insights.map(i => `
+      <div class="insight-card">
+        <span class="insight-icon">💡</span>
+        <span class="insight-text">${i}</span>
+      </div>
+    `).join('');
+  }
+
   // === UTILITIES ===
 
   getTypeLabel(type) {
@@ -894,41 +1297,39 @@ class ContextPane {
   injectStyles() {
     const styles = document.createElement('style');
     styles.textContent = `
-      /* Context Pane Toggle */
+      /* Context Pane Toggle - matches agent dock style */
       .context-toggle {
         position: fixed;
-        left: 0;
-        top: 120px;
-        z-index: 900;
+        left: 8px;
+        top: 140px;
+        z-index: 101;
+        width: 48px;
+        height: 48px;
         display: flex;
         align-items: center;
-        gap: 6px;
-        padding: 8px 12px;
-        background: rgba(18, 18, 26, 0.95);
-        border: 1px solid var(--glass-border);
-        border-left: none;
-        border-radius: 0 20px 20px 0;
+        justify-content: center;
+        background: var(--bg-tertiary);
+        border: 2px solid transparent;
+        border-radius: 10px;
         color: var(--text-secondary);
         cursor: pointer;
-        transition: all 0.3s ease;
-        font-size: 12px;
-        backdrop-filter: blur(20px);
+        transition: all 0.2s ease;
+        font-size: 22px;
       }
 
       .context-toggle:hover {
         background: var(--bg-hover);
         border-color: var(--primary);
-        color: var(--text-primary);
+        color: var(--primary);
+        transform: scale(1.05);
+        box-shadow: 0 0 20px var(--primary-glow);
       }
 
       .context-toggle.active {
         background: var(--primary-soft);
         border-color: var(--primary);
         color: var(--primary);
-      }
-
-      .toggle-icon {
-        font-size: 16px;
+        box-shadow: 0 0 20px var(--primary-glow);
       }
 
       /* Context Pane */
@@ -1536,6 +1937,336 @@ class ContextPane {
 
       body:has(.context-pane:not(.collapsed)) .agent-dock {
         left: 360px;
+      }
+
+      /* ========== CONNECTION GRAPH TAB ========== */
+      .graph-container {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        gap: 12px;
+      }
+
+      .graph-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .graph-header h4 {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      .graph-controls {
+        display: flex;
+        gap: 4px;
+        background: var(--bg-tertiary);
+        padding: 3px;
+        border-radius: 6px;
+      }
+
+      .graph-btn {
+        padding: 4px 10px;
+        background: transparent;
+        border: none;
+        border-radius: 4px;
+        color: var(--text-muted);
+        font-size: 11px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .graph-btn:hover {
+        color: var(--text-primary);
+      }
+
+      .graph-btn.active {
+        background: var(--accent);
+        color: #000;
+      }
+
+      .graph-canvas {
+        flex: 1;
+        min-height: 200px;
+        background: var(--bg-tertiary);
+        border-radius: 12px;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .graph-canvas canvas {
+        width: 100%;
+        height: 100%;
+      }
+
+      .graph-legend {
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+        padding: 8px 0;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11px;
+        color: var(--text-muted);
+      }
+
+      .legend-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+      }
+
+      .legend-dot.web { background: #4ECDC4; }
+      .legend-dot.vault { background: #FF6B6B; }
+      .legend-dot.file { background: #FFE66D; }
+      .legend-dot.thought { background: #C49CFF; }
+
+      .graph-insights {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .insight-card {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 14px;
+        background: linear-gradient(135deg, var(--bg-tertiary) 0%, rgba(196, 156, 255, 0.1) 100%);
+        border: 1px solid var(--glass-border);
+        border-radius: 10px;
+      }
+
+      .insight-icon {
+        font-size: 18px;
+      }
+
+      .insight-text {
+        font-size: 12px;
+        color: var(--text-secondary);
+        line-height: 1.4;
+      }
+
+      /* ========== CLIPBOARD HISTORY TAB ========== */
+      .clipboard-container {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        gap: 12px;
+      }
+
+      .clipboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .clipboard-header h4 {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-primary);
+      }
+
+      .clipboard-clear {
+        padding: 4px 10px;
+        background: transparent;
+        border: 1px solid var(--glass-border);
+        border-radius: 4px;
+        color: var(--text-muted);
+        font-size: 11px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .clipboard-clear:hover {
+        background: var(--error-soft);
+        border-color: var(--error);
+        color: var(--error);
+      }
+
+      .clipboard-search {
+        position: relative;
+      }
+
+      .clipboard-search input {
+        width: 100%;
+        padding: 10px 14px;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--glass-border);
+        border-radius: 8px;
+        color: var(--text-primary);
+        font-size: 13px;
+        outline: none;
+        transition: border-color 0.2s ease;
+      }
+
+      .clipboard-search input:focus {
+        border-color: var(--accent);
+      }
+
+      .clipboard-search input::placeholder {
+        color: var(--text-muted);
+      }
+
+      .clipboard-list {
+        flex: 1;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .clipboard-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+        text-align: center;
+      }
+
+      .clipboard-empty .empty-icon {
+        font-size: 40px;
+        margin-bottom: 12px;
+        opacity: 0.5;
+      }
+
+      .clipboard-empty p {
+        margin: 0;
+        color: var(--text-muted);
+        font-size: 13px;
+      }
+
+      .clipboard-empty .empty-hint {
+        font-size: 11px;
+        margin-top: 8px;
+        opacity: 0.7;
+      }
+
+      .clip-item {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        padding: 12px;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--glass-border);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .clip-item:hover {
+        background: var(--bg-hover);
+        border-color: var(--accent-dim);
+      }
+
+      .clip-item-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .clip-type {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 10px;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .clip-type-icon {
+        font-size: 12px;
+      }
+
+      .clip-time {
+        font-size: 10px;
+        color: var(--text-muted);
+      }
+
+      .clip-content {
+        font-size: 12px;
+        color: var(--text-secondary);
+        line-height: 1.4;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        word-break: break-word;
+      }
+
+      .clip-content.code {
+        font-family: 'SF Mono', 'Consolas', monospace;
+        background: rgba(0, 0, 0, 0.2);
+        padding: 8px;
+        border-radius: 4px;
+        font-size: 11px;
+      }
+
+      .clip-item-actions {
+        display: flex;
+        gap: 8px;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+      }
+
+      .clip-item:hover .clip-item-actions {
+        opacity: 1;
+      }
+
+      .clip-btn {
+        padding: 4px 8px;
+        background: var(--bg-secondary);
+        border: 1px solid var(--glass-border);
+        border-radius: 4px;
+        color: var(--text-muted);
+        font-size: 10px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .clip-btn:hover {
+        background: var(--accent);
+        color: #000;
+        border-color: var(--accent);
+      }
+
+      .clipboard-actions {
+        display: flex;
+        gap: 8px;
+        padding-top: 8px;
+        border-top: 1px solid var(--glass-border);
+      }
+
+      .clip-action {
+        flex: 1;
+        padding: 10px 12px;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--glass-border);
+        border-radius: 8px;
+        color: var(--text-secondary);
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+      }
+
+      .clip-action:hover {
+        background: var(--accent);
+        color: #000;
+        border-color: var(--accent);
       }
     `;
     document.head.appendChild(styles);
