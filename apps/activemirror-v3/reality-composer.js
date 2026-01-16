@@ -911,8 +911,9 @@ class RealityComposerUI {
 window.RealityComposer = RealityComposer;
 window.realityComposer = new RealityComposer();
 
-document.addEventListener('DOMContentLoaded', () => {
+// UI initialization deferred until user enters app (called from app.js)
+window.initRealityComposerUI = function() {
   new RealityComposerUI(window.realityComposer);
-});
+};
 
 console.log('🎭 Reality Composer initialized — your environment, optimized');

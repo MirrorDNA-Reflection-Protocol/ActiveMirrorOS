@@ -412,6 +412,7 @@
     }
     
     .badge-sovereign { background: var(--success-soft); color: var(--success); }
+    .badge-cloud { background: var(--warning-soft); color: var(--warning); }
     .badge-info { background: var(--primary-soft); color: var(--primary); }
     .badge-warning { background: var(--warning-soft); color: var(--warning); }
     .badge-live { background: var(--success-soft); color: var(--success); }
@@ -2083,22 +2084,22 @@
       </h1>
 
       <p class="hero-subtitle">
-        Not another chatbot. <strong>Specialized agents</strong> that know you,<br>
-        anticipate your needs, and remember everything. Forever.
+        Not another chatbot. <strong>Helpers</strong> that learn your preferences,<br>
+        assist when useful, and keep your data on your terms.
       </p>
 
       <div class="hero-stats">
         <div class="hero-stat">
           <div class="hero-stat-value">5</div>
-          <div class="hero-stat-label">Cognitive Agents</div>
+          <div class="hero-stat-label">Helpers</div>
         </div>
         <div class="hero-stat">
-          <div class="hero-stat-value">∞</div>
+          <div class="hero-stat-value">Local</div>
           <div class="hero-stat-label">Memory</div>
         </div>
         <div class="hero-stat">
-          <div class="hero-stat-value">24/7</div>
-          <div class="hero-stat-label">Proactive</div>
+          <div class="hero-stat-value">Hybrid</div>
+          <div class="hero-stat-label">Routing</div>
         </div>
       </div>
 
@@ -2133,7 +2134,7 @@
         <button class="widget-toggle active" data-target="architecture-section">
           <span class="toggle-icon">▸</span>
           <span class="toggle-title">System Architecture</span>
-          <span class="badge badge-sovereign">100% Local</span>
+          <span id="arch-mode-badge" class="badge badge-sovereign">100% Local</span>
         </button>
         <div id="architecture-section" class="widget-content">
           <div class="architecture-flow">
@@ -2196,14 +2197,15 @@
                 <g class="node output">
                   <rect x="530" y="55" width="60" height="50" rx="6" class="node-box output"/>
                   <text x="560" y="77" class="node-label">You</text>
-                  <text x="560" y="90" class="node-sublabel">Zero Cloud</text>
+                  <text x="560" y="90" id="arch-output-sublabel" class="node-sublabel">Zero Cloud</text>
                 </g>
                 
-                <!-- Cloud Blocked indicator -->
-                <g class="node blocked" opacity="0.4">
-                  <rect x="380" y="135" width="90" height="35" rx="6" style="fill:rgba(239,68,68,0.1);stroke:var(--error);stroke-dasharray:4 2;"/>
-                  <text x="425" y="150" style="fill:var(--error);font-size:10px;text-anchor:middle;">☁ Cloud</text>
-                  <text x="425" y="162" style="fill:var(--error);font-size:8px;text-anchor:middle;opacity:0.7">BLOCKED</text>
+                <!-- Cloud indicator - updates based on tier -->
+                <g id="arch-cloud-node" class="node blocked">
+                  <path id="arch-cloud-path" class="flow-path cloud-flow" d="M425,110 L425,135" style="stroke:var(--error);stroke-dasharray:4 2;opacity:0.3"/>
+                  <rect x="380" y="135" width="90" height="35" rx="6" id="arch-cloud-box" style="fill:rgba(239,68,68,0.1);stroke:var(--error);stroke-dasharray:4 2;"/>
+                  <text x="425" y="150" id="arch-cloud-label" style="fill:var(--error);font-size:10px;text-anchor:middle;">☁ Cloud</text>
+                  <text x="425" y="162" id="arch-cloud-status" style="fill:var(--error);font-size:8px;text-anchor:middle;opacity:0.7">BLOCKED</text>
                 </g>
               </svg>
             </div>
@@ -2638,6 +2640,36 @@
           </div>
           
           <div class="sidebar-widget">
+            <button class="widget-toggle active" data-target="state-widget">
+              <span class="toggle-icon">▸</span>
+              <span class="toggle-title">Your State</span>
+              <span id="state-score-badge" class="badge badge-sovereign">--</span>
+            </button>
+            <div id="state-widget" class="widget-content">
+              <div id="quantum-state-container" style="font-size: 12px;">
+                <div style="display: flex; gap: 12px; margin-bottom: 12px;">
+                  <div id="qs-score-display" style="text-align: center;">
+                    <div style="width: 50px; height: 50px; border-radius: 50%; background: conic-gradient(var(--sovereign) calc(var(--qs-score, 50) * 1%), var(--bg-tertiary) 0); display: flex; align-items: center; justify-content: center; position: relative;">
+                      <div style="position: absolute; inset: 4px; background: var(--bg-secondary); border-radius: 50%;"></div>
+                      <span id="qs-score-value" style="position: relative; font-weight: 700; font-size: 14px;">--</span>
+                    </div>
+                    <div style="font-size: 10px; color: var(--text-muted); margin-top: 4px;">Wellness</div>
+                  </div>
+                  <div style="flex: 1;">
+                    <div id="qs-guidance-text" style="color: var(--text-secondary); line-height: 1.4;">Loading...</div>
+                  </div>
+                </div>
+                <div id="qs-dimensions" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;">
+                  <!-- Dimensions populated by JS -->
+                </div>
+                <div id="qs-predictions" style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--glass-border); font-size: 11px; color: var(--text-muted);">
+                  <!-- Predictions populated by JS -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sidebar-widget">
             <button class="widget-toggle" data-target="shortcuts-widget">
               <span class="toggle-icon">▸</span>
               <span class="toggle-title">Shortcuts</span>
@@ -2786,8 +2818,10 @@
   <script src="reality-composer.js"></script>
   <script src="life-stack.js"></script>
   <script src="file-intelligence.js"></script>
+  <script src="quick-tools.js"></script>
   <script src="webllm-engine.js"></script>
   <script src="nudges.js"></script>
+  <script src="command-center.js"></script>
   <script src="app.js"></script>
 
   <!-- NOVEL: Consciousness Stream Animation -->

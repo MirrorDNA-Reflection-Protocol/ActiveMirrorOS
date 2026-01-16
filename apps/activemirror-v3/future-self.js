@@ -734,11 +734,10 @@ class FutureSelfUI {
 window.FutureSelf = FutureSelf;
 window.futureSelf = new FutureSelf();
 
-document.addEventListener('DOMContentLoaded', () => {
+// UI initialization deferred until user enters app (called from app.js)
+window.initFutureSelfUI = function() {
   new FutureSelfUI(window.futureSelf);
-
-  // Check for unopened time capsules
   window.futureSelf.checkTimeCapsules();
-});
+};
 
 console.log('🔮 Future Self initialized — wisdom from tomorrow, available today');

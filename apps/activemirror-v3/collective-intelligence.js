@@ -512,11 +512,9 @@ window.CollectiveIntelligence = CollectiveIntelligence;
 window.collectiveIntelligence = new CollectiveIntelligence();
 window.gratitudeLoop = new GratitudeLoop(window.collectiveIntelligence);
 
-document.addEventListener('DOMContentLoaded', () => {
-  // Wait for quantum self to render first
-  setTimeout(() => {
-    new CollectiveIntelligenceUI(window.collectiveIntelligence);
-  }, 1000);
-});
+// UI initialization deferred until user enters app (called from app.js)
+window.initCollectiveIntelligenceUI = function() {
+  new CollectiveIntelligenceUI(window.collectiveIntelligence);
+};
 
 console.log('🌐 Collective Intelligence initialized — we rise together');

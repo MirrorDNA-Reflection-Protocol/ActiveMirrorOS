@@ -38,11 +38,9 @@
  * - Temporal manipulation
  * - Social environment controls
  *
- * THE RESULT: A system that knows you deeper than you know yourself,
- * anticipates your needs, shapes your environment, connects you to
- * collective wisdom, and helps you become who you want to be.
- *
- * This is life-changing technology.
+ * THE RESULT: Tools that learn your preferences over time,
+ * offer suggestions when helpful, and let you control how
+ * much assistance you want. Still learning. You're in charge.
  */
 
 // ============================================
@@ -480,9 +478,15 @@ class LifeStack {
   // ============================================
 
   createDashboard() {
+    // DISABLED: Floating dashboard breaks UX. Data now integrated into right sidebar.
+    // The LifeStack data is available via window.lifeStack for other components to use.
+    return;
+
     const dashboard = document.createElement('div');
     dashboard.id = 'life-stack-dashboard';
     dashboard.className = 'life-dashboard';
+    // Start hidden until user enters the app
+    dashboard.style.display = 'none';
     dashboard.innerHTML = `
       <button class="ld-toggle" title="Life Stack Dashboard">
         <span class="ld-icon">⟡</span>
@@ -1160,12 +1164,13 @@ document.head.appendChild(styleSheet);
 
 window.LifeStack = LifeStack;
 
-document.addEventListener('DOMContentLoaded', () => {
-  // Initialize after a short delay to let other layers load
-  setTimeout(() => {
+// DISABLED: Floating dashboard removed. Data available via window.lifeStack after init.
+// LifeStack now initialized from app.js enterApp() via window.initLifeStack()
+window.initLifeStack = function() {
+  if (!window.lifeStack) {
     window.lifeStack = new LifeStack();
-  }, 2000);
-});
+  }
+};
 
 // Track session end
 window.addEventListener('beforeunload', () => {

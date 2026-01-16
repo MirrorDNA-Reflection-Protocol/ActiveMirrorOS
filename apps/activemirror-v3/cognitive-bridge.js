@@ -1683,9 +1683,10 @@ class CognitiveBridgeUI {
 window.CognitiveBridge = CognitiveBridge;
 window.cognitiveBridgeUI = new CognitiveBridgeUI();
 
-// Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
+// Initialize is now called from app.js enterApp() to avoid UI appearing before consent
+// window.initCognitiveBridge() is exposed for that purpose
+window.initCognitiveBridge = function() {
   window.cognitiveBridgeUI.init();
-});
+};
 
 console.log('⟡ Cognitive Bridge loaded — bridging minds, empowering all.');

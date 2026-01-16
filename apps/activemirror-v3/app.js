@@ -402,7 +402,84 @@ class ActiveMirrorApp {
 
       // Start nudge system
       this.startNudges();
+
+      // Initialize UI components now that user has entered
+      if (window.initCognitiveBridge) window.initCognitiveBridge();
+      if (window.initLifeStack) setTimeout(() => window.initLifeStack(), 1000);
+
+      // Initialize Your State widget in sidebar
+      this.initStateWidget();
     }, 400);
+  }
+
+  initStateWidget() {
+    // Update immediately and then every 30 seconds
+    this.updateStateWidget();
+    setInterval(() => this.updateStateWidget(), 30000);
+  }
+
+  updateStateWidget() {
+    const qs = window.quantumSelf;
+    if (!qs) return;
+
+    const score = qs.getWellnessScore();
+    const guidance = qs.getDailyGuidance();
+    const state = qs.currentState;
+    const predictions = qs.predictions || [];
+
+    // Update badge
+    const badge = document.getElementById('state-score-badge');
+    if (badge) {
+      badge.textContent = score;
+      badge.className = `badge ${score >= 70 ? 'badge-sovereign' : score >= 40 ? 'badge-info' : 'badge-warning'}`;
+    }
+
+    // Update score circle
+    const scoreDisplay = document.getElementById('qs-score-display');
+    if (scoreDisplay) {
+      scoreDisplay.querySelector('div').style.setProperty('--qs-score', score);
+    }
+    const scoreValue = document.getElementById('qs-score-value');
+    if (scoreValue) scoreValue.textContent = score;
+
+    // Update guidance
+    const guidanceText = document.getElementById('qs-guidance-text');
+    if (guidanceText && guidance) {
+      const focus = guidance.focus || 'Take it easy today';
+      const body = guidance.bodyWisdom || '';
+      guidanceText.innerHTML = `<strong style="color:var(--text-primary)">${focus}</strong>${body ? `<br><span style="font-size:11px">${body}</span>` : ''}`;
+    }
+
+    // Update dimensions
+    const dimsContainer = document.getElementById('qs-dimensions');
+    if (dimsContainer && state) {
+      const dims = [
+        { key: 'cognitive', icon: '🧠', label: 'Mind' },
+        { key: 'emotional', icon: '💜', label: 'Heart' },
+        { key: 'physical', icon: '💪', label: 'Body' },
+        { key: 'social', icon: '👥', label: 'Social' },
+        { key: 'creative', icon: '✨', label: 'Creative' },
+        { key: 'meaning', icon: '🎯', label: 'Purpose' }
+      ];
+      dimsContainer.innerHTML = dims.map(d => `
+        <div style="text-align:center;padding:4px;background:var(--bg-tertiary);border-radius:6px;">
+          <div style="font-size:14px">${d.icon}</div>
+          <div style="font-size:10px;color:var(--text-muted)">${state[d.key] || 50}</div>
+        </div>
+      `).join('');
+    }
+
+    // Update predictions
+    const predsContainer = document.getElementById('qs-predictions');
+    if (predsContainer) {
+      if (predictions.length === 0) {
+        predsContainer.innerHTML = '✓ All clear — no warnings';
+      } else {
+        predsContainer.innerHTML = predictions.slice(0, 2).map(p =>
+          `<div style="color:var(--warning)">⚠ ${p.type === 'crash_warning' ? 'Energy dip predicted' : p.type}</div>`
+        ).join('');
+      }
+    }
   }
   
   // ============================================
@@ -548,9 +625,53 @@ class ActiveMirrorApp {
     
     // Update transparency pane (right side widget)
     this.updateTransparencyPane(tier, config);
-    
+
+    // Update architecture diagram
+    this.updateArchitectureDiagram(tier);
+
     // Update status
     this.updateStatus(`${config.name} tier selected`);
+  }
+
+  updateArchitectureDiagram(tier) {
+    const isSovereign = tier === 'sovereign' || tier === 'webllm';
+    const cloudProviders = {
+      fast_free: 'Groq',
+      budget: 'DeepSeek',
+      frontier: 'OpenAI'
+    };
+
+    // Update badge
+    const badge = document.getElementById('arch-mode-badge');
+    if (badge) {
+      badge.textContent = isSovereign ? '100% Local' : 'Hybrid';
+      badge.className = isSovereign ? 'badge badge-sovereign' : 'badge badge-cloud';
+    }
+
+    // Update cloud node
+    const cloudNode = document.getElementById('arch-cloud-node');
+    const cloudPath = document.getElementById('arch-cloud-path');
+    const cloudBox = document.getElementById('arch-cloud-box');
+    const cloudLabel = document.getElementById('arch-cloud-label');
+    const cloudStatus = document.getElementById('arch-cloud-status');
+    const outputSublabel = document.getElementById('arch-output-sublabel');
+
+    if (isSovereign) {
+      // Blocked state
+      if (cloudPath) cloudPath.style.cssText = 'stroke:var(--error);stroke-dasharray:4 2;opacity:0.3';
+      if (cloudBox) cloudBox.style.cssText = 'fill:rgba(239,68,68,0.1);stroke:var(--error);stroke-dasharray:4 2;';
+      if (cloudLabel) { cloudLabel.style.fill = 'var(--error)'; cloudLabel.textContent = '☁ Cloud'; }
+      if (cloudStatus) { cloudStatus.style.fill = 'var(--error)'; cloudStatus.textContent = 'BLOCKED'; }
+      if (outputSublabel) outputSublabel.textContent = 'Zero Cloud';
+    } else {
+      // Active cloud state
+      const provider = cloudProviders[tier] || 'Cloud';
+      if (cloudPath) cloudPath.style.cssText = 'stroke:var(--warning);stroke-width:2;opacity:1';
+      if (cloudBox) cloudBox.style.cssText = 'fill:rgba(245,158,11,0.15);stroke:var(--warning);stroke-dasharray:none;';
+      if (cloudLabel) { cloudLabel.style.fill = 'var(--warning)'; cloudLabel.textContent = `☁ ${provider}`; }
+      if (cloudStatus) { cloudStatus.style.fill = 'var(--warning)'; cloudStatus.textContent = 'ACTIVE'; }
+      if (outputSublabel) outputSublabel.textContent = 'Via Cloud';
+    }
   }
   
   updateTransparencyPane(tier, config) {

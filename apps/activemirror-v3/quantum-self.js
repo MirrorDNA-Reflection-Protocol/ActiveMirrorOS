@@ -686,9 +686,16 @@ class QuantumSelfUI {
   }
 
   render() {
+    // DISABLED: Floating panel breaks UX. Data integrated into right sidebar's
+    // "Sovereignty Score" widget which already shows wellness metrics.
+    // The QuantumSelf data is available via window.quantumSelf for other components.
+    return;
+
     const ui = document.createElement('div');
     ui.id = 'quantum-self-ui';
     ui.className = 'quantum-self-panel';
+    // Start hidden until user enters the app
+    ui.style.display = 'none';
     ui.innerHTML = `
       <div class="qs-toggle" title="Quantum Self">
         <span class="qs-icon">✦</span>
@@ -833,10 +840,10 @@ class QuantumSelfUI {
 // ============================================
 
 window.QuantumSelf = QuantumSelf;
+// Data class instantiated immediately (no UI)
 window.quantumSelf = new QuantumSelf();
 
-document.addEventListener('DOMContentLoaded', () => {
-  new QuantumSelfUI(window.quantumSelf);
-});
+// DISABLED: Floating UI removed. Data shown in sidebar "Your State" widget instead.
+// QuantumSelfUI no longer instantiated.
 
 console.log('✦ Quantum Self initialized — observing all dimensions');
