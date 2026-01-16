@@ -1454,9 +1454,18 @@
     
     .t-item { display: flex; align-items: center; gap: var(--space-xs); }
     .t-label { color: var(--text-muted); }
-    .t-value { color: var(--text-secondary); font-weight: 500; }
+    .t-value { color: var(--text-secondary); font-weight: 500; display: flex; align-items: center; gap: 6px; }
     .t-value.sovereign { color: var(--success); }
     .t-value.cloud { color: var(--warning); }
+
+    /* Live data flow pulse - integrated from floating pill */
+    .flow-pulse-inline {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      animation: pulse 2s ease-in-out infinite;
+    }
 
     /* Input Area */
     .input-area {
@@ -1991,42 +2000,6 @@
       text-transform: uppercase;
     }
 
-    /* ============================================
-       NOVEL: Live Data Flow Indicator
-       Shows real-time where data is flowing
-       ============================================ */
-    .data-flow-live {
-      position: fixed;
-      bottom: var(--space-md);
-      left: var(--space-md);
-      display: flex;
-      align-items: center;
-      gap: var(--space-sm);
-      padding: var(--space-sm) var(--space-md);
-      background: rgba(10, 10, 15, 0.9);
-      border: 1px solid var(--glass-border);
-      border-radius: var(--radius-md);
-      font-size: 11px;
-      color: var(--text-secondary);
-      z-index: 100;
-      backdrop-filter: blur(10px);
-    }
-
-    .flow-pulse {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--sovereign);
-      animation: pulse 2s ease-in-out infinite;
-    }
-
-    .flow-text {
-      font-family: var(--font-mono);
-    }
-
-    .flow-text.sovereign { color: var(--sovereign); }
-    .flow-text.cloud { color: var(--warning); }
-
     /* Quick Prompts */
     .quick-prompt {
       padding: 8px 16px;
@@ -2130,20 +2103,20 @@
       </div>
 
       <div class="manifesto-teaser">
-        <span>🔮</span>
-        <code>Oracle</code>
+        <span>🔍</span>
+        <code>Research</code>
         <span>•</span>
-        <span>🛡️</span>
-        <code>Sentinel</code>
+        <span>📋</span>
+        <code>Organizer</code>
         <span>•</span>
-        <span>🏗️</span>
-        <code>Architect</code>
+        <span>🔧</span>
+        <code>Builder</code>
         <span>•</span>
-        <span>🪞</span>
-        <code>Mirror</code>
+        <span>💭</span>
+        <code>Thinking</code>
         <span>•</span>
-        <span>♟️</span>
-        <code>Strategist</code>
+        <span>⚖️</span>
+        <code>Decisions</code>
       </div>
     </div>
 
@@ -2367,11 +2340,11 @@
       </div>
 
       <div class="briefing-suggestion" id="briefing-suggestion">
-        <div class="suggestion-icon" id="suggestion-icon">🔮</div>
+        <div class="suggestion-icon" id="suggestion-icon">🔍</div>
         <div class="suggestion-content">
-          <div class="suggestion-label">Suggested Agent</div>
-          <div class="suggestion-agent" id="suggestion-agent">Oracle</div>
-          <div class="suggestion-reason" id="suggestion-reason">Start your day with research synthesis</div>
+          <div class="suggestion-label">Suggested Helper</div>
+          <div class="suggestion-agent" id="suggestion-agent">Research</div>
+          <div class="suggestion-reason" id="suggestion-reason">Start your day with research</div>
         </div>
         <button class="suggestion-start" id="suggestion-start">Start Session</button>
       </div>
@@ -2389,26 +2362,26 @@
   <!-- Main App -->
   <div id="main-app" class="main-app hidden">
 
-    <!-- AGENT DOCK — The Mind Switcher -->
+    <!-- AGENT DOCK — Switch between helpers -->
     <div class="agent-dock" id="agent-dock">
-      <div class="agent-dock-item" data-agent="oracle" data-name="Oracle — Research" style="--agent-color: #8b5cf6; --agent-color-soft: rgba(139, 92, 246, 0.15); --agent-color-glow: rgba(139, 92, 246, 0.3);">
-        🔮
+      <div class="agent-dock-item" data-agent="oracle" data-name="Research" style="--agent-color: #8b5cf6; --agent-color-soft: rgba(139, 92, 246, 0.15); --agent-color-glow: rgba(139, 92, 246, 0.3);">
+        🔍
         <span class="agent-status"></span>
       </div>
-      <div class="agent-dock-item" data-agent="sentinel" data-name="Sentinel — Executive" style="--agent-color: #10b981; --agent-color-soft: rgba(16, 185, 129, 0.15); --agent-color-glow: rgba(16, 185, 129, 0.3);">
-        🛡️
+      <div class="agent-dock-item" data-agent="sentinel" data-name="Organizer" style="--agent-color: #10b981; --agent-color-soft: rgba(16, 185, 129, 0.15); --agent-color-glow: rgba(16, 185, 129, 0.3);">
+        📋
         <span class="agent-status"></span>
       </div>
-      <div class="agent-dock-item" data-agent="architect" data-name="Architect — Builder" style="--agent-color: #f59e0b; --agent-color-soft: rgba(245, 158, 11, 0.15); --agent-color-glow: rgba(245, 158, 11, 0.3);">
-        🏗️
+      <div class="agent-dock-item" data-agent="architect" data-name="Builder" style="--agent-color: #f59e0b; --agent-color-soft: rgba(245, 158, 11, 0.15); --agent-color-glow: rgba(245, 158, 11, 0.3);">
+        🔧
         <span class="agent-status"></span>
       </div>
-      <div class="agent-dock-item" data-agent="mirror" data-name="Mirror — Reflection" style="--agent-color: #ec4899; --agent-color-soft: rgba(236, 72, 153, 0.15); --agent-color-glow: rgba(236, 72, 153, 0.3);">
-        🪞
+      <div class="agent-dock-item" data-agent="mirror" data-name="Thinking" style="--agent-color: #ec4899; --agent-color-soft: rgba(236, 72, 153, 0.15); --agent-color-glow: rgba(236, 72, 153, 0.3);">
+        💭
         <span class="agent-status"></span>
       </div>
-      <div class="agent-dock-item" data-agent="strategist" data-name="Strategist — Decisions" style="--agent-color: #06b6d4; --agent-color-soft: rgba(6, 182, 212, 0.15); --agent-color-glow: rgba(6, 182, 212, 0.3);">
-        ♟️
+      <div class="agent-dock-item" data-agent="strategist" data-name="Decisions" style="--agent-color: #06b6d4; --agent-color-soft: rgba(6, 182, 212, 0.15); --agent-color-glow: rgba(6, 182, 212, 0.3);">
+        ⚖️
         <span class="agent-status"></span>
       </div>
     </div>
@@ -2421,7 +2394,7 @@
         <button class="insight-toast-close" id="toast-close">×</button>
       </div>
       <div class="insight-toast-body" id="toast-body">
-        Your Oracle has something to share.
+        Something to share with you.
       </div>
       <div class="insight-toast-actions">
         <button class="insight-toast-action secondary" id="toast-dismiss">Later</button>
@@ -2455,15 +2428,15 @@
     <div class="app-main">
       <!-- Agent Header -->
       <div class="agent-header" id="agent-header" style="--agent-color: #8b5cf6; --agent-color-soft: rgba(139, 92, 246, 0.15);">
-        <div class="agent-avatar" id="agent-avatar">🔮</div>
+        <div class="agent-avatar" id="agent-avatar">🔍</div>
         <div class="agent-info">
           <div class="agent-name">
-            <span id="agent-name">Oracle</span>
+            <span id="agent-name">Research</span>
             <span class="header-status">
               <span class="status-dot active" id="status-dot"></span>
             </span>
           </div>
-          <div class="agent-role" id="agent-role">Chief Intelligence Officer</div>
+          <div class="agent-role" id="agent-role">Here to help</div>
         </div>
         <div class="agent-tier-indicator" id="agent-tier-indicator">
           <span>◈</span>
@@ -2496,13 +2469,13 @@
       
       <div id="messages" class="messages-container">
         <div class="welcome-message" id="welcome-message">
-          <div class="welcome-icon" id="welcome-icon">🔮</div>
-          <h3 id="welcome-title">Oracle is ready.</h3>
-          <p id="welcome-desc">PhD-level research synthesis across your knowledge vault and the web. Ask me to investigate, analyze, or connect the dots across domains.</p>
+          <div class="welcome-icon" id="welcome-icon">🔍</div>
+          <h3 id="welcome-title">Research is ready.</h3>
+          <p id="welcome-desc">I can help you search, find connections, and explore ideas across your files and the web. I make mistakes sometimes, so always verify what I find.</p>
           <div style="display: flex; gap: 8px; justify-content: center; margin-top: 16px; flex-wrap: wrap;">
-            <span style="padding: 4px 12px; background: rgba(139, 92, 246, 0.15); color: #8b5cf6; border-radius: 100px; font-size: 11px;">Deep Research</span>
-            <span style="padding: 4px 12px; background: var(--primary-soft); color: var(--primary); border-radius: 100px; font-size: 11px;">Pattern Recognition</span>
-            <span style="padding: 4px 12px; background: var(--success-soft); color: var(--sovereign); border-radius: 100px; font-size: 11px;">Source Verification</span>
+            <span style="padding: 4px 12px; background: rgba(139, 92, 246, 0.15); color: #8b5cf6; border-radius: 100px; font-size: 11px;">Search</span>
+            <span style="padding: 4px 12px; background: var(--primary-soft); color: var(--primary); border-radius: 100px; font-size: 11px;">Find Connections</span>
+            <span style="padding: 4px 12px; background: var(--success-soft); color: var(--sovereign); border-radius: 100px; font-size: 11px;">Check Sources</span>
           </div>
           <div style="margin-top: 24px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;">
             <button class="quick-prompt" onclick="setQuickPrompt('What patterns do you see in my recent work?')">What patterns do you see in my recent work?</button>
@@ -2519,7 +2492,7 @@
         </div>
         <div class="t-item">
           <span class="t-label">Data:</span>
-          <span class="t-value sovereign" id="t-data">Local only</span>
+          <span class="t-value sovereign" id="t-data"><span class="flow-pulse-inline"></span>Local only</span>
         </div>
         <div class="t-item">
           <span class="t-label">Latency:</span>
@@ -2803,12 +2776,7 @@
       });
     });
   </script>
-  <!-- Live Data Flow Indicator -->
-  <div class="data-flow-live" id="data-flow-live" style="display: none;">
-    <span class="flow-pulse"></span>
-    <span>Data:</span>
-    <span class="flow-text sovereign" id="flow-destination">Local Only</span>
-  </div>
+  <!-- Data flow info now integrated into transparency bar -->
 
   <script src="cognitive-os.js"></script>
   <script src="cognitive-bridge.js"></script>
@@ -2817,6 +2785,7 @@
   <script src="future-self.js"></script>
   <script src="reality-composer.js"></script>
   <script src="life-stack.js"></script>
+  <script src="file-intelligence.js"></script>
   <script src="webllm-engine.js"></script>
   <script src="nudges.js"></script>
   <script src="app.js"></script>
@@ -2899,7 +2868,6 @@
           origEnter();
           setTimeout(() => {
             window.consciousnessStream?.start();
-            document.getElementById('data-flow-live').style.display = 'flex';
           }, 500);
         };
       }
@@ -2922,19 +2890,11 @@
       const localEl = document.getElementById('metric-local');
       const privateEl = document.getElementById('metric-private');
       const yoursEl = document.getElementById('metric-yours');
-      const flowDest = document.getElementById('flow-destination');
-
       if (scoreEl) scoreEl.textContent = `${s.score}%`;
       if (fillEl) fillEl.style.width = `${s.score}%`;
       if (localEl) localEl.textContent = `${s.local}%`;
       if (privateEl) privateEl.textContent = `${s.private}%`;
       if (yoursEl) yoursEl.textContent = `${s.yours}%`;
-
-      if (flowDest) {
-        const isSovereign = tier === 'sovereign' || tier === 'webllm';
-        flowDest.textContent = isSovereign ? 'Local Only' : 'Cloud Active';
-        flowDest.className = `flow-text ${isSovereign ? 'sovereign' : 'cloud'}`;
-      }
     }
 
     // Hook into tier changes
@@ -2955,51 +2915,51 @@
     // Initialize Cognitive OS
     let cognitiveOS = null;
 
-    // Agent configurations for UI
+    // Agent configurations for UI - Honest, helpful descriptions
     const AGENT_UI_CONFIG = {
       oracle: {
-        icon: '🔮',
+        icon: '🔍',
         color: '#8b5cf6',
-        welcomeTitle: 'Oracle is ready.',
-        welcomeDesc: 'PhD-level research synthesis across your knowledge vault and the web. Ask me to investigate, analyze, or connect the dots across domains.',
-        badges: ['Deep Research', 'Pattern Recognition', 'Source Verification'],
+        welcomeTitle: 'Research is ready.',
+        welcomeDesc: 'I help with searching and finding connections across your files and the web. I make mistakes sometimes, so always verify what I find.',
+        badges: ['Search', 'Find Connections', 'Check Sources'],
         prompts: ['What patterns do you see in my recent work?', 'Help me research...', 'Connect the dots between...'],
         tierIndicator: 'frontier'
       },
       sentinel: {
-        icon: '🛡️',
+        icon: '📋',
         color: '#10b981',
-        welcomeTitle: 'Sentinel standing by.',
-        welcomeDesc: 'Your executive function. I manage your attention, triage communications, and protect your focus. What needs handling?',
-        badges: ['Email Triage', 'Calendar Optimization', 'Attention Protection'],
-        prompts: ['What needs my attention today?', 'Draft a response to...', 'Block time for deep work'],
+        welcomeTitle: 'Organizer ready.',
+        welcomeDesc: 'I can help sort through tasks, emails, and priorities. You know your context better than me though—I just try to help organize.',
+        badges: ['Sort Tasks', 'Check Calendar', 'Prioritize'],
+        prompts: ['What might need attention today?', 'Draft a response to...', 'Help me plan focus time'],
         tierIndicator: 'sovereign'
       },
       architect: {
-        icon: '🏗️',
+        icon: '🔧',
         color: '#f59e0b',
-        welcomeTitle: 'Architect online.',
-        welcomeDesc: 'Your building intelligence. I write code, design systems, and ship features. I know your codebase intimately. What are we building?',
-        badges: ['Full-Stack Dev', 'System Design', 'Code Review'],
-        prompts: ['Build me a...', 'Review this code', 'Design a system for...'],
+        welcomeTitle: 'Builder ready.',
+        welcomeDesc: 'I can help write code and think through systems. I don\'t know everything about your codebase, so ask me if I seem confused.',
+        badges: ['Write Code', 'Think Through', 'Review'],
+        prompts: ['Build me a...', 'Review this code', 'Help me design...'],
         tierIndicator: 'sovereign'
       },
       mirror: {
-        icon: '🪞',
+        icon: '💭',
         color: '#ec4899',
-        welcomeTitle: 'Mirror is present.',
-        welcomeDesc: 'Your reflection partner. I help you see patterns in your thinking, track your growth, and illuminate blind spots. No judgment, just clarity.',
-        badges: ['Self-Reflection', 'Bias Detection', 'Growth Tracking'],
+        welcomeTitle: 'Thinking partner ready.',
+        welcomeDesc: 'I can be a sounding board for ideas and help you think through things. My perspective is limited though—you know yourself better.',
+        badges: ['Talk Through', 'Notice Patterns', 'Question Assumptions'],
         prompts: ['What patterns do you notice in my decisions?', 'Help me reflect on...', 'Am I being consistent with my goals?'],
         tierIndicator: 'sovereign'
       },
       strategist: {
-        icon: '♟️',
+        icon: '⚖️',
         color: '#06b6d4',
-        welcomeTitle: 'Strategist engaged.',
-        welcomeDesc: 'Your decision framework. When choices are complex, I bring structure. Pros, cons, risks, scenarios—let\'s think this through.',
-        badges: ['Decision Matrices', 'Risk Analysis', 'Scenario Planning'],
-        prompts: ['Help me decide between...', 'What are the risks of...', 'Walk me through the trade-offs'],
+        welcomeTitle: 'Decisions helper ready.',
+        welcomeDesc: 'I can help structure complex decisions with pros, cons, and trade-offs. The choice is always yours—I just help organize the thinking.',
+        badges: ['Compare Options', 'List Trade-offs', 'Think Through Risks'],
+        prompts: ['Help me decide between...', 'What might I be missing about...', 'Walk me through the trade-offs'],
         tierIndicator: 'frontier'
       }
     };

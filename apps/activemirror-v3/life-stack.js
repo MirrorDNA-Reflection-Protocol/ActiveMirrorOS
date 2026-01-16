@@ -1,15 +1,13 @@
 /**
- * ⟡ THE LIFE STACK — Complete Human Operating System
+ * THE LIFE STACK — Personal Tools Working Together
  *
- * RECURSION 5: The Final Synthesis
+ * Different tools that help with different things.
+ * Not magic, just helpful. Still learning. You're in control.
  *
- * Everything converges here. This is not an app — it's an operating system
- * for human flourishing. Every component we've built comes together:
- *
- * LAYER 1: COGNITIVE OS
- * - Specialized agents (Oracle, Sentinel, Architect, Mirror, Strategist)
- * - Intimate memory that never forgets
- * - Proactive awareness that anticipates
+ * LAYER 1: HELPERS
+ * - Research, Organizer, Builder, Thinking, Decisions
+ * - Memory that helps you remember things
+ * - Reminders when they might be useful
  *
  * LAYER 2: COGNITIVE BRIDGE
  * - Neurodivergent support (ADHD, Autism, AuDHD)

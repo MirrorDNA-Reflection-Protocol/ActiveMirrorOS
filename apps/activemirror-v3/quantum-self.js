@@ -1,28 +1,25 @@
 /**
- * ⟡ QUANTUM SELF — The Multi-Dimensional You
+ * SELF TRACKER — Noticing Patterns Across Your Day
  *
- * RECURSION 1: Beyond cognitive states to quantum self-awareness
+ * Tracks different aspects of how you're doing:
+ * - Thinking (focus, clarity)
+ * - Feeling (emotions)
+ * - Body (energy, physical state)
+ * - Time of day (when you work best)
+ * - Connection (social needs)
+ * - Creative (flow states)
+ * - Meaning (what matters to you)
  *
- * The insight: We exist in multiple dimensions simultaneously:
- * - Cognitive (thinking patterns)
- * - Emotional (feeling states)
- * - Physical (body signals)
- * - Circadian (time-of-day rhythms)
- * - Social (connection levels)
- * - Creative (flow/block states)
- * - Spiritual (meaning/purpose alignment)
+ * This tries to notice patterns like:
+ * - When you might be getting tired (not a guarantee, just a heads up)
+ * - When you've historically been in flow (so you might want to schedule focus work)
+ * - When patterns repeat
  *
- * This system tracks ALL dimensions and predicts:
- * - When you'll crash (before it happens)
- * - When you'll be in flow (so you can schedule important work)
- * - When you need specific types of support
- * - What's causing recurring patterns
- *
- * The goal: You become the observer of yourself, with AI as your instrument.
+ * You know yourself better than any tool. This just offers another perspective.
  */
 
 // ============================================
-// THE QUANTUM SELF MODEL
+// SELF TRACKER
 // ============================================
 
 class QuantumSelf {
