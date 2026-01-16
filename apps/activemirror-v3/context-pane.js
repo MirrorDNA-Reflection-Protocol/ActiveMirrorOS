@@ -897,21 +897,22 @@ class ContextPane {
       /* Context Pane Toggle */
       .context-toggle {
         position: fixed;
-        left: 20px;
-        top: 50%;
-        transform: translateY(-50%);
+        left: 0;
+        top: 120px;
         z-index: 900;
         display: flex;
         align-items: center;
         gap: 6px;
         padding: 8px 12px;
-        background: var(--bg-secondary);
+        background: rgba(18, 18, 26, 0.95);
         border: 1px solid var(--glass-border);
-        border-radius: 20px;
+        border-left: none;
+        border-radius: 0 20px 20px 0;
         color: var(--text-secondary);
         cursor: pointer;
         transition: all 0.3s ease;
         font-size: 12px;
+        backdrop-filter: blur(20px);
       }
 
       .context-toggle:hover {
@@ -1526,11 +1527,15 @@ class ContextPane {
       }
 
       body:has(.context-pane:not(.collapsed)) .context-toggle {
-        left: 380px;
+        left: 360px;
       }
 
       body:has(.context-pane:not(.collapsed)) #command-center-icon {
         left: 380px;
+      }
+
+      body:has(.context-pane:not(.collapsed)) .agent-dock {
+        left: 360px;
       }
     `;
     document.head.appendChild(styles);
