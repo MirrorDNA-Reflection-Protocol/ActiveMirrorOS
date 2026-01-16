@@ -20,11 +20,11 @@ class ActiveMirrorApp {
     // Current tier
     this.currentTier = 'sovereign';
     this.tierConfig = {
-      sovereign: { name: 'Local', icon: '◈', class: 'sovereign', data: 'Local only' },
+      sovereign: { name: 'Sovereign', icon: '◈', class: 'sovereign', data: '100% Local' },
       fast_free: { name: 'Fast', icon: '⚡', class: '', data: 'Groq Cloud' },
-      budget: { name: 'Cloud', icon: '☁', class: 'cloud', data: 'DeepSeek' },
-      frontier: { name: 'Frontier', icon: '✦', class: 'frontier', data: 'OpenAI' },
-      webllm: { name: 'Browser', icon: '🌐', class: 'sovereign', data: 'WebGPU (in-browser)' }
+      budget: { name: 'Budget', icon: '☁', class: 'cloud', data: 'DeepSeek' },
+      frontier: { name: 'Frontier', icon: '✦', class: 'frontier', data: 'OpenAI/Claude' },
+      webllm: { name: 'In-Browser', icon: '🌐', class: 'sovereign', data: 'WebGPU Local' }
     };
 
     // Session stats
@@ -645,6 +645,11 @@ class ActiveMirrorApp {
 
     const typingId = this.addTypingIndicator();
 
+    // Trigger consciousness stream burst
+    if (window.consciousnessStream) {
+      window.consciousnessStream.burst();
+    }
+
     try {
       let response;
 
@@ -868,14 +873,14 @@ class ActiveMirrorApp {
     try {
       const response = await fetch(`${this.apiEndpoint}/health`);
       if (response.ok) {
-        this.updateStatus('Ready', true);
+        this.updateStatus('Sovereign Mode', true);
       } else {
-        this.updateStatus('Server error', false);
+        this.updateStatus('Backend Offline', false);
       }
     } catch (e) {
-      this.updateStatus('Offline', false);
+      this.updateStatus('Connecting...', false);
     }
-    
+
     setTimeout(() => this.checkStatus(), 30000);
   }
   
