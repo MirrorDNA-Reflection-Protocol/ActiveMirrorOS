@@ -947,30 +947,28 @@ class ContextPane {
   }
 
   startClipboardMonitoring() {
-    // Check clipboard every 2 seconds
-    setInterval(async () => {
-      try {
-        const text = await navigator.clipboard.readText();
-        if (text && text !== this.lastClipboard && text.trim().length > 0) {
-          this.lastClipboard = text;
-          this.addToClipboard(text);
-        }
-      } catch (e) {
-        // Clipboard access denied - that's ok
-      }
-    }, 2000);
+    // Only capture on copy events within the page (no permission prompts)
+    // This avoids the annoying "wants to see text and images copied" dialog
+    document.addEventListener('copy', (e) => {
+      // Get the selected text directly from the selection
+      const selection = document.getSelection();
+      const text = selection?.toString();
 
-    // Also capture on copy events
-    document.addEventListener('copy', () => {
-      setTimeout(async () => {
-        try {
-          const text = await navigator.clipboard.readText();
-          if (text && text !== this.lastClipboard) {
-            this.lastClipboard = text;
-            this.addToClipboard(text);
-          }
-        } catch (e) {}
-      }, 100);
+      if (text && text !== this.lastClipboard && text.trim().length > 0) {
+        this.lastClipboard = text;
+        this.addToClipboard(text);
+      }
+    });
+
+    // Also capture cut events
+    document.addEventListener('cut', (e) => {
+      const selection = document.getSelection();
+      const text = selection?.toString();
+
+      if (text && text !== this.lastClipboard && text.trim().length > 0) {
+        this.lastClipboard = text;
+        this.addToClipboard(text);
+      }
     });
   }
 
