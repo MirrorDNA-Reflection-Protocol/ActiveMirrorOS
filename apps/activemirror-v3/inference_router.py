@@ -819,6 +819,108 @@ async def handle_tiers(request: web.Request) -> web.Response:
     })
 
 
+async def handle_transparency(request: web.Request) -> web.Response:
+    """Real-time transparency data for the UI"""
+    tier_str = request.query.get('tier', 'sovereign')
+
+    try:
+        tier = InferenceTier(tier_str)
+    except ValueError:
+        tier = InferenceTier.SOVEREIGN
+
+    tier_config = TIER_CONFIGS[tier]
+    ollama_healthy = await router.ollama.health_check()
+    stats = router.metrics.get_stats()
+
+    is_local = tier == InferenceTier.SOVEREIGN
+
+    # Build transparency response
+    response = {
+        "tier": {
+            "id": tier.value,
+            "name": tier_config.name,
+            "is_local": is_local,
+            "models": tier_config.models,
+            "cost_per_1m": {
+                "input": tier_config.cost_per_1m_input,
+                "output": tier_config.cost_per_1m_output
+            }
+        },
+        "data_flow": {
+            "processing": "local" if is_local else "cloud",
+            "storage": "local_only" if is_local else "transient",
+            "network": "none" if is_local else "api_call",
+            "retention": "your_device" if is_local else "no_retention"
+        },
+        "privacy": {
+            "data_leaves_device": not is_local,
+            "third_party_access": not is_local,
+            "logs_stored": False,  # We only store metadata, not prompts
+            "encryption": "at_rest" if is_local else "in_transit"
+        },
+        "system": {
+            "ollama_available": ollama_healthy,
+            "ollama_model": config.ollama_model if is_local else None,
+            "api_endpoint": None if is_local else f"{tier.value}_api"
+        },
+        "session": {
+            "today_requests": stats["today_requests"],
+            "today_spend_usd": stats["today_spend_usd"],
+            "cache_available": True
+        },
+        "providers": {
+            "sovereign": {
+                "name": "Local (Ollama)",
+                "status": "active" if ollama_healthy else "unavailable",
+                "data_location": "Your Mac Mini"
+            },
+            "cloud": {
+                "groq": {"configured": bool(config.groq_api_key), "data_retention": "none"},
+                "deepseek": {"configured": bool(config.deepseek_api_key), "data_retention": "none"},
+                "openai": {"configured": bool(config.openai_api_key), "data_retention": "30_days_api"}
+            }
+        }
+    }
+
+    return web.json_response(response)
+
+
+async def handle_email_capture(request: web.Request) -> web.Response:
+    """Capture email for waitlist (privacy-respecting)"""
+    try:
+        data = await request.json()
+        email = data.get('email', '').strip().lower()
+
+        if not email or '@' not in email:
+            return web.json_response({"error": "Invalid email"}, status=400)
+
+        # Store locally in a simple file (not sent anywhere)
+        waitlist_file = Path.home() / '.activemirror_waitlist.txt'
+
+        # Check for duplicate
+        existing = set()
+        if waitlist_file.exists():
+            existing = set(waitlist_file.read_text().strip().split('\n'))
+
+        if email in existing:
+            return web.json_response({"status": "already_registered", "message": "You're already on the list!"})
+
+        # Append email with timestamp
+        with open(waitlist_file, 'a') as f:
+            f.write(f"{email},{datetime.now().isoformat()}\n")
+
+        logger.info(f"Waitlist signup: {email[:3]}***")
+
+        return web.json_response({
+            "status": "success",
+            "message": "You're on the list! We'll notify you when MirrorDNA launches."
+        })
+
+    except Exception as e:
+        logger.error(f"Email capture error: {e}")
+        return web.json_response({"error": "Failed to register"}, status=500)
+
+
 # ============================================
 # App Setup
 # ============================================
@@ -846,6 +948,8 @@ def create_app() -> web.Application:
     app.router.add_post('/api/chat', handle_chat)
     app.router.add_get('/api/status', handle_status)
     app.router.add_get('/api/tiers', handle_tiers)
+    app.router.add_get('/api/transparency', handle_transparency)
+    app.router.add_post('/api/waitlist', handle_email_capture)
     app.router.add_get('/health', handle_health)
     
     # Cleanup

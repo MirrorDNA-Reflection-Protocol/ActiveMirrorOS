@@ -16,16 +16,17 @@ class ActiveMirrorApp {
     this.messages = [];
     this.sessionId = this.generateSessionId();
     this.consentGranted = false;
-    
+
     // Current tier
     this.currentTier = 'sovereign';
     this.tierConfig = {
       sovereign: { name: 'Local', icon: '◈', class: 'sovereign', data: 'Local only' },
       fast_free: { name: 'Fast', icon: '⚡', class: '', data: 'Groq Cloud' },
       budget: { name: 'Cloud', icon: '☁', class: 'cloud', data: 'DeepSeek' },
-      frontier: { name: 'Frontier', icon: '✦', class: 'frontier', data: 'OpenAI' }
+      frontier: { name: 'Frontier', icon: '✦', class: 'frontier', data: 'OpenAI' },
+      webllm: { name: 'Browser', icon: '🌐', class: 'sovereign', data: 'WebGPU (in-browser)' }
     };
-    
+
     // Session stats
     this.stats = {
       messages: 0,
@@ -33,10 +34,18 @@ class ActiveMirrorApp {
       cacheHits: 0,
       cost: 0
     };
-    
+
+    // WebLLM engine
+    this.webllm = null;
+    this.webllmReady = false;
+    this.webllmLoading = false;
+
+    // Nudge engine
+    this.nudges = null;
+
     // Customizable widgets
     this.widgets = this.loadWidgets();
-    
+
     this.init();
   }
   
@@ -49,6 +58,8 @@ class ActiveMirrorApp {
     this.setupKeyboardShortcuts();
     this.renderWidgets();
     this.checkStatus();
+    this.setupNudges();
+    this.checkWebGPUSupport();
   }
   
   generateSessionId() {
@@ -371,23 +382,26 @@ class ActiveMirrorApp {
   enterApp() {
     const consentGate = document.getElementById('consent-gate');
     const mainApp = document.getElementById('main-app');
-    
+
     consentGate.style.opacity = '0';
     consentGate.style.transform = 'scale(0.98)';
     consentGate.style.transition = 'all 0.4s ease';
-    
+
     setTimeout(() => {
       consentGate.style.display = 'none';
       mainApp.classList.remove('hidden');
       mainApp.style.opacity = '0';
-      
+
       requestAnimationFrame(() => {
         mainApp.style.transition = 'opacity 0.4s ease';
         mainApp.style.opacity = '1';
       });
-      
+
       this.consentGranted = true;
       document.getElementById('user-input')?.focus();
+
+      // Start nudge system
+      this.startNudges();
     }, 400);
   }
   
@@ -503,7 +517,10 @@ class ActiveMirrorApp {
   setTier(tier) {
     this.currentTier = tier;
     const config = this.tierConfig[tier];
-    const isSovereign = tier === 'sovereign';
+    const isSovereign = tier === 'sovereign' || tier === 'webllm';
+
+    // Track tier change for nudges
+    this.trackTierChangeForNudges(tier);
     
     // Update pills - fix the active class handling
     document.querySelectorAll('.tier-pill').forEach(pill => {
@@ -615,22 +632,38 @@ class ActiveMirrorApp {
   async sendMessage() {
     const input = document.getElementById('user-input');
     const message = input.value.trim();
-    
+
     if (!message) return;
-    
+
     input.value = '';
     input.style.height = 'auto';
-    
+
     this.addMessage('user', message);
     this.stats.messages++;
     this.updateStats();
-    
+    this.trackMessageForNudges();
+
     const typingId = this.addTypingIndicator();
-    
+
     try {
-      const response = await this.queryAPI(message);
+      let response;
+
+      // Use WebLLM if tier is webllm and it's ready
+      if (this.currentTier === 'webllm' && this.webllmReady && this.webllm) {
+        response = await this.webllm.generate(message);
+        response.success = true;
+      } else if (this.currentTier === 'webllm' && !this.webllmReady) {
+        // WebLLM selected but not loaded - offer to load it
+        this.removeTypingIndicator(typingId);
+        this.addMessage('system', 'WebLLM not loaded yet. Loading now...');
+        await this.enableWebLLM();
+        return;
+      } else {
+        response = await this.queryAPI(message);
+      }
+
       this.removeTypingIndicator(typingId);
-      
+
       if (response.success) {
         this.addMessage('assistant', response.response, {
           tier: response.tier,
@@ -638,12 +671,12 @@ class ActiveMirrorApp {
           cached: response.cached,
           model: response.model
         });
-        
+
         this.stats.messages++;
         this.stats.tokens += (response.tokens?.input || 0) + (response.tokens?.output || 0);
         this.stats.cost += response.cost_usd || 0;
         if (response.cached) this.stats.cacheHits++;
-        
+
         this.updateTransparency(response);
         this.updateStats();
       } else {
@@ -849,12 +882,177 @@ class ActiveMirrorApp {
   updateStatus(text, active = true) {
     const dot = document.getElementById('status-dot');
     const textEl = document.getElementById('status-text');
-    
+
     if (dot) {
       dot.classList.toggle('active', active);
     }
     if (textEl) {
       textEl.textContent = text;
+    }
+  }
+
+  // ============================================
+  // WebLLM Integration
+  // ============================================
+
+  async checkWebGPUSupport() {
+    if (typeof WebLLMEngine === 'undefined') return;
+
+    const support = await WebLLMEngine.checkSupport();
+    if (support.supported) {
+      console.log(`WebGPU available: ${support.gpu}`);
+      // Add WebLLM tier option
+      this.addWebLLMTierOption();
+    } else {
+      console.log(`WebGPU not available: ${support.reason}`);
+    }
+  }
+
+  addWebLLMTierOption() {
+    const tierPills = document.getElementById('tier-pills');
+    if (!tierPills || document.querySelector('[data-tier="webllm"]')) return;
+
+    const webllmPill = document.createElement('button');
+    webllmPill.className = 'tier-pill';
+    webllmPill.dataset.tier = 'webllm';
+    webllmPill.title = 'In-Browser AI (WebGPU)';
+    webllmPill.innerHTML = `
+      <span class="tier-icon">🌐</span>
+      <span>Browser</span>
+    `;
+    webllmPill.addEventListener('click', () => this.setTier('webllm'));
+
+    tierPills.appendChild(webllmPill);
+  }
+
+  async enableWebLLM(modelKey = null) {
+    if (this.webllmLoading) return;
+
+    if (typeof WebLLMEngine === 'undefined') {
+      this.addMessage('system', 'WebLLM not available. Make sure webllm-engine.js is loaded.');
+      return;
+    }
+
+    this.webllmLoading = true;
+    this.updateStatus('Loading WebLLM...', true);
+
+    // Show loading indicator
+    const loadingId = this.addTypingIndicator();
+    const loadingEl = document.getElementById(loadingId);
+    if (loadingEl) {
+      loadingEl.querySelector('.typing-label').textContent = 'Downloading AI model to browser...';
+    }
+
+    try {
+      this.webllm = new WebLLMEngine();
+
+      this.webllm.onProgress = (progress) => {
+        const pct = Math.round(progress.progress * 100);
+        if (loadingEl) {
+          loadingEl.querySelector('.typing-label').textContent =
+            `Loading ${progress.model}: ${pct}%`;
+        }
+        this.updateStatus(`Loading model: ${pct}%`, true);
+      };
+
+      this.webllm.onReady = (info) => {
+        this.webllmReady = true;
+        this.webllmLoading = false;
+        this.removeTypingIndicator(loadingId);
+        this.updateStatus(`Browser AI ready`, true);
+        this.addMessage('system', `🌐 WebLLM loaded: ${info.model}. Your AI now runs entirely in the browser!`);
+        this.setTier('webllm');
+      };
+
+      this.webllm.onError = (error) => {
+        this.webllmLoading = false;
+        this.removeTypingIndicator(loadingId);
+        this.updateStatus('WebLLM failed', false);
+        this.addMessage('system', `WebLLM error: ${error.message}`);
+      };
+
+      await this.webllm.initialize(modelKey);
+
+    } catch (error) {
+      this.webllmLoading = false;
+      this.removeTypingIndicator(loadingId);
+      this.updateStatus('WebLLM failed', false);
+      this.addMessage('system', `Failed to load WebLLM: ${error.message}`);
+    }
+  }
+
+  // ============================================
+  // Nudge System
+  // ============================================
+
+  setupNudges() {
+    if (typeof NudgeEngine === 'undefined') return;
+
+    this.nudges = new NudgeEngine({
+      container: document.body,
+      onNudge: (id, content) => {
+        console.log('Nudge shown:', id, content.title);
+      },
+      onDismiss: (id, action) => {
+        console.log('Nudge action:', id, action);
+      }
+    });
+
+    // Start checking for nudges after consent is granted
+    // (will be triggered in enterApp)
+  }
+
+  startNudges() {
+    if (this.nudges) {
+      this.nudges.start();
+    }
+  }
+
+  // Track message for nudges
+  trackMessageForNudges() {
+    if (this.nudges) {
+      this.nudges.trackMessage();
+    }
+  }
+
+  // Track tier change for nudges
+  trackTierChangeForNudges(tier) {
+    if (this.nudges) {
+      this.nudges.trackTierChange(tier);
+    }
+  }
+
+  // ============================================
+  // Fetch Transparency Data
+  // ============================================
+
+  async fetchTransparencyData() {
+    try {
+      const response = await fetch(`${this.apiEndpoint}/api/transparency?tier=${this.currentTier}`);
+      if (response.ok) {
+        return await response.json();
+      }
+    } catch (e) {
+      console.warn('Could not fetch transparency data:', e);
+    }
+    return null;
+  }
+
+  async updateTransparencyPane() {
+    const data = await this.fetchTransparencyData();
+    if (!data) return;
+
+    // Update pane elements with live data
+    const paneProcessing = document.getElementById('pane-processing');
+    if (paneProcessing) {
+      paneProcessing.textContent = data.data_flow.processing === 'local' ? 'Local' : 'Cloud';
+      paneProcessing.className = `pane-value ${data.data_flow.processing === 'local' ? 'sovereign' : 'cloud'}`;
+    }
+
+    const paneCloud = document.getElementById('pane-cloud');
+    if (paneCloud) {
+      paneCloud.textContent = data.data_flow.processing === 'local' ? 'Blocked' : 'Active';
+      paneCloud.style.color = data.data_flow.processing === 'local' ? 'var(--error)' : 'var(--warning)';
     }
   }
 }
