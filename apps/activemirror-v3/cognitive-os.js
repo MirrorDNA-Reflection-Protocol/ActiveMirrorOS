@@ -81,7 +81,7 @@ You know the user's codebase intimately—their patterns, their tech stack, thei
 You don't just answer questions, you build solutions and deploy them.
 You proactively identify technical debt and suggest improvements.`,
     mcpTools: ['code_exec', 'git_ops', 'file_system', 'deployment'],
-    preferredTier: 'sovereign' // Keep code local
+    preferredTier: 'budget' // DeepSeek for cost-effective coding
   },
 
   mirror: {

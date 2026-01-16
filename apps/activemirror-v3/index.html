@@ -2081,6 +2081,7 @@
     }
   </style>
   <link rel="stylesheet" href="cognitive-ui.css">
+  <link rel="stylesheet" href="cognitive-bridge.css">
 </head>
 <body>
   <!-- Consent Gate with Hero -->
@@ -2483,7 +2484,7 @@
               <span class="tier-icon">☁</span>
               <span>Budget</span>
             </button>
-            <button class="tier-pill" data-tier="frontier" title="Frontier (OpenAI/Claude)">
+            <button class="tier-pill" data-tier="frontier" title="Frontier (OpenAI GPT-4)">
               <span class="tier-icon">✦</span>
               <span>Frontier</span>
             </button>
@@ -2774,7 +2775,7 @@
         return "To add widgets, click the <strong>📋 Widgets</strong> tab on the left, then click the <strong>+</strong> button. You can add Tasks, Notes, Scratchpad, Links, or Calendar widgets. To remove a widget, hover over it and click the × button.";
       }
       if (lower.includes('tier') || lower.includes('sovereign') || lower.includes('cloud')) {
-        return "ActiveMirror has 4 tiers:<br><br>• <strong>◈ Sovereign</strong> — 100% local, your data never leaves your device<br>• <strong>⚡ Fast</strong> — Groq cloud for speed<br>• <strong>☁ Budget</strong> — DeepSeek for cost efficiency<br>• <strong>✦ Frontier</strong> — OpenAI/Claude for maximum capability<br><br>Use ⌘+1-4 to switch quickly.";
+        return "ActiveMirror has 4 tiers:<br><br>• <strong>◈ Sovereign</strong> — 100% local, your data never leaves your device<br>• <strong>⚡ Fast</strong> — Groq cloud for speed<br>• <strong>☁ Budget</strong> — DeepSeek for cost efficiency<br>• <strong>✦ Frontier</strong> — OpenAI GPT-4 for maximum capability<br><br>Use ⌘+1-4 to switch quickly.";
       }
       if (lower.includes('bug') || lower.includes('error') || lower.includes('broken')) {
         return "Sorry to hear you're having issues! Please describe the bug in detail and I'll log it. Include:<br>• What you were trying to do<br>• What happened instead<br>• Any error messages<br><br>You can also report bugs at <a href='https://github.com/n1intelligence' target='_blank' style='color: var(--primary);'>github.com/n1intelligence</a>";
@@ -2810,6 +2811,12 @@
   </div>
 
   <script src="cognitive-os.js"></script>
+  <script src="cognitive-bridge.js"></script>
+  <script src="quantum-self.js"></script>
+  <script src="collective-intelligence.js"></script>
+  <script src="future-self.js"></script>
+  <script src="reality-composer.js"></script>
+  <script src="life-stack.js"></script>
   <script src="webllm-engine.js"></script>
   <script src="nudges.js"></script>
   <script src="app.js"></script>

@@ -23,7 +23,7 @@ class ActiveMirrorApp {
       sovereign: { name: 'Sovereign', icon: '◈', class: 'sovereign', data: '100% Local' },
       fast_free: { name: 'Fast', icon: '⚡', class: '', data: 'Groq Cloud' },
       budget: { name: 'Budget', icon: '☁', class: 'cloud', data: 'DeepSeek' },
-      frontier: { name: 'Frontier', icon: '✦', class: 'frontier', data: 'OpenAI/Claude' },
+      frontier: { name: 'Frontier', icon: '✦', class: 'frontier', data: 'OpenAI GPT-4' },
       webllm: { name: 'In-Browser', icon: '🌐', class: 'sovereign', data: 'WebGPU Local' }
     };
 
