@@ -2475,9 +2475,9 @@
           <h3 id="welcome-title">Research is ready.</h3>
           <p id="welcome-desc">I can help you search, find connections, and explore ideas across your files and the web. I make mistakes sometimes, so always verify what I find.</p>
           <div style="display: flex; gap: 8px; justify-content: center; margin-top: 16px; flex-wrap: wrap;">
-            <span style="padding: 4px 12px; background: rgba(139, 92, 246, 0.15); color: #8b5cf6; border-radius: 100px; font-size: 11px;">Search</span>
-            <span style="padding: 4px 12px; background: var(--primary-soft); color: var(--primary); border-radius: 100px; font-size: 11px;">Find Connections</span>
-            <span style="padding: 4px 12px; background: var(--success-soft); color: var(--sovereign); border-radius: 100px; font-size: 11px;">Check Sources</span>
+            <button class="capability-badge" onclick="setQuickPrompt('Search for: ')" style="padding: 4px 12px; background: rgba(139, 92, 246, 0.15); color: #8b5cf6; border-radius: 100px; font-size: 11px; border: 1px solid transparent; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.borderColor='#8b5cf6'" onmouseout="this.style.borderColor='transparent'">Search</button>
+            <button class="capability-badge" onclick="setQuickPrompt('Find connections between: ')" style="padding: 4px 12px; background: var(--primary-soft); color: var(--primary); border-radius: 100px; font-size: 11px; border: 1px solid transparent; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='transparent'">Find Connections</button>
+            <button class="capability-badge" onclick="setQuickPrompt('Check sources for: ')" style="padding: 4px 12px; background: var(--success-soft); color: var(--sovereign); border-radius: 100px; font-size: 11px; border: 1px solid transparent; cursor: pointer; transition: all 0.2s ease;" onmouseover="this.style.borderColor='var(--sovereign)'" onmouseout="this.style.borderColor='transparent'">Check Sources</button>
           </div>
           <div style="margin-top: 24px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;">
             <button class="quick-prompt" onclick="setQuickPrompt('What patterns do you see in my recent work?')">What patterns do you see in my recent work?</button>
