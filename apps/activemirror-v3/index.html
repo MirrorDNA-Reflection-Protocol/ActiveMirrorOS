@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ActiveMirror — The First Sovereign AI Interface</title>
+  <title>ActiveMirror — Your Cognitive OS</title>
 
   <!-- SEO & Discovery -->
-  <meta name="description" content="Your AI runs on YOUR hardware. No cloud. No surveillance. No compromise. ActiveMirror is the first truly sovereign AI interface—where intelligence meets independence.">
+  <meta name="description" content="Not another chatbot. A cognitive OS with specialized agents that know you, anticipate your needs, and work while you sleep. Hybrid sovereignty—you control when data touches cloud.">
   <meta name="keywords" content="sovereign AI, local AI, privacy AI, on-device AI, WebLLM, Ollama, self-hosted AI, AI privacy, no cloud AI, open source AI">
   <meta name="author" content="N1 Intelligence">
   <meta name="robots" content="index, follow">
@@ -2026,7 +2026,61 @@
 
     .flow-text.sovereign { color: var(--sovereign); }
     .flow-text.cloud { color: var(--warning); }
+
+    /* Quick Prompts */
+    .quick-prompt {
+      padding: 8px 16px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--glass-border);
+      border-radius: 100px;
+      color: var(--text-secondary);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .quick-prompt:hover {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* Thread indicator */
+    .thread-indicator {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: var(--space-xs) var(--space-md);
+      background: var(--bg-tertiary);
+      border-bottom: 1px solid var(--glass-border);
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .thread-indicator-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--sovereign);
+    }
+
+    /* Memory hint */
+    .memory-hint {
+      padding: var(--space-xs) var(--space-md);
+      background: rgba(16, 185, 129, 0.1);
+      border-bottom: 1px solid rgba(16, 185, 129, 0.2);
+      font-size: 11px;
+      color: var(--sovereign);
+      display: none;
+    }
+
+    .memory-hint.visible {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
   </style>
+  <link rel="stylesheet" href="cognitive-ui.css">
 </head>
 <body>
   <!-- Consent Gate with Hero -->
@@ -2046,42 +2100,49 @@
     <div class="hero-section">
       <div class="hero-badge">
         <span class="hero-badge-dot"></span>
-        <span>100% Local • Zero Cloud • Your Hardware</span>
+        <span>Hybrid Sovereignty • You Choose When Data Leaves • Always Transparent</span>
       </div>
 
       <h1 class="hero-title">
-        The First<br>
-        <span class="gradient-text">Sovereign AI</span>
+        Your<br>
+        <span class="gradient-text">Cognitive OS</span>
       </h1>
 
       <p class="hero-subtitle">
-        Your AI runs on <strong>your hardware</strong>. No data leaves your device.<br>
-        No surveillance. No compromise. Just intelligence that belongs to you.
+        Not another chatbot. <strong>Specialized agents</strong> that know you,<br>
+        anticipate your needs, and remember everything. Forever.
       </p>
 
       <div class="hero-stats">
         <div class="hero-stat">
-          <div class="hero-stat-value">0%</div>
-          <div class="hero-stat-label">Cloud Dependency</div>
-        </div>
-        <div class="hero-stat">
-          <div class="hero-stat-value">100%</div>
-          <div class="hero-stat-label">Data Sovereignty</div>
+          <div class="hero-stat-value">5</div>
+          <div class="hero-stat-label">Cognitive Agents</div>
         </div>
         <div class="hero-stat">
           <div class="hero-stat-value">∞</div>
-          <div class="hero-stat-label">Privacy</div>
+          <div class="hero-stat-label">Memory</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-value">24/7</div>
+          <div class="hero-stat-label">Proactive</div>
         </div>
       </div>
 
       <div class="manifesto-teaser">
-        <span>$</span>
-        <code>your_data</code>
-        <span>→</span>
-        <code>your_hardware</code>
-        <span>→</span>
-        <code>your_ai</code>
-        <span>// no middlemen</span>
+        <span>🔮</span>
+        <code>Oracle</code>
+        <span>•</span>
+        <span>🛡️</span>
+        <code>Sentinel</code>
+        <span>•</span>
+        <span>🏗️</span>
+        <code>Architect</code>
+        <span>•</span>
+        <span>🪞</span>
+        <code>Mirror</code>
+        <span>•</span>
+        <span>♟️</span>
+        <code>Strategist</code>
       </div>
     </div>
 
@@ -2281,9 +2342,92 @@
     </div>
   </div>
 
+  <!-- Daily Briefing Overlay -->
+  <div id="daily-briefing" class="briefing-overlay">
+    <div class="briefing-container">
+      <div class="briefing-header">
+        <h1 class="briefing-greeting" id="briefing-greeting">Good morning.</h1>
+        <p class="briefing-date" id="briefing-date"></p>
+      </div>
+
+      <div class="briefing-stats">
+        <div class="briefing-stat">
+          <div class="briefing-stat-value" id="briefing-streak">1</div>
+          <div class="briefing-stat-label">Day Streak</div>
+        </div>
+        <div class="briefing-stat">
+          <div class="briefing-stat-value" id="briefing-goals">0</div>
+          <div class="briefing-stat-label">Active Goals</div>
+        </div>
+        <div class="briefing-stat">
+          <div class="briefing-stat-value" id="briefing-insights">0</div>
+          <div class="briefing-stat-label">Insights Ready</div>
+        </div>
+      </div>
+
+      <div class="briefing-suggestion" id="briefing-suggestion">
+        <div class="suggestion-icon" id="suggestion-icon">🔮</div>
+        <div class="suggestion-content">
+          <div class="suggestion-label">Suggested Agent</div>
+          <div class="suggestion-agent" id="suggestion-agent">Oracle</div>
+          <div class="suggestion-reason" id="suggestion-reason">Start your day with research synthesis</div>
+        </div>
+        <button class="suggestion-start" id="suggestion-start">Start Session</button>
+      </div>
+
+      <div class="briefing-insights" id="briefing-insights-list">
+        <!-- Populated by JS -->
+      </div>
+
+      <div class="briefing-skip">
+        <button id="skip-briefing">Skip to workspace →</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Main App -->
   <div id="main-app" class="main-app hidden">
-    
+
+    <!-- AGENT DOCK — The Mind Switcher -->
+    <div class="agent-dock" id="agent-dock">
+      <div class="agent-dock-item" data-agent="oracle" data-name="Oracle — Research" style="--agent-color: #8b5cf6; --agent-color-soft: rgba(139, 92, 246, 0.15); --agent-color-glow: rgba(139, 92, 246, 0.3);">
+        🔮
+        <span class="agent-status"></span>
+      </div>
+      <div class="agent-dock-item" data-agent="sentinel" data-name="Sentinel — Executive" style="--agent-color: #10b981; --agent-color-soft: rgba(16, 185, 129, 0.15); --agent-color-glow: rgba(16, 185, 129, 0.3);">
+        🛡️
+        <span class="agent-status"></span>
+      </div>
+      <div class="agent-dock-item" data-agent="architect" data-name="Architect — Builder" style="--agent-color: #f59e0b; --agent-color-soft: rgba(245, 158, 11, 0.15); --agent-color-glow: rgba(245, 158, 11, 0.3);">
+        🏗️
+        <span class="agent-status"></span>
+      </div>
+      <div class="agent-dock-item" data-agent="mirror" data-name="Mirror — Reflection" style="--agent-color: #ec4899; --agent-color-soft: rgba(236, 72, 153, 0.15); --agent-color-glow: rgba(236, 72, 153, 0.3);">
+        🪞
+        <span class="agent-status"></span>
+      </div>
+      <div class="agent-dock-item" data-agent="strategist" data-name="Strategist — Decisions" style="--agent-color: #06b6d4; --agent-color-soft: rgba(6, 182, 212, 0.15); --agent-color-glow: rgba(6, 182, 212, 0.3);">
+        ♟️
+        <span class="agent-status"></span>
+      </div>
+    </div>
+
+    <!-- Proactive Insight Toast (hidden by default) -->
+    <div class="insight-toast" id="insight-toast" style="display: none;">
+      <div class="insight-toast-header">
+        <span class="insight-toast-icon" id="toast-icon">💡</span>
+        <span class="insight-toast-title" id="toast-title">Insight Ready</span>
+        <button class="insight-toast-close" id="toast-close">×</button>
+      </div>
+      <div class="insight-toast-body" id="toast-body">
+        Your Oracle has something to share.
+      </div>
+      <div class="insight-toast-actions">
+        <button class="insight-toast-action secondary" id="toast-dismiss">Later</button>
+        <button class="insight-toast-action primary" id="toast-action">Show Me</button>
+      </div>
+    </div>
+
     <!-- LEFT TAB (Widgets) -->
     <div class="side-tab left collapsed" id="left-tab">
       <div class="tab-handle" onclick="toggleTab('left')">
@@ -2308,14 +2452,21 @@
 
     <!-- Main Chat Area -->
     <div class="app-main">
-      <div class="chat-header">
-        <h2 style="display: flex; align-items: center; gap: 8px;">
-          <span style="background: var(--consciousness-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">◈</span>
-          ActiveMirror
-        </h2>
-        <div class="header-status">
-          <span class="status-dot active" id="status-dot"></span>
-          <span id="status-text">Sovereign Mode</span>
+      <!-- Agent Header -->
+      <div class="agent-header" id="agent-header" style="--agent-color: #8b5cf6; --agent-color-soft: rgba(139, 92, 246, 0.15);">
+        <div class="agent-avatar" id="agent-avatar">🔮</div>
+        <div class="agent-info">
+          <div class="agent-name">
+            <span id="agent-name">Oracle</span>
+            <span class="header-status">
+              <span class="status-dot active" id="status-dot"></span>
+            </span>
+          </div>
+          <div class="agent-role" id="agent-role">Chief Intelligence Officer</div>
+        </div>
+        <div class="agent-tier-indicator" id="agent-tier-indicator">
+          <span>◈</span>
+          <span id="agent-tier-text">Local</span>
         </div>
         
         <div class="tier-selector">
@@ -2343,14 +2494,19 @@
       </div>
       
       <div id="messages" class="messages-container">
-        <div class="welcome-message">
-          <div class="welcome-icon">◈</div>
-          <h3>Your AI. Your Hardware. Your Rules.</h3>
-          <p>Every thought processed locally. Every byte stays yours. This is what AI independence looks like. Start typing to experience sovereign intelligence.</p>
+        <div class="welcome-message" id="welcome-message">
+          <div class="welcome-icon" id="welcome-icon">🔮</div>
+          <h3 id="welcome-title">Oracle is ready.</h3>
+          <p id="welcome-desc">PhD-level research synthesis across your knowledge vault and the web. Ask me to investigate, analyze, or connect the dots across domains.</p>
           <div style="display: flex; gap: 8px; justify-content: center; margin-top: 16px; flex-wrap: wrap;">
-            <span style="padding: 4px 12px; background: var(--success-soft); color: var(--sovereign); border-radius: 100px; font-size: 11px;">Zero Cloud</span>
-            <span style="padding: 4px 12px; background: var(--primary-soft); color: var(--primary); border-radius: 100px; font-size: 11px;">Full Transparency</span>
-            <span style="padding: 4px 12px; background: rgba(139, 92, 246, 0.15); color: #8b5cf6; border-radius: 100px; font-size: 11px;">True Ownership</span>
+            <span style="padding: 4px 12px; background: rgba(139, 92, 246, 0.15); color: #8b5cf6; border-radius: 100px; font-size: 11px;">Deep Research</span>
+            <span style="padding: 4px 12px; background: var(--primary-soft); color: var(--primary); border-radius: 100px; font-size: 11px;">Pattern Recognition</span>
+            <span style="padding: 4px 12px; background: var(--success-soft); color: var(--sovereign); border-radius: 100px; font-size: 11px;">Source Verification</span>
+          </div>
+          <div style="margin-top: 24px; display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;">
+            <button class="quick-prompt" onclick="setQuickPrompt('What patterns do you see in my recent work?')">What patterns do you see in my recent work?</button>
+            <button class="quick-prompt" onclick="setQuickPrompt('Help me research...')">Help me research...</button>
+            <button class="quick-prompt" onclick="setQuickPrompt('Connect the dots between...')">Connect the dots between...</button>
           </div>
         </div>
       </div>
@@ -2653,6 +2809,7 @@
     <span class="flow-text sovereign" id="flow-destination">Local Only</span>
   </div>
 
+  <script src="cognitive-os.js"></script>
   <script src="webllm-engine.js"></script>
   <script src="nudges.js"></script>
   <script src="app.js"></script>
@@ -2783,6 +2940,247 @@
           updateSovereigntyScore(tier);
         };
       }
+    });
+  </script>
+
+  <!-- COGNITIVE OS INTEGRATION -->
+  <script>
+    // Initialize Cognitive OS
+    let cognitiveOS = null;
+
+    // Agent configurations for UI
+    const AGENT_UI_CONFIG = {
+      oracle: {
+        icon: '🔮',
+        color: '#8b5cf6',
+        welcomeTitle: 'Oracle is ready.',
+        welcomeDesc: 'PhD-level research synthesis across your knowledge vault and the web. Ask me to investigate, analyze, or connect the dots across domains.',
+        badges: ['Deep Research', 'Pattern Recognition', 'Source Verification'],
+        prompts: ['What patterns do you see in my recent work?', 'Help me research...', 'Connect the dots between...'],
+        tierIndicator: 'frontier'
+      },
+      sentinel: {
+        icon: '🛡️',
+        color: '#10b981',
+        welcomeTitle: 'Sentinel standing by.',
+        welcomeDesc: 'Your executive function. I manage your attention, triage communications, and protect your focus. What needs handling?',
+        badges: ['Email Triage', 'Calendar Optimization', 'Attention Protection'],
+        prompts: ['What needs my attention today?', 'Draft a response to...', 'Block time for deep work'],
+        tierIndicator: 'sovereign'
+      },
+      architect: {
+        icon: '🏗️',
+        color: '#f59e0b',
+        welcomeTitle: 'Architect online.',
+        welcomeDesc: 'Your building intelligence. I write code, design systems, and ship features. I know your codebase intimately. What are we building?',
+        badges: ['Full-Stack Dev', 'System Design', 'Code Review'],
+        prompts: ['Build me a...', 'Review this code', 'Design a system for...'],
+        tierIndicator: 'sovereign'
+      },
+      mirror: {
+        icon: '🪞',
+        color: '#ec4899',
+        welcomeTitle: 'Mirror is present.',
+        welcomeDesc: 'Your reflection partner. I help you see patterns in your thinking, track your growth, and illuminate blind spots. No judgment, just clarity.',
+        badges: ['Self-Reflection', 'Bias Detection', 'Growth Tracking'],
+        prompts: ['What patterns do you notice in my decisions?', 'Help me reflect on...', 'Am I being consistent with my goals?'],
+        tierIndicator: 'sovereign'
+      },
+      strategist: {
+        icon: '♟️',
+        color: '#06b6d4',
+        welcomeTitle: 'Strategist engaged.',
+        welcomeDesc: 'Your decision framework. When choices are complex, I bring structure. Pros, cons, risks, scenarios—let\'s think this through.',
+        badges: ['Decision Matrices', 'Risk Analysis', 'Scenario Planning'],
+        prompts: ['Help me decide between...', 'What are the risks of...', 'Walk me through the trade-offs'],
+        tierIndicator: 'frontier'
+      }
+    };
+
+    function setQuickPrompt(text) {
+      const input = document.getElementById('user-input');
+      if (input) {
+        input.value = text;
+        input.focus();
+        // Position cursor at end
+        input.setSelectionRange(text.length, text.length);
+      }
+    }
+
+    function switchAgent(agentId) {
+      if (!COGNITIVE_AGENTS || !COGNITIVE_AGENTS[agentId]) return;
+
+      const agent = COGNITIVE_AGENTS[agentId];
+      const uiConfig = AGENT_UI_CONFIG[agentId];
+
+      // Update Cognitive OS
+      if (cognitiveOS) {
+        cognitiveOS.setAgent(agentId);
+      }
+
+      // Update dock
+      document.querySelectorAll('.agent-dock-item').forEach(item => {
+        item.classList.toggle('active', item.dataset.agent === agentId);
+      });
+
+      // Update header
+      const header = document.getElementById('agent-header');
+      if (header) {
+        header.style.setProperty('--agent-color', uiConfig.color);
+        header.style.setProperty('--agent-color-soft', `${uiConfig.color}26`);
+      }
+
+      document.getElementById('agent-avatar').textContent = uiConfig.icon;
+      document.getElementById('agent-name').textContent = agent.name;
+      document.getElementById('agent-role').textContent = agent.role;
+
+      // Update tier indicator based on agent preference
+      const tierIndicator = document.getElementById('agent-tier-indicator');
+      const tierText = document.getElementById('agent-tier-text');
+      if (agent.preferredTier === 'sovereign') {
+        tierIndicator.classList.remove('cloud');
+        tierText.textContent = 'Local';
+      } else {
+        tierIndicator.classList.add('cloud');
+        tierText.textContent = 'Cloud';
+      }
+
+      // Update welcome message
+      const welcomeIcon = document.getElementById('welcome-icon');
+      const welcomeTitle = document.getElementById('welcome-title');
+      const welcomeDesc = document.getElementById('welcome-desc');
+
+      if (welcomeIcon) welcomeIcon.textContent = uiConfig.icon;
+      if (welcomeTitle) welcomeTitle.textContent = uiConfig.welcomeTitle;
+      if (welcomeDesc) welcomeDesc.textContent = uiConfig.welcomeDesc;
+
+      // Set the tier based on agent preference
+      if (window.activeMirror) {
+        window.activeMirror.setTier(agent.preferredTier);
+      }
+    }
+
+    function showDailyBriefing() {
+      if (!cognitiveOS) return;
+
+      const briefing = cognitiveOS.generateBriefing();
+      const overlay = document.getElementById('daily-briefing');
+
+      // Populate briefing
+      document.getElementById('briefing-greeting').textContent = briefing.greeting;
+      document.getElementById('briefing-date').textContent = new Date().toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+
+      document.getElementById('briefing-streak').textContent = briefing.stats.streak;
+      document.getElementById('briefing-goals').textContent = briefing.stats.goalsActive;
+      document.getElementById('briefing-insights').textContent = briefing.stats.insightsPending;
+
+      // Suggested agent
+      if (briefing.suggestedAgent) {
+        const uiConfig = AGENT_UI_CONFIG[briefing.suggestedAgent.id];
+        document.getElementById('suggestion-icon').textContent = uiConfig.icon;
+        document.getElementById('suggestion-agent').textContent = briefing.suggestedAgent.name;
+
+        const hour = new Date().getHours();
+        let reason = 'Start your session';
+        if (hour < 12) reason = 'Morning is perfect for ' + briefing.suggestedAgent.name.toLowerCase() + ' work';
+        else if (hour < 18) reason = 'Afternoon focus with ' + briefing.suggestedAgent.name;
+        else reason = 'Evening session with ' + briefing.suggestedAgent.name;
+        document.getElementById('suggestion-reason').textContent = reason;
+      }
+
+      // Show overlay
+      overlay.classList.add('visible');
+    }
+
+    function hideBriefing(startWithAgent = null) {
+      const overlay = document.getElementById('daily-briefing');
+      overlay.classList.remove('visible');
+
+      if (startWithAgent && cognitiveOS) {
+        switchAgent(startWithAgent);
+      }
+    }
+
+    function showInsightToast(insight) {
+      const toast = document.getElementById('insight-toast');
+      const agent = COGNITIVE_AGENTS[insight.agent];
+      const uiConfig = AGENT_UI_CONFIG[insight.agent];
+
+      document.getElementById('toast-icon').textContent = uiConfig?.icon || '💡';
+      document.getElementById('toast-title').textContent = insight.title;
+      document.getElementById('toast-body').textContent = insight.message;
+
+      toast.style.display = 'block';
+    }
+
+    function hideInsightToast() {
+      document.getElementById('insight-toast').style.display = 'none';
+    }
+
+    // Initialize everything
+    document.addEventListener('DOMContentLoaded', () => {
+      // Initialize Cognitive OS
+      if (typeof CognitiveOS !== 'undefined') {
+        cognitiveOS = new CognitiveOS();
+        cognitiveOS.init();
+
+        // Set up insight handler
+        cognitiveOS.onInsight = showInsightToast;
+
+        // Set initial agent
+        switchAgent(cognitiveOS.currentAgent);
+      }
+
+      // Agent dock click handlers
+      document.querySelectorAll('.agent-dock-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const agentId = item.dataset.agent;
+          switchAgent(agentId);
+        });
+      });
+
+      // Briefing handlers
+      document.getElementById('suggestion-start')?.addEventListener('click', () => {
+        const suggestedAgent = cognitiveOS?.currentAgent || 'oracle';
+        hideBriefing(suggestedAgent);
+      });
+
+      document.getElementById('skip-briefing')?.addEventListener('click', () => {
+        hideBriefing();
+      });
+
+      // Toast handlers
+      document.getElementById('toast-close')?.addEventListener('click', hideInsightToast);
+      document.getElementById('toast-dismiss')?.addEventListener('click', hideInsightToast);
+      document.getElementById('toast-action')?.addEventListener('click', () => {
+        hideInsightToast();
+        // Handle the insight action
+      });
+
+      // Show briefing after entering app (optional - can be toggled)
+      const originalEnterApp = window.activeMirror?.enterApp;
+      if (window.activeMirror) {
+        const origEnter = window.activeMirror.enterApp.bind(window.activeMirror);
+        window.activeMirror.enterApp = function() {
+          origEnter();
+
+          // Check if we should show briefing (e.g., first visit of day)
+          const lastBriefing = localStorage.getItem('last_briefing_shown');
+          const today = new Date().toDateString();
+
+          if (lastBriefing !== today) {
+            localStorage.setItem('last_briefing_shown', today);
+            setTimeout(() => showDailyBriefing(), 800);
+          }
+        };
+      }
+
+      console.log('◈ Cognitive OS UI initialized');
     });
   </script>
 </body>
