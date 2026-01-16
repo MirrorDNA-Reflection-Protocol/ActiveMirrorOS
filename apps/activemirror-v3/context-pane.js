@@ -155,7 +155,7 @@ class ContextPane {
 
         <!-- CONNECTION GRAPH TAB -->
         <div class="cp-section" data-section="graph">
-          <div class="graph-container">
+          <div class="graph-container" style="padding: 16px;">
             <div class="graph-header">
               <h4>Connection Graph</h4>
               <div class="graph-controls">
@@ -184,7 +184,7 @@ class ContextPane {
 
         <!-- CLIPBOARD HISTORY TAB -->
         <div class="cp-section" data-section="clipboard">
-          <div class="clipboard-container">
+          <div class="clipboard-container" style="padding: 16px;">
             <div class="clipboard-header">
               <h4>Clipboard History</h4>
               <button class="clipboard-clear" id="clear-clipboard" title="Clear history">Clear</button>
@@ -356,6 +356,27 @@ class ContextPane {
     document.getElementById('clip-export')?.addEventListener('click', () => {
       this.exportClipboard();
     });
+
+    // Paste all clipboard items
+    document.getElementById('clip-paste-all')?.addEventListener('click', () => {
+      this.pasteAllClipboard();
+    });
+
+    // Initialize the connection graph on first render
+    setTimeout(() => {
+      this.updateGraph('session');
+      this.renderClipboard();
+    }, 100);
+  }
+
+  pasteAllClipboard() {
+    if (this.clipboardHistory.length === 0) {
+      this.showToast('📋 No items to paste');
+      return;
+    }
+    const allText = this.clipboardHistory.map(c => c.text).join('\n\n---\n\n');
+    navigator.clipboard.writeText(allText);
+    this.showToast(`📋 Copied ${this.clipboardHistory.length} items!`);
   }
 
   // === SEARCH ===
@@ -395,43 +416,108 @@ class ContextPane {
   }
 
   async searchWeb(query) {
-    // Web search via DuckDuckGo instant answers or similar
+    // Web search via DuckDuckGo instant answers API
+    // Note: This uses DuckDuckGo's instant answer API which is CORS-friendly
     try {
-      const response = await fetch(`https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1`);
+      // DuckDuckGo instant answers (works without CORS issues)
+      const response = await fetch(
+        `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`,
+        { mode: 'cors' }
+      );
       const data = await response.json();
 
       const results = [];
 
+      // Main abstract/answer
       if (data.AbstractText) {
         results.push({
           type: 'web',
-          source: 'DuckDuckGo',
+          source: data.AbstractSource || 'Wikipedia',
           title: data.Heading || query,
-          snippet: data.AbstractText,
+          snippet: data.AbstractText.substring(0, 250),
           url: data.AbstractURL,
           icon: '🌐'
         });
       }
 
-      if (data.RelatedTopics) {
-        data.RelatedTopics.slice(0, 3).forEach(topic => {
-          if (topic.Text) {
+      // Instant answer
+      if (data.Answer) {
+        results.push({
+          type: 'web',
+          source: 'Instant Answer',
+          title: query,
+          snippet: data.Answer,
+          url: data.AnswerURL || `https://duckduckgo.com/?q=${encodeURIComponent(query)}`,
+          icon: '⚡'
+        });
+      }
+
+      // Definition
+      if (data.Definition) {
+        results.push({
+          type: 'web',
+          source: data.DefinitionSource || 'Definition',
+          title: `Definition: ${query}`,
+          snippet: data.Definition,
+          url: data.DefinitionURL,
+          icon: '📖'
+        });
+      }
+
+      // Related topics
+      if (data.RelatedTopics && data.RelatedTopics.length > 0) {
+        data.RelatedTopics.slice(0, 5).forEach(topic => {
+          // Handle nested topics
+          if (topic.Topics) {
+            topic.Topics.slice(0, 2).forEach(subtopic => {
+              if (subtopic.Text && subtopic.FirstURL) {
+                results.push({
+                  type: 'web',
+                  source: 'Related',
+                  title: subtopic.Text.split(' - ')[0]?.substring(0, 60) || subtopic.Text.substring(0, 60),
+                  snippet: subtopic.Text,
+                  url: subtopic.FirstURL,
+                  icon: '🔗'
+                });
+              }
+            });
+          } else if (topic.Text && topic.FirstURL) {
             results.push({
               type: 'web',
-              source: 'Web',
-              title: topic.Text.split(' - ')[0] || topic.Text.substring(0, 50),
+              source: 'Related',
+              title: topic.Text.split(' - ')[0]?.substring(0, 60) || topic.Text.substring(0, 60),
               snippet: topic.Text,
               url: topic.FirstURL,
-              icon: '🌐'
+              icon: '🔗'
             });
           }
         });
       }
 
-      return results;
+      // If no results, provide a direct search link
+      if (results.length === 0) {
+        results.push({
+          type: 'web',
+          source: 'DuckDuckGo',
+          title: `Search for "${query}"`,
+          snippet: 'Click to search DuckDuckGo for more results',
+          url: `https://duckduckgo.com/?q=${encodeURIComponent(query)}`,
+          icon: '🔍'
+        });
+      }
+
+      return results.slice(0, 8); // Limit to 8 results
     } catch (e) {
       console.log('Web search error:', e);
-      return [];
+      // Return a fallback search link on error
+      return [{
+        type: 'web',
+        source: 'DuckDuckGo',
+        title: `Search for "${query}"`,
+        snippet: 'Click to search the web',
+        url: `https://duckduckgo.com/?q=${encodeURIComponent(query)}`,
+        icon: '🔍'
+      }];
     }
   }
 
