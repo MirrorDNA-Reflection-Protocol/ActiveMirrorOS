@@ -180,6 +180,43 @@ class CommandCenter {
         </div>
       </div>
 
+      <div class="command-mcp">
+        <div class="mcp-header">
+          <span>⟡ Connected Systems</span>
+          <span class="mcp-status" id="mcp-status">•</span>
+        </div>
+        <div class="mcp-grid" id="mcp-tools-grid">
+          <button class="mcp-btn" data-mcp="mirrorbrain" title="MirrorBrain - Vault & State">
+            <span class="mcp-icon">⟡</span>
+            <span class="mcp-name">Brain</span>
+          </button>
+          <button class="mcp-btn" data-mcp="sc1" title="SC1 Fleet - Mobile Devices">
+            <span class="mcp-icon">📱</span>
+            <span class="mcp-name">SC1</span>
+          </button>
+          <button class="mcp-btn connected" data-mcp="github" title="GitHub - Connected">
+            <span class="mcp-icon">🐙</span>
+            <span class="mcp-name">GitHub</span>
+          </button>
+          <button class="mcp-btn connected" data-mcp="gdrive" title="Google Drive - Connected">
+            <span class="mcp-icon">📁</span>
+            <span class="mcp-name">Drive</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="command-context" id="context-section">
+        <div class="context-header">
+          <span>🧠 AI Context Awareness</span>
+          <button class="context-toggle" id="context-toggle" title="Toggle RAG context">
+            <span class="toggle-status">${localStorage.getItem('rag_enabled') !== 'false' ? 'ON' : 'OFF'}</span>
+          </button>
+        </div>
+        <div class="context-summary" id="context-summary">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
       <div class="command-insight" id="insight-section">
         <div class="insight-content" id="insight-content">
           <!-- Dynamic insight -->
@@ -204,6 +241,148 @@ class CommandCenter {
     panel.querySelectorAll('.tool-btn').forEach(btn => {
       btn.addEventListener('click', () => this.handleTool(btn.dataset.tool));
     });
+
+    // MCP buttons
+    panel.querySelectorAll('.mcp-btn').forEach(btn => {
+      btn.addEventListener('click', () => this.handleMCP(btn.dataset.mcp));
+    });
+
+    // Context toggle
+    const contextToggle = panel.querySelector('#context-toggle');
+    if (contextToggle) {
+      contextToggle.addEventListener('click', () => this.toggleRAGContext());
+    }
+
+    // Update context display
+    this.updateContextDisplay();
+  }
+
+  toggleRAGContext() {
+    const isEnabled = localStorage.getItem('rag_enabled') !== 'false';
+    const newState = !isEnabled;
+
+    localStorage.setItem('rag_enabled', newState);
+
+    // Update ActiveMirror app
+    if (window.activeMirror) {
+      window.activeMirror.ragEnabled = newState;
+    }
+
+    // Update toggle button
+    const toggle = document.getElementById('context-toggle');
+    if (toggle) {
+      toggle.querySelector('.toggle-status').textContent = newState ? 'ON' : 'OFF';
+      toggle.classList.toggle('active', newState);
+    }
+
+    // Show toast
+    this.showToast(newState ? '🧠 AI context awareness enabled' : '🚫 AI context awareness disabled');
+
+    // Update display
+    this.updateContextDisplay();
+  }
+
+  updateContextDisplay() {
+    const container = document.getElementById('context-summary');
+    if (!container) return;
+
+    const isEnabled = localStorage.getItem('rag_enabled') !== 'false';
+
+    if (!isEnabled) {
+      container.innerHTML = `
+        <div class="context-disabled">
+          <span>Context awareness is off</span>
+          <span class="context-hint">AI won't have visibility into your app state</span>
+        </div>
+      `;
+      return;
+    }
+
+    // Get session context summary
+    const ctx = window.sessionContext;
+    if (!ctx) {
+      container.innerHTML = '<div class="context-loading">Initializing...</div>';
+      return;
+    }
+
+    const summary = ctx.getSummary();
+    const fullCtx = ctx.buildContext();
+
+    container.innerHTML = `
+      <div class="context-items">
+        <div class="context-item">
+          <span class="ctx-icon">⏱️</span>
+          <span class="ctx-label">${summary.session}</span>
+        </div>
+        <div class="context-item">
+          <span class="ctx-icon">💬</span>
+          <span class="ctx-label">${summary.messages} messages</span>
+        </div>
+        <div class="context-item">
+          <span class="ctx-icon">📋</span>
+          <span class="ctx-label">${Object.keys(fullCtx.widgets || {}).length} widgets</span>
+        </div>
+        <div class="context-item">
+          <span class="ctx-icon">🔍</span>
+          <span class="ctx-label">${summary.searches} searches</span>
+        </div>
+      </div>
+      <div class="context-what">
+        <span class="ctx-hint">AI sees: session, widgets, wellness, searches, conversation</span>
+      </div>
+    `;
+  }
+
+  handleMCP(mcp) {
+    switch(mcp) {
+      case 'mirrorbrain':
+        this.showMCPInfo('MirrorBrain', [
+          '⟡ Vault semantic search',
+          '⟡ System state & alerts',
+          '⟡ Git status across repos',
+          '⟡ Session handoffs',
+          '⟡ Alignment tracking'
+        ], 'Available via Claude Desktop MCP');
+        break;
+      case 'sc1':
+        this.showMCPInfo('SC1 Fleet', [
+          '📱 Pixel 9 Pro + OnePlus 15',
+          '🔔 Send notifications',
+          '🗣️ Text-to-speech',
+          '📋 Clipboard sync',
+          '📍 Location & battery'
+        ], 'Control mobile devices');
+        break;
+      case 'github':
+        this.showMCPInfo('GitHub', [
+          '🐙 Repository access',
+          '📝 Issues & PRs',
+          '🔍 Code search'
+        ], 'Connected ✓');
+        break;
+      case 'gdrive':
+        this.showMCPInfo('Google Drive', [
+          '📁 File access',
+          '🔍 Search documents',
+          '📤 Upload/download'
+        ], 'Connected ✓');
+        break;
+    }
+  }
+
+  showMCPInfo(title, features, status) {
+    const insight = document.getElementById('insight-content');
+    if (insight) {
+      insight.innerHTML = `
+        <div class="mcp-info">
+          <strong>${title}</strong>
+          <div class="mcp-features">
+            ${features.map(f => `<div class="mcp-feature">${f}</div>`).join('')}
+          </div>
+          <small>${status}</small>
+        </div>
+      `;
+    }
   }
 
   handleAction(action) {
@@ -1331,6 +1510,199 @@ commandCenterStyles.textContent = `
     background: var(--bg-hover);
     border-color: var(--primary);
     transform: scale(1.1);
+  }
+
+  /* MCP Connected Systems */
+  .command-mcp {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--glass-border);
+  }
+
+  .mcp-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .mcp-status {
+    color: var(--success);
+    font-size: 14px;
+  }
+
+  .mcp-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+
+  .mcp-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 4px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .mcp-btn:hover {
+    background: var(--bg-hover);
+    border-color: var(--primary);
+    transform: translateY(-2px);
+  }
+
+  .mcp-btn.connected {
+    border-color: rgba(16, 185, 129, 0.3);
+  }
+
+  .mcp-btn.connected .mcp-icon {
+    filter: drop-shadow(0 0 4px rgba(16, 185, 129, 0.5));
+  }
+
+  .mcp-icon {
+    font-size: 18px;
+    margin-bottom: 4px;
+  }
+
+  .mcp-name {
+    font-size: 9px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+
+  .mcp-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .mcp-info strong {
+    color: var(--text-primary);
+    font-size: 13px;
+  }
+
+  .mcp-features {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .mcp-feature {
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+
+  .mcp-info small {
+    color: var(--success);
+    font-size: 10px;
+  }
+
+  /* Context Awareness (RAG) */
+  .command-context {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--glass-border);
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.03), rgba(6, 182, 212, 0.03));
+  }
+
+  .context-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .context-toggle {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 3px 10px;
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .context-toggle:hover,
+  .context-toggle.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+  }
+
+  .toggle-status {
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .context-summary {
+    min-height: 40px;
+  }
+
+  .context-items {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+
+  .context-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 6px;
+    background: var(--bg-tertiary);
+    border-radius: 8px;
+  }
+
+  .ctx-icon {
+    font-size: 14px;
+    margin-bottom: 2px;
+  }
+
+  .ctx-label {
+    font-size: 9px;
+    color: var(--text-muted);
+    text-align: center;
+  }
+
+  .context-what {
+    margin-top: 8px;
+    padding: 6px 8px;
+    background: rgba(139, 92, 246, 0.05);
+    border-radius: 6px;
+  }
+
+  .ctx-hint {
+    font-size: 10px;
+    color: var(--text-muted);
+    line-height: 1.3;
+  }
+
+  .context-disabled {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    text-align: center;
+    padding: 8px;
+    color: var(--text-muted);
+    font-size: 11px;
+  }
+
+  .context-loading {
+    text-align: center;
+    padding: 8px;
+    color: var(--text-muted);
+    font-size: 11px;
   }
 
   /* Insight */

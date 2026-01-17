@@ -1093,6 +1093,11 @@
       transition: all var(--transition-fast);
       margin-left: var(--space-sm);
     }
+
+    /* First help button pushes to the right */
+    .help-btn:first-of-type {
+      margin-left: auto;
+    }
     
     .help-btn:hover {
       background: var(--primary);
@@ -1275,6 +1280,43 @@
     .settings-toggle input:checked + .toggle-slider::before {
       transform: translateX(20px);
       background: white;
+    }
+
+    /* Settings Select & Input */
+    .settings-select {
+      padding: 8px 12px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-size: 13px;
+      cursor: pointer;
+      min-width: 160px;
+    }
+
+    .settings-select:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .settings-input {
+      padding: 8px 12px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-size: 13px;
+      width: 200px;
+    }
+
+    .settings-input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .api-key-input {
+      margin-top: -8px;
+      padding-left: 20px;
     }
 
     /* Action Buttons */
@@ -1507,10 +1549,17 @@
        TIER SELECTOR — FIXED PILLS
        ============================================ */
     .tier-selector {
-      margin-left: auto;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
       display: flex;
       align-items: center;
       gap: var(--space-sm);
+    }
+
+    /* Make header position relative for absolute tier selector */
+    .agent-header {
+      position: relative;
     }
     
     .tier-pills {
@@ -1737,12 +1786,48 @@
     /* Input Area */
     .input-area {
       display: flex;
+      align-items: flex-end;
       gap: var(--space-sm);
       padding: var(--space-md) var(--space-lg);
       background: var(--bg-secondary);
       border-top: 1px solid var(--glass-border);
     }
-    
+
+    .input-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .web-search-toggle {
+      width: 36px;
+      height: 36px;
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-sm);
+      background: var(--bg-tertiary);
+      color: var(--text-muted);
+      font-size: 16px;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      opacity: 0.5;
+    }
+
+    .web-search-toggle:hover {
+      background: var(--bg-hover);
+      opacity: 0.8;
+    }
+
+    .web-search-toggle.active {
+      background: rgba(59, 130, 246, 0.15);
+      border-color: var(--primary);
+      color: var(--primary);
+      opacity: 1;
+    }
+
+    .web-search-toggle.active:hover {
+      background: rgba(59, 130, 246, 0.25);
+    }
+
     .input-area textarea {
       flex: 1;
       background: var(--bg-tertiary);
@@ -1755,14 +1840,27 @@
       resize: none;
       transition: all var(--transition-fast);
     }
-    
+
     .input-area textarea:focus {
       outline: none;
       border-color: var(--primary);
       box-shadow: 0 0 0 3px var(--primary-soft);
     }
-    
+
     .input-area textarea::placeholder { color: var(--text-muted); }
+
+    /* Tool meta tags */
+    .meta-tag.tool-tag {
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+      border-color: rgba(59, 130, 246, 0.3);
+    }
+
+    .meta-tag.web-search {
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+      border-color: rgba(59, 130, 246, 0.3);
+    }
     
     .send-btn {
       display: flex;
@@ -2752,6 +2850,81 @@
           </div>
         </div>
 
+        <!-- Tools Section -->
+        <div class="settings-section">
+          <h3 class="settings-section-title">🔧 AI Tools</h3>
+
+          <div class="settings-item">
+            <div class="settings-item-info">
+              <span class="settings-item-label">🧠 RAG Context Awareness</span>
+              <span class="settings-item-desc">AI sees your app state, widgets, searches, and conversation</span>
+            </div>
+            <label class="settings-toggle">
+              <input type="checkbox" id="setting-rag-context" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="settings-item">
+            <div class="settings-item-info">
+              <span class="settings-item-label">🌐 Web Search</span>
+              <span class="settings-item-desc">Ground responses with live web data</span>
+            </div>
+            <label class="settings-toggle">
+              <input type="checkbox" id="setting-web-search" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="settings-item">
+            <div class="settings-item-info">
+              <span class="settings-item-label">📄 URL Fetch</span>
+              <span class="settings-item-desc">Read content from pasted URLs</span>
+            </div>
+            <label class="settings-toggle">
+              <input type="checkbox" id="setting-url-fetch" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="settings-item">
+            <div class="settings-item-info">
+              <span class="settings-item-label">🔢 Calculator</span>
+              <span class="settings-item-desc">Auto-calculate math expressions</span>
+            </div>
+            <label class="settings-toggle">
+              <input type="checkbox" id="setting-calculator" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="settings-item">
+            <div class="settings-item-info">
+              <span class="settings-item-label">Search Provider</span>
+              <span class="settings-item-desc">Choose your web search backend</span>
+            </div>
+            <select id="setting-search-provider" class="settings-select">
+              <option value="duckduckgo">🦆 DuckDuckGo (Free)</option>
+              <option value="serper">🔍 Serper (API Key)</option>
+              <option value="tavily">🌐 Tavily (API Key)</option>
+            </select>
+          </div>
+
+          <div class="settings-item api-key-input" id="serper-key-row" style="display:none;">
+            <div class="settings-item-info">
+              <span class="settings-item-label">Serper API Key</span>
+            </div>
+            <input type="password" id="setting-serper-key" class="settings-input" placeholder="Enter API key">
+          </div>
+
+          <div class="settings-item api-key-input" id="tavily-key-row" style="display:none;">
+            <div class="settings-item-info">
+              <span class="settings-item-label">Tavily API Key</span>
+            </div>
+            <input type="password" id="setting-tavily-key" class="settings-input" placeholder="Enter API key">
+          </div>
+        </div>
+
         <!-- Data Section -->
         <div class="settings-section">
           <h3 class="settings-section-title">Data & Privacy</h3>
@@ -2951,6 +3124,11 @@
       </div>
       
       <div class="input-area">
+        <div class="input-controls">
+          <button id="web-search-toggle" class="web-search-toggle active" title="Toggle web search for current info">
+            🌐
+          </button>
+        </div>
         <textarea id="user-input" placeholder="What's on your mind?" rows="2"></textarea>
         <button id="send-btn" class="send-btn">
           <span>Send</span>
@@ -3859,7 +4037,12 @@
         particles: true,
         reduceMotion: false,
         localStorage: true,
-        clipboardHistory: true
+        clipboardHistory: true,
+        // Tool settings
+        webSearch: true,
+        urlFetch: true,
+        calculator: true,
+        searchProvider: 'duckduckgo'
       };
 
       function loadSettings() {
@@ -3909,7 +4092,26 @@
         document.getElementById('setting-local-storage').checked = settings.localStorage;
         document.getElementById('setting-clipboard-history').checked = settings.clipboardHistory;
 
+        // Tool settings
+        document.getElementById('setting-rag-context').checked = localStorage.getItem('rag_enabled') !== 'false';
+        document.getElementById('setting-web-search').checked = settings.webSearch;
+        document.getElementById('setting-url-fetch').checked = settings.urlFetch;
+        document.getElementById('setting-calculator').checked = settings.calculator;
+        document.getElementById('setting-search-provider').value = settings.searchProvider || 'duckduckgo';
+
+        // Load API keys
+        document.getElementById('setting-serper-key').value = localStorage.getItem('serper_api_key') || '';
+        document.getElementById('setting-tavily-key').value = localStorage.getItem('tavily_api_key') || '';
+
+        // Show/hide API key fields based on provider
+        updateApiKeyVisibility(settings.searchProvider);
+
         panel.classList.add('visible');
+      }
+
+      function updateApiKeyVisibility(provider) {
+        document.getElementById('serper-key-row').style.display = provider === 'serper' ? 'flex' : 'none';
+        document.getElementById('tavily-key-row').style.display = provider === 'tavily' ? 'flex' : 'none';
       }
 
       function closeSettings() {
@@ -3926,8 +4128,39 @@
           particles: document.getElementById('setting-particles').checked,
           reduceMotion: document.getElementById('setting-reduce-motion').checked,
           localStorage: document.getElementById('setting-local-storage').checked,
-          clipboardHistory: document.getElementById('setting-clipboard-history').checked
+          clipboardHistory: document.getElementById('setting-clipboard-history').checked,
+          // Tool settings
+          webSearch: document.getElementById('setting-web-search').checked,
+          urlFetch: document.getElementById('setting-url-fetch').checked,
+          calculator: document.getElementById('setting-calculator').checked,
+          searchProvider: document.getElementById('setting-search-provider').value
         };
+
+        // Save API keys separately
+        const serperKey = document.getElementById('setting-serper-key').value;
+        const tavilyKey = document.getElementById('setting-tavily-key').value;
+        if (serperKey) localStorage.setItem('serper_api_key', serperKey);
+        if (tavilyKey) localStorage.setItem('tavily_api_key', tavilyKey);
+
+        // RAG Context setting
+        const ragEnabled = document.getElementById('setting-rag-context').checked;
+        localStorage.setItem('rag_enabled', ragEnabled);
+
+        // Update ActiveMirror app tools
+        if (window.activeMirror) {
+          window.activeMirror.ragEnabled = ragEnabled;
+          window.activeMirror.webSearchEnabled = settings.webSearch;
+          window.activeMirror.tools.urlFetch.enabled = settings.urlFetch;
+          window.activeMirror.tools.calculator.enabled = settings.calculator;
+          window.activeMirror.setSearchProvider(settings.searchProvider);
+          if (serperKey) window.activeMirror.setProviderApiKey('serper', serperKey);
+          if (tavilyKey) window.activeMirror.setProviderApiKey('tavily', tavilyKey);
+        }
+
+        // Update command center context display
+        if (window.commandCenter?.updateContextDisplay) {
+          window.commandCenter.updateContextDisplay();
+        }
 
         saveSettings(settings);
         closeSettings();
@@ -3958,6 +4191,11 @@
       // Click outside to close
       document.getElementById('settings-panel')?.addEventListener('click', (e) => {
         if (e.target.id === 'settings-panel') closeSettings();
+      });
+
+      // Search provider dropdown change handler
+      document.getElementById('setting-search-provider')?.addEventListener('change', (e) => {
+        updateApiKeyVisibility(e.target.value);
       });
 
       // Settings action buttons

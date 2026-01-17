@@ -1,6 +1,6 @@
 /**
  * ActiveMirror v3.0 — Sovereign Intelligence App
- * 
+ *
  * Features:
  * - Multi-tier inference routing
  * - Customizable widgets
@@ -8,7 +8,281 @@
  * - Real-time transparency
  * - Keyboard shortcuts
  * - Polished UX
+ * - RAG Context System (full app awareness)
  */
+
+/**
+ * RAG Context System
+ * Provides full app awareness to the LLM by tracking:
+ * - User's current location in app (panels, tabs, focus)
+ * - Session history (recent actions, clipboard, widgets)
+ * - Semantic retrieval from MirrorBrain vault
+ * - Connected services state
+ */
+class SessionContext {
+  constructor() {
+    // Current UI state
+    this.activePanel = null;          // Which panel is open (command-center, reality-composer, etc.)
+    this.activeTier = 'sovereign';    // Current inference tier
+    this.leftTabExpanded = false;     // Is left sidebar expanded
+
+    // User activity tracking
+    this.recentActions = [];          // Last 10 user actions
+    this.clipboardHistory = [];       // Last 5 clipboard items
+    this.searchHistory = [];          // Last 10 searches
+
+    // Widget state
+    this.widgetStates = {};           // Current widget data (tasks, notes, etc.)
+
+    // Conversation context
+    this.conversationSummary = '';    // Rolling summary of conversation
+    this.messageCount = 0;
+
+    // App features state
+    this.cognitiveProfile = null;     // User's cognitive profile from onboarding
+    this.quantumSelfState = null;     // Current wellness/state data
+
+    // Timestamps
+    this.sessionStart = Date.now();
+    this.lastActivity = Date.now();
+
+    // Initialize event listeners
+    this.setupTracking();
+  }
+
+  setupTracking() {
+    // Track panel opens/closes
+    document.addEventListener('panel-opened', (e) => {
+      this.activePanel = e.detail?.panel || null;
+      this.trackAction('panel_open', { panel: this.activePanel });
+    });
+
+    document.addEventListener('panel-closed', (e) => {
+      this.trackAction('panel_close', { panel: this.activePanel });
+      this.activePanel = null;
+    });
+
+    // Track tab expansion
+    const leftTab = document.getElementById('left-tab');
+    if (leftTab) {
+      const observer = new MutationObserver((mutations) => {
+        this.leftTabExpanded = leftTab.classList.contains('expanded');
+      });
+      observer.observe(leftTab, { attributes: true, attributeFilter: ['class'] });
+    }
+
+    // Track clipboard changes (when user copies from app)
+    document.addEventListener('copy', () => {
+      const selection = window.getSelection()?.toString();
+      if (selection) {
+        this.addToClipboardHistory(selection);
+      }
+    });
+
+    // Track search queries
+    document.addEventListener('search-performed', (e) => {
+      if (e.detail?.query) {
+        this.searchHistory.unshift({
+          query: e.detail.query,
+          timestamp: Date.now(),
+          results: e.detail.resultCount || 0
+        });
+        if (this.searchHistory.length > 10) this.searchHistory.pop();
+      }
+    });
+
+    // Track message sends for conversation context
+    window.addEventListener('message-sent', (e) => {
+      this.messageCount++;
+      this.lastActivity = Date.now();
+      this.updateConversationSummary(e.detail?.text, 'user');
+    });
+
+    // Load cognitive profile
+    this.loadCognitiveProfile();
+  }
+
+  trackAction(action, details = {}) {
+    this.recentActions.unshift({
+      action,
+      details,
+      timestamp: Date.now()
+    });
+    if (this.recentActions.length > 10) this.recentActions.pop();
+    this.lastActivity = Date.now();
+  }
+
+  addToClipboardHistory(text) {
+    // Don't add duplicates
+    if (this.clipboardHistory[0]?.text === text) return;
+
+    this.clipboardHistory.unshift({
+      text: text.substring(0, 500), // Limit size
+      timestamp: Date.now()
+    });
+    if (this.clipboardHistory.length > 5) this.clipboardHistory.pop();
+  }
+
+  updateConversationSummary(message, role) {
+    // Keep a rolling context of the conversation
+    // This is a simple implementation - could use LLM summarization for longer convos
+    if (!message) return;
+
+    const prefix = role === 'user' ? 'User asked: ' : 'Assistant responded: ';
+    const snippet = message.substring(0, 100);
+
+    // Maintain last 3 exchanges
+    this.conversationSummary += `\n${prefix}${snippet}...`;
+    const lines = this.conversationSummary.split('\n').filter(l => l.trim());
+    if (lines.length > 6) {
+      this.conversationSummary = lines.slice(-6).join('\n');
+    }
+  }
+
+  loadCognitiveProfile() {
+    const profile = localStorage.getItem('cognitive_profile');
+    if (profile) {
+      try {
+        this.cognitiveProfile = JSON.parse(profile);
+      } catch (e) {}
+    }
+  }
+
+  updateWidgetStates(widgets) {
+    this.widgetStates = {};
+    for (const widget of widgets) {
+      this.widgetStates[widget.id] = {
+        type: widget.type,
+        title: widget.title,
+        collapsed: widget.collapsed,
+        data: widget.data
+      };
+    }
+  }
+
+  updateQuantumSelfState() {
+    if (window.quantumSelf) {
+      this.quantumSelfState = {
+        score: window.quantumSelf.getWellnessScore?.() || 50,
+        state: window.quantumSelf.currentState || {},
+        guidance: window.quantumSelf.getDailyGuidance?.() || null
+      };
+    }
+  }
+
+  // Build full context for LLM
+  buildContext() {
+    this.updateQuantumSelfState();
+
+    const context = {
+      // Session info
+      session: {
+        id: window.activeMirror?.sessionId || 'unknown',
+        duration: Math.floor((Date.now() - this.sessionStart) / 1000 / 60), // minutes
+        messageCount: this.messageCount,
+        tier: this.activeTier
+      },
+
+      // UI state
+      ui: {
+        activePanel: this.activePanel,
+        leftSidebarExpanded: this.leftTabExpanded,
+        theme: document.documentElement.getAttribute('data-theme') || 'dark'
+      },
+
+      // Recent activity
+      activity: {
+        recentActions: this.recentActions.slice(0, 5),
+        lastActivity: this.formatTimeAgo(this.lastActivity),
+        recentSearches: this.searchHistory.slice(0, 3).map(s => s.query)
+      },
+
+      // Widgets
+      widgets: this.widgetStates,
+
+      // User profile
+      profile: {
+        cognitive: this.cognitiveProfile,
+        wellness: this.quantumSelfState
+      },
+
+      // Conversation
+      conversationContext: this.conversationSummary || 'No prior context'
+    };
+
+    return context;
+  }
+
+  // Build context string for LLM prompt
+  buildContextString() {
+    const ctx = this.buildContext();
+
+    let contextStr = `[App Context]\n`;
+    contextStr += `Session: ${ctx.session.duration}min, ${ctx.session.messageCount} messages, tier: ${ctx.session.tier}\n`;
+    contextStr += `UI: ${ctx.ui.activePanel ? `${ctx.ui.activePanel} panel open` : 'main view'}, ${ctx.ui.theme} theme\n`;
+
+    // Add widget context if relevant
+    if (Object.keys(ctx.widgets).length > 0) {
+      contextStr += `\nWidgets:\n`;
+      for (const [id, widget] of Object.entries(ctx.widgets)) {
+        if (widget.type === 'tasks' && widget.data?.items?.length > 0) {
+          const pending = widget.data.items.filter(i => !i.done).length;
+          const done = widget.data.items.filter(i => i.done).length;
+          contextStr += `- Tasks: ${pending} pending, ${done} done\n`;
+        } else if (widget.type === 'notes' && widget.data?.content) {
+          contextStr += `- Notes: "${widget.data.content.substring(0, 50)}..."\n`;
+        }
+      }
+    }
+
+    // Add wellness context if available
+    if (ctx.profile.wellness?.score) {
+      contextStr += `\nUser State: wellness ${ctx.profile.wellness.score}/100\n`;
+      if (ctx.profile.wellness.guidance?.focus) {
+        contextStr += `Today's focus: ${ctx.profile.wellness.guidance.focus}\n`;
+      }
+    }
+
+    // Add cognitive profile
+    if (ctx.profile.cognitive?.profiles?.length > 0) {
+      contextStr += `\nCognitive Profile: ${ctx.profile.cognitive.profiles.join(', ')}\n`;
+    }
+
+    // Add recent searches
+    if (ctx.activity.recentSearches?.length > 0) {
+      contextStr += `\nRecent searches: ${ctx.activity.recentSearches.join(', ')}\n`;
+    }
+
+    // Add conversation context
+    if (ctx.conversationContext && ctx.conversationContext !== 'No prior context') {
+      contextStr += `\nConversation history:\n${ctx.conversationContext}\n`;
+    }
+
+    return contextStr;
+  }
+
+  formatTimeAgo(timestamp) {
+    const seconds = Math.floor((Date.now() - timestamp) / 1000);
+    if (seconds < 60) return 'just now';
+    if (seconds < 3600) return `${Math.floor(seconds / 60)}min ago`;
+    return `${Math.floor(seconds / 3600)}hr ago`;
+  }
+
+  // Get summary for debugging/display
+  getSummary() {
+    return {
+      session: `${Math.floor((Date.now() - this.sessionStart) / 1000 / 60)}min session`,
+      messages: this.messageCount,
+      activePanel: this.activePanel || 'none',
+      recentActions: this.recentActions.length,
+      clipboardItems: this.clipboardHistory.length,
+      searches: this.searchHistory.length
+    };
+  }
+}
+
+// Global session context instance
+window.sessionContext = new SessionContext();
 
 class ActiveMirrorApp {
   constructor() {
@@ -16,6 +290,10 @@ class ActiveMirrorApp {
     this.messages = [];
     this.sessionId = this.generateSessionId();
     this.consentGranted = false;
+
+    // RAG Context System - full app awareness for LLM
+    this.ragEnabled = localStorage.getItem('rag_enabled') !== 'false';
+    this.sessionContext = window.sessionContext;
 
     // Current tier
     this.currentTier = 'sovereign';
@@ -42,6 +320,63 @@ class ActiveMirrorApp {
 
     // Nudge engine
     this.nudges = null;
+
+    // Web search enabled (for grounding responses with live data)
+    this.webSearchEnabled = localStorage.getItem('web_search_enabled') !== 'false';
+
+    // Tool integrations registry
+    this.tools = {
+      webSearch: {
+        enabled: true,
+        provider: localStorage.getItem('search_provider') || 'duckduckgo',
+        providers: {
+          duckduckgo: { name: 'DuckDuckGo', icon: '🦆', free: true },
+          serper: { name: 'Serper', icon: '🔍', apiKey: localStorage.getItem('serper_api_key') },
+          tavily: { name: 'Tavily', icon: '🌐', apiKey: localStorage.getItem('tavily_api_key') }
+        }
+      },
+      urlFetch: { enabled: true, name: 'URL Fetch', icon: '📄' },
+      calculator: { enabled: true, name: 'Calculator', icon: '🔢' },
+      codeExec: { enabled: false, name: 'Code Sandbox', icon: '💻' },
+      imageGen: { enabled: !!localStorage.getItem('imagen_api_key'), name: 'Image Gen', icon: '🎨' }
+    };
+
+    // MCP Tool integrations (available via Claude Desktop/Code)
+    this.mcpTools = {
+      mirrorbrain: {
+        name: 'MirrorBrain',
+        icon: '⟡',
+        description: 'Sovereign intelligence - vault, state, alignment',
+        tools: [
+          'get_system_state', 'get_alerts', 'get_open_loops', 'get_git_status',
+          'vault_semantic_search', 'vault_index_documents', 'get_handoff', 'write_handoff',
+          'invoke_ag', 'get_alignment_heartbeat', 'record_correction'
+        ]
+      },
+      sc1Fleet: {
+        name: 'SC1 Fleet',
+        icon: '📱',
+        description: 'Mobile device control - Pixel & OnePlus',
+        devices: ['pixel', 'oneplus'],
+        tools: [
+          'sc1_fleet_status', 'sc1_notify', 'sc1_tts', 'sc1_speak',
+          'sc1_clipboard_get', 'sc1_clipboard_set', 'sc1_sms_list',
+          'sc1_camera', 'sc1_location', 'sc1_battery', 'sc1_url', 'sc1_dialog'
+        ]
+      },
+      googleDrive: {
+        name: 'Google Drive',
+        icon: '📁',
+        description: 'File storage and sync',
+        connected: true
+      },
+      github: {
+        name: 'GitHub',
+        icon: '🐙',
+        description: 'Code repositories',
+        connected: true
+      }
+    };
 
     // Customizable widgets
     this.widgets = this.loadWidgets();
@@ -758,23 +1093,42 @@ class ActiveMirrorApp {
   setupChat() {
     const input = document.getElementById('user-input');
     const sendBtn = document.getElementById('send-btn');
-    
+
     if (!input || !sendBtn) return;
-    
+
     sendBtn.addEventListener('click', () => this.sendMessage());
-    
+
     input.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         this.sendMessage();
       }
     });
-    
+
     // Auto-resize
     input.addEventListener('input', () => {
       input.style.height = 'auto';
       input.style.height = Math.min(input.scrollHeight, 120) + 'px';
     });
+
+    // Web search toggle
+    const webToggle = document.getElementById('web-search-toggle');
+    if (webToggle) {
+      // Set initial state
+      webToggle.classList.toggle('active', this.webSearchEnabled);
+      webToggle.title = this.webSearchEnabled
+        ? 'Web search enabled - click to disable'
+        : 'Web search disabled - click to enable';
+
+      webToggle.addEventListener('click', () => {
+        this.webSearchEnabled = !this.webSearchEnabled;
+        this.toggleWebSearch(this.webSearchEnabled);
+        webToggle.classList.toggle('active', this.webSearchEnabled);
+        webToggle.title = this.webSearchEnabled
+          ? 'Web search enabled - click to disable'
+          : 'Web search disabled - click to enable';
+      });
+    }
   }
   
   async sendMessage() {
@@ -804,7 +1158,9 @@ class ActiveMirrorApp {
       }
     }));
 
-    const typingId = this.addTypingIndicator();
+    // Show web search indicator if enabled and query needs it
+    const willSearchWeb = this.webSearchEnabled && this.needsWebSearch(message);
+    const typingId = this.addTypingIndicator(willSearchWeb ? 'Searching the web...' : null);
 
     // Trigger consciousness stream burst
     if (window.consciousnessStream) {
@@ -818,6 +1174,7 @@ class ActiveMirrorApp {
       if (this.currentTier === 'webllm' && this.webllmReady && this.webllm) {
         response = await this.webllm.generate(message);
         response.success = true;
+        response.toolsUsed = [];
       } else if (this.currentTier === 'webllm' && !this.webllmReady) {
         // WebLLM selected but not loaded - offer to load it
         this.removeTypingIndicator(typingId);
@@ -825,6 +1182,10 @@ class ActiveMirrorApp {
         await this.enableWebLLM();
         return;
       } else {
+        // Update indicator when tools are being executed
+        if (willSearchWeb) {
+          this.updateTypingIndicator(typingId, `Querying ${this.tierConfig[this.currentTier]?.name || 'model'}...`);
+        }
         response = await this.queryAPI(message);
       }
 
@@ -835,7 +1196,8 @@ class ActiveMirrorApp {
           tier: response.tier,
           latency: response.latency_ms,
           cached: response.cached,
-          model: response.model
+          model: response.model,
+          toolsUsed: response.toolsUsed || []
         });
 
         this.stats.messages++;
@@ -855,15 +1217,337 @@ class ActiveMirrorApp {
   }
   
   async queryAPI(prompt) {
+    // Execute tools and gather context
+    const { context: toolContext, toolsUsed } = await this.executeTools(prompt);
+
+    // Build RAG context (app awareness)
+    let ragContext = '';
+    if (this.ragEnabled && this.sessionContext) {
+      ragContext = this.sessionContext.buildContextString();
+      // Update widget states before building context
+      if (this.widgets) {
+        this.sessionContext.updateWidgetStates(this.widgets);
+      }
+      // Track the tier being used
+      this.sessionContext.activeTier = this.currentTier;
+
+      // Add RAG indicator to tools used
+      if (ragContext) {
+        toolsUsed.push('🧠 rag');
+      }
+    }
+
+    // Combine all context sources
+    let fullContext = '';
+    if (ragContext) fullContext += ragContext + '\n';
+    if (toolContext) fullContext += toolContext;
+
+    // Augment prompt with all context
+    const augmentedPrompt = fullContext
+      ? `${fullContext}[User Question]\n${prompt}\n\nUse the context above to provide a personalized, relevant answer.`
+      : prompt;
+
     const response = await fetch(`${this.apiEndpoint}/api/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        message: prompt,
-        tier: this.currentTier
+        message: augmentedPrompt,
+        tier: this.currentTier,
+        toolsUsed: toolsUsed,
+        hasRagContext: !!ragContext
       })
     });
-    return await response.json();
+
+    const result = await response.json();
+    result.toolsUsed = toolsUsed;
+    return result;
+  }
+
+  // Detect if user query needs current/live web info
+  needsWebSearch(prompt) {
+    const lowerPrompt = prompt.toLowerCase();
+    const webTriggers = [
+      'latest', 'current', 'today', 'now', 'recent', 'news', '2024', '2025', '2026',
+      'price', 'stock', 'weather', 'what is happening', 'what\'s happening',
+      'search for', 'look up', 'find out', 'google', 'search the web',
+      'who won', 'score', 'update', 'announced', 'released', 'launched'
+    ];
+    return webTriggers.some(trigger => lowerPrompt.includes(trigger));
+  }
+
+  // Fetch web context using selected provider
+  async fetchWebContext(query) {
+    const provider = this.tools.webSearch.provider;
+
+    // Try premium providers first if configured
+    if (provider === 'serper' && this.tools.webSearch.providers.serper.apiKey) {
+      return this.fetchSerperResults(query);
+    }
+    if (provider === 'tavily' && this.tools.webSearch.providers.tavily.apiKey) {
+      return this.fetchTavilyResults(query);
+    }
+
+    // Fall back to DuckDuckGo (free, no API key needed)
+    return this.fetchDuckDuckGoResults(query);
+  }
+
+  // Serper API (https://serper.dev)
+  async fetchSerperResults(query) {
+    try {
+      const response = await fetch('https://google.serper.dev/search', {
+        method: 'POST',
+        headers: {
+          'X-API-KEY': this.tools.webSearch.providers.serper.apiKey,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ q: query, num: 5 })
+      });
+      const data = await response.json();
+      let context = '';
+
+      if (data.knowledgeGraph) {
+        context += `${data.knowledgeGraph.title}: ${data.knowledgeGraph.description || ''}\n\n`;
+      }
+
+      if (data.organic?.length > 0) {
+        context += 'Search Results:\n';
+        data.organic.slice(0, 5).forEach((r, i) => {
+          context += `${i + 1}. ${r.title}\n   ${r.snippet}\n   URL: ${r.link}\n\n`;
+        });
+      }
+
+      return context;
+    } catch (e) {
+      console.log('Serper error:', e);
+      return this.fetchDuckDuckGoResults(query);
+    }
+  }
+
+  // Tavily API (https://tavily.com)
+  async fetchTavilyResults(query) {
+    try {
+      const response = await fetch('https://api.tavily.com/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          api_key: this.tools.webSearch.providers.tavily.apiKey,
+          query: query,
+          search_depth: 'basic',
+          max_results: 5
+        })
+      });
+      const data = await response.json();
+      let context = '';
+
+      if (data.answer) {
+        context += `Answer: ${data.answer}\n\n`;
+      }
+
+      if (data.results?.length > 0) {
+        context += 'Sources:\n';
+        data.results.slice(0, 5).forEach((r, i) => {
+          context += `${i + 1}. ${r.title}\n   ${r.content?.substring(0, 200)}...\n   URL: ${r.url}\n\n`;
+        });
+      }
+
+      return context;
+    } catch (e) {
+      console.log('Tavily error:', e);
+      return this.fetchDuckDuckGoResults(query);
+    }
+  }
+
+  // DuckDuckGo Instant Answers (free, no API key)
+  async fetchDuckDuckGoResults(query) {
+    return new Promise((resolve) => {
+      const callbackName = `ddg_${Date.now()}`;
+      const timeout = setTimeout(() => {
+        delete window[callbackName];
+        resolve('');
+      }, 5000);
+
+      window[callbackName] = (data) => {
+        clearTimeout(timeout);
+        delete window[callbackName];
+
+        let context = '';
+
+        // Abstract/summary
+        if (data.Abstract) {
+          context += `Summary: ${data.Abstract}\n`;
+          if (data.AbstractURL) context += `Source: ${data.AbstractURL}\n\n`;
+        }
+
+        // Definition
+        if (data.Definition) {
+          context += `Definition: ${data.Definition}\n`;
+          if (data.DefinitionSource) context += `Source: ${data.DefinitionSource}\n\n`;
+        }
+
+        // Related topics
+        if (data.RelatedTopics?.length > 0) {
+          context += 'Related Information:\n';
+          data.RelatedTopics.slice(0, 5).forEach((topic, i) => {
+            if (topic.Text) {
+              context += `${i + 1}. ${topic.Text}\n`;
+              if (topic.FirstURL) context += `   URL: ${topic.FirstURL}\n`;
+            }
+          });
+        }
+
+        // Infobox data
+        if (data.Infobox?.content?.length > 0) {
+          context += '\nQuick Facts:\n';
+          data.Infobox.content.slice(0, 5).forEach(item => {
+            if (item.label && item.value) {
+              context += `- ${item.label}: ${item.value}\n`;
+            }
+          });
+        }
+
+        resolve(context || '');
+      };
+
+      const script = document.createElement('script');
+      script.src = `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1&callback=${callbackName}`;
+      script.onerror = () => {
+        clearTimeout(timeout);
+        delete window[callbackName];
+        resolve('');
+      };
+      document.head.appendChild(script);
+      setTimeout(() => script.remove(), 100);
+    });
+  }
+
+  // Toggle web search
+  toggleWebSearch(enabled) {
+    this.webSearchEnabled = enabled;
+    localStorage.setItem('web_search_enabled', enabled);
+    console.log(`⟡ Web search ${enabled ? 'enabled' : 'disabled'}`);
+  }
+
+  // Fetch URL content for grounding
+  async fetchUrlContent(url) {
+    try {
+      // Use a CORS proxy for cross-origin requests
+      const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+      const response = await fetch(proxyUrl);
+      const data = await response.json();
+
+      if (data.contents) {
+        // Extract text content from HTML
+        const doc = new DOMParser().parseFromString(data.contents, 'text/html');
+        // Remove scripts, styles, nav, footer
+        doc.querySelectorAll('script, style, nav, footer, header, aside').forEach(el => el.remove());
+        const text = doc.body?.textContent?.trim() || '';
+        // Limit to ~2000 chars
+        return text.substring(0, 2000);
+      }
+      return '';
+    } catch (e) {
+      console.log('URL fetch error:', e);
+      return '';
+    }
+  }
+
+  // Calculator tool
+  calculateExpression(expr) {
+    try {
+      // Safe math evaluation (no eval)
+      const sanitized = expr.replace(/[^0-9+\-*/().%\s]/g, '');
+      // Use Function constructor for safer eval
+      const result = new Function(`return ${sanitized}`)();
+      return isFinite(result) ? result : 'Error';
+    } catch (e) {
+      return 'Error: Invalid expression';
+    }
+  }
+
+  // Detect tool needs from prompt
+  detectToolNeeds(prompt) {
+    const needs = [];
+    const lower = prompt.toLowerCase();
+
+    // Web search triggers
+    if (this.needsWebSearch(prompt)) {
+      needs.push('webSearch');
+    }
+
+    // URL in prompt
+    const urlMatch = prompt.match(/https?:\/\/[^\s]+/);
+    if (urlMatch) {
+      needs.push({ tool: 'urlFetch', url: urlMatch[0] });
+    }
+
+    // Math expression
+    if (/\b(calculate|compute|what is|eval)\b.*[\d+\-*/]+/.test(lower) ||
+        /^\s*[\d+\-*/().\s]+\s*$/.test(prompt)) {
+      needs.push('calculator');
+    }
+
+    return needs;
+  }
+
+  // Execute tools and gather context
+  async executeTools(prompt) {
+    const needs = this.detectToolNeeds(prompt);
+    let context = '';
+    const toolsUsed = [];
+
+    for (const need of needs) {
+      if (need === 'webSearch' && this.webSearchEnabled) {
+        const webContext = await this.fetchWebContext(prompt);
+        if (webContext) {
+          context += `[Web Search Results]\n${webContext}\n\n`;
+          toolsUsed.push('🌐 web');
+        }
+      } else if (need.tool === 'urlFetch' && this.tools.urlFetch.enabled) {
+        const urlContent = await this.fetchUrlContent(need.url);
+        if (urlContent) {
+          context += `[Content from ${need.url}]\n${urlContent}\n\n`;
+          toolsUsed.push('📄 url');
+        }
+      } else if (need === 'calculator' && this.tools.calculator.enabled) {
+        const mathMatch = prompt.match(/[\d+\-*/().\s]+/);
+        if (mathMatch) {
+          const result = this.calculateExpression(mathMatch[0]);
+          context += `[Calculator]\n${mathMatch[0].trim()} = ${result}\n\n`;
+          toolsUsed.push('🔢 calc');
+        }
+      }
+    }
+
+    return { context, toolsUsed };
+  }
+
+  // Set search provider
+  setSearchProvider(provider) {
+    if (this.tools.webSearch.providers[provider]) {
+      this.tools.webSearch.provider = provider;
+      localStorage.setItem('search_provider', provider);
+      console.log(`⟡ Search provider set to ${provider}`);
+    }
+  }
+
+  // Set API key for a provider
+  setProviderApiKey(provider, apiKey) {
+    if (this.tools.webSearch.providers[provider]) {
+      this.tools.webSearch.providers[provider].apiKey = apiKey;
+      localStorage.setItem(`${provider}_api_key`, apiKey);
+      console.log(`⟡ API key set for ${provider}`);
+    }
+  }
+
+  // Get available tools summary
+  getToolsSummary() {
+    return Object.entries(this.tools).map(([key, tool]) => ({
+      id: key,
+      name: tool.name || key,
+      icon: tool.icon || '🔧',
+      enabled: tool.enabled,
+      provider: tool.provider || null
+    }));
   }
   
   addMessage(role, content, meta = {}) {
@@ -879,11 +1563,17 @@ class ActiveMirrorApp {
     
     let metaHTML = '';
     if (role === 'assistant' && meta.tier) {
+      // Generate tool tags
+      const toolTags = (meta.toolsUsed || []).map(tool =>
+        `<span class="meta-tag tool-tag">${tool}</span>`
+      ).join('');
+
       metaHTML = `
         <div class="message-meta">
           <span class="meta-tag ${config?.class || ''}">${config?.icon || '◈'} ${config?.name || meta.tier}</span>
           ${meta.latency ? `<span class="meta-tag">${meta.latency}ms</span>` : ''}
           ${meta.cached ? '<span class="meta-tag cached">cached</span>' : ''}
+          ${toolTags}
         </div>
       `;
     }
@@ -905,13 +1595,14 @@ class ActiveMirrorApp {
     container.scrollTop = container.scrollHeight;
   }
   
-  addTypingIndicator() {
+  addTypingIndicator(customLabel = null) {
     const container = document.getElementById('messages');
     if (!container) return null;
-    
+
     const id = 'typing-' + Date.now();
     const config = this.tierConfig[this.currentTier];
-    
+    const label = customLabel || `Querying ${config?.name || 'model'}...`;
+
     const indicator = document.createElement('div');
     indicator.id = id;
     indicator.className = 'message message-assistant typing';
@@ -920,15 +1611,23 @@ class ActiveMirrorApp {
         <div class="typing-dots">
           <span></span><span></span><span></span>
         </div>
-        <div class="typing-label">Querying ${config?.name || 'model'}...</div>
+        <div class="typing-label">${label}</div>
       </div>
     `;
-    
+
     container.appendChild(indicator);
     container.scrollTop = container.scrollHeight;
     return id;
   }
-  
+
+  updateTypingIndicator(id, newLabel) {
+    const indicator = document.getElementById(id);
+    if (indicator) {
+      const labelEl = indicator.querySelector('.typing-label');
+      if (labelEl) labelEl.textContent = newLabel;
+    }
+  }
+
   removeTypingIndicator(id) {
     document.getElementById(id)?.remove();
   }
