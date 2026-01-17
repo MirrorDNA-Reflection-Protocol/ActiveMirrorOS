@@ -1,245 +1,283 @@
 /**
- * FLOATING DOCK — Unified Button Layout System
- * Clean, organized positioning for all floating UI elements
+ * UNIFIED TOOLS DOCK — Right Side Vertical Strip
+ * All floating buttons in one clean vertical dock
  *
  * Layout Strategy:
- * ┌─────────────────────────────────────────────────┐
- * │                           [☼] [♿] [⚙]  TOP-RIGHT│
- * │                                                 │
- * │                                                 │
- * │                                                 │
- * │[⟡]                                        [🎭] │
- * │ BOTTOM-LEFT                        BOTTOM-RIGHT│
- * └─────────────────────────────────────────────────┘
+ * ┌─────────────────────────────────────────────────────┐
+ * │                                              ┌───┐  │
+ * │                                              │ ☼ │  │
+ * │                                              │ ♿ │  │
+ * │                                              │ ⚙ │  │
+ * │                                              │───│  │
+ * │                                              │ ⟡ │  │
+ * │                                              │ 🎭│  │
+ * │                                              │ 🔮│  │
+ * │                                              └───┘  │
+ * └─────────────────────────────────────────────────────┘
  */
 
 /* ============================================
-   TOP-RIGHT TOOLBAR
-   Theme, Accessibility, Settings
+   UNIFIED RIGHT TOOLS DOCK
+   All tools in one vertical strip
    ============================================ */
 
-.top-right-toolbar {
+.tools-dock {
   position: fixed;
-  top: 16px;
   right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
   z-index: 99998;
   display: flex;
+  flex-direction: column;
   gap: 8px;
-  align-items: center;
+  padding: 12px 8px;
+  background: var(--bg-secondary, #12121a);
+  border: 1px solid var(--glass-border, rgba(255,255,255,0.08));
+  border-radius: 28px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 
-/* Override WOW features positioning when in toolbar */
-.top-right-toolbar #theme-toggle,
-.top-right-toolbar .wow-theme-toggle {
-  position: relative !important;
-  top: auto !important;
-  right: auto !important;
-  margin: 0 !important;
+/* Dock sections divider */
+.tools-dock-divider {
+  width: 24px;
+  height: 1px;
+  background: var(--glass-border, rgba(255,255,255,0.08));
+  margin: 4px auto;
 }
 
-.top-right-toolbar #accessibility-toggle,
-.top-right-toolbar .wow-accessibility-toggle {
-  position: relative !important;
-  top: auto !important;
-  right: auto !important;
-  margin: 0 !important;
-}
+/* ============================================
+   DOCK BUTTON BASE STYLE
+   ============================================ */
 
-/* Settings button in toolbar */
-.toolbar-settings-btn {
-  width: 44px;
-  height: 44px;
+.tools-dock-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg-tertiary, #1a1a24);
-  border: 1px solid var(--glass-border, rgba(255,255,255,0.1));
-  border-radius: 50%;
-  font-size: 18px;
+  font-size: 16px;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-secondary, #a0a0b0);
+  position: relative;
 }
 
-.toolbar-settings-btn:hover {
+.tools-dock-btn:hover {
+  background: var(--bg-tertiary, #1a1a24);
+  color: var(--text-primary, #f0f0f5);
   transform: scale(1.1);
-  border-color: var(--primary, #6366f1);
 }
 
-/* ============================================
-   BOTTOM-LEFT DOCK
-   Command Center (primary interaction point)
-   ============================================ */
-
-.bottom-left-dock {
-  position: fixed;
-  bottom: 20px;
-  left: 20px;
-  z-index: 1000;
-  display: flex;
-  flex-direction: column-reverse;
-  gap: 12px;
-  align-items: flex-start;
-}
-
-/* Override Command Center positioning when in dock */
-.bottom-left-dock .command-icon {
-  position: relative !important;
-  bottom: auto !important;
-  left: auto !important;
-}
-
-.bottom-left-dock .command-panel {
-  position: absolute !important;
-  bottom: 70px !important;
-  left: 0 !important;
-}
-
-/* ============================================
-   BOTTOM-RIGHT DOCK
-   Reality Composer, Future Self, Context Pane
-   ============================================ */
-
-.bottom-right-dock {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 1000;
-  display: flex;
-  flex-direction: column-reverse;
-  gap: 12px;
-  align-items: flex-end;
-}
-
-/* Override Reality Composer positioning when in dock */
-.bottom-right-dock .reality-composer-panel {
-  position: relative !important;
-  bottom: auto !important;
-  right: auto !important;
-}
-
-.bottom-right-dock .rc-menu {
-  position: absolute !important;
-  bottom: 60px !important;
-  right: 0 !important;
-}
-
-.rc-toggle {
-  width: 48px !important;
-  height: 48px !important;
-}
-
-/* Override Context Pane toggle if it exists as floating */
-.context-pane-toggle {
-  position: relative !important;
-}
-
-/* ============================================
-   FLOATING BUTTON SHARED STYLE
-   Consistent look across all dock buttons
-   ============================================ */
-
-.dock-btn {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border: 1px solid var(--glass-border, rgba(255,255,255,0.08));
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-}
-
-.dock-btn:hover {
-  transform: scale(1.1);
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
-}
-
-.dock-btn:active {
+.tools-dock-btn:active {
   transform: scale(0.95);
 }
 
-/* Primary dock button (Command Center) */
-.dock-btn-primary {
-  background: linear-gradient(135deg, var(--primary, #6366f1), var(--frontier, #8b5cf6));
-  border-color: rgba(99, 102, 241, 0.4);
-}
-
-.dock-btn-primary:hover {
-  box-shadow: 0 0 30px rgba(99, 102, 241, 0.5);
-}
-
-/* Secondary dock buttons */
-.dock-btn-secondary {
-  background: var(--bg-tertiary, #1a1a24);
-}
-
-.dock-btn-secondary:hover {
+.tools-dock-btn.active {
+  background: var(--primary-soft, rgba(99, 102, 241, 0.15));
+  color: var(--primary, #6366f1);
   border-color: var(--primary, #6366f1);
 }
 
+/* Primary action button (Command Center) */
+.tools-dock-btn.primary {
+  background: linear-gradient(135deg, var(--primary, #6366f1), var(--frontier, #8b5cf6));
+  color: white;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+}
+
+.tools-dock-btn.primary:hover {
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+}
+
+/* Tooltip on hover */
+.tools-dock-btn[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  right: 52px;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 6px 10px;
+  background: var(--bg-primary, #0a0a0f);
+  border: 1px solid var(--glass-border, rgba(255,255,255,0.08));
+  border-radius: 6px;
+  font-size: 11px;
+  white-space: nowrap;
+  color: var(--text-primary, #f0f0f5);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 100000;
+}
+
 /* ============================================
-   PANELS — Open upward/inward from docks
+   OVERRIDE EXISTING COMPONENT POSITIONS
+   Force all floating elements into dock
    ============================================ */
 
-/* Command Panel opens above the icon */
+/* Hide old dock containers */
+.top-right-toolbar,
+.bottom-left-dock,
+.bottom-right-dock {
+  display: none !important;
+}
+
+/* Reset Command Center positioning */
+.command-icon {
+  position: relative !important;
+  bottom: auto !important;
+  left: auto !important;
+  width: 40px !important;
+  height: 40px !important;
+}
+
+.command-icon-inner {
+  width: 40px !important;
+  height: 40px !important;
+  font-size: 16px !important;
+}
+
+/* Command panel opens to the left of dock */
 .command-panel {
-  position: absolute !important;
-  bottom: 60px !important;
-  left: 0 !important;
+  position: fixed !important;
+  right: 80px !important;
+  top: 50% !important;
+  bottom: auto !important;
+  left: auto !important;
+  transform: translateY(-50%) !important;
 }
 
-/* Reality Composer menu opens above the toggle */
+/* Reset Reality Composer positioning */
+.reality-composer-panel,
+.rc-toggle {
+  position: relative !important;
+  bottom: auto !important;
+  right: auto !important;
+}
+
+.rc-toggle {
+  width: 40px !important;
+  height: 40px !important;
+  font-size: 16px !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.rc-toggle:hover {
+  background: var(--bg-tertiary, #1a1a24) !important;
+}
+
+/* RC menu opens to the left */
 .rc-menu {
-  position: absolute !important;
-  bottom: 60px !important;
-  right: 0 !important;
+  position: fixed !important;
+  right: 80px !important;
+  top: 50% !important;
+  bottom: auto !important;
+  transform: translateY(-50%) !important;
 }
 
-/* Accessibility menu opens below the toolbar */
+/* Reset WOW features positioning */
+#theme-toggle,
+.wow-theme-toggle,
+#accessibility-toggle,
+.wow-accessibility-toggle {
+  position: relative !important;
+  top: auto !important;
+  right: auto !important;
+  margin: 0 !important;
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+  font-size: 16px !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+#theme-toggle:hover,
+.wow-theme-toggle:hover,
+#accessibility-toggle:hover,
+.wow-accessibility-toggle:hover {
+  background: var(--bg-tertiary, #1a1a24) !important;
+  border-radius: 50% !important;
+}
+
+/* Accessibility menu opens to the left */
 #accessibility-menu,
 .wow-accessibility-menu {
-  position: absolute !important;
-  top: 54px !important;
-  right: 0 !important;
+  position: fixed !important;
+  right: 80px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
 }
 
-/* Future Self inline panel */
+/* Future Self toggle in dock */
+.future-self-toggle,
+#future-self-toggle {
+  position: relative !important;
+  width: 40px !important;
+  height: 40px !important;
+}
+
+/* Future Self inline panel opens to left */
 .future-self-inline {
   position: fixed !important;
-  bottom: 90px !important;
-  right: 20px !important;
+  right: 80px !important;
+  top: 50% !important;
+  bottom: auto !important;
+  transform: translateY(-50%) !important;
+}
+
+/* Settings button in dock */
+.toolbar-settings-btn,
+#toolbar-settings-btn {
+  position: relative !important;
+  width: 40px !important;
+  height: 40px !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.toolbar-settings-btn:hover,
+#toolbar-settings-btn:hover {
+  background: var(--bg-tertiary, #1a1a24) !important;
 }
 
 /* ============================================
-   TOASTS — Centered at bottom
+   TOASTS — Above dock, aligned right
    ============================================ */
 
 .command-toast,
 .eh-toast,
 .wow-toast {
   position: fixed !important;
-  bottom: 90px !important;
-  left: 50% !important;
-  transform: translateX(-50%) !important;
-  right: auto !important;
+  bottom: auto !important;
+  top: 20px !important;
+  right: 80px !important;
+  left: auto !important;
+  transform: none !important;
 }
 
 /* ============================================
    LIGHT THEME ADJUSTMENTS
    ============================================ */
 
-[data-theme="light"] .dock-btn-secondary {
+[data-theme="light"] .tools-dock {
   background: rgba(255, 255, 255, 0.95);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
-[data-theme="light"] .toolbar-settings-btn {
-  background: rgba(255, 255, 255, 0.95);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+[data-theme="light"] .tools-dock-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .tools-dock-btn.active {
+  background: var(--primary-soft, rgba(99, 102, 241, 0.15));
 }
 
 /* ============================================
@@ -247,44 +285,77 @@
    ============================================ */
 
 @media (max-width: 768px) {
-  .top-right-toolbar {
-    top: 12px;
+  .tools-dock {
     right: 12px;
+    padding: 10px 6px;
     gap: 6px;
+    border-radius: 24px;
   }
 
-  .top-right-toolbar button {
-    width: 40px !important;
-    height: 40px !important;
-    min-width: 40px !important;
-    min-height: 40px !important;
-    font-size: 16px !important;
-  }
-
-  .bottom-left-dock,
-  .bottom-right-dock {
-    bottom: 16px;
-  }
-
-  .bottom-left-dock {
-    left: 16px;
-  }
-
-  .bottom-right-dock {
-    right: 16px;
-  }
-
-  .dock-btn,
+  .tools-dock-btn,
+  .command-icon,
+  .command-icon-inner,
   .rc-toggle,
-  .command-icon-inner {
-    width: 44px !important;
-    height: 44px !important;
+  #theme-toggle,
+  #accessibility-toggle,
+  .toolbar-settings-btn {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+    font-size: 14px !important;
+  }
+
+  /* Panels take more screen space on mobile */
+  .command-panel,
+  .rc-menu,
+  #accessibility-menu,
+  .future-self-inline {
+    right: 60px !important;
+    max-width: calc(100vw - 80px) !important;
+  }
+}
+
+/* ============================================
+   VERY SMALL SCREENS — Dock at bottom
+   ============================================ */
+
+@media (max-width: 480px) {
+  .tools-dock {
+    right: 50%;
+    top: auto;
+    bottom: 16px;
+    transform: translateX(50%);
+    flex-direction: row;
+    border-radius: 28px;
+    padding: 8px 12px;
+  }
+
+  .tools-dock-divider {
+    width: 1px;
+    height: 24px;
+    margin: 0 4px;
+  }
+
+  .tools-dock-btn[data-tooltip]:hover::after {
+    right: auto;
+    bottom: 52px;
+    top: auto;
+    left: 50%;
+    transform: translateX(-50%);
   }
 
   .command-panel,
-  .rc-menu {
+  .rc-menu,
+  #accessibility-menu,
+  .future-self-inline {
+    right: 16px !important;
+    left: 16px !important;
+    bottom: 80px !important;
+    top: auto !important;
+    transform: none !important;
     width: calc(100vw - 32px) !important;
-    max-width: 340px !important;
+    max-width: none !important;
   }
 }
 
@@ -294,9 +365,10 @@
 
 /*
  * 100000+ : Modals, overlays (briefing, settings, break)
- * 99999   : Top toolbar (theme, accessibility)
+ * 99999   : Tooltips
+ * 99998   : Tools dock
  * 10000   : Quick tools modals
  * 2000    : Event hub prompts, toasts
- * 1000    : Bottom docks, floating panels
+ * 1000    : Panels that open from dock
  * 999     : Physical suggestions
  */
