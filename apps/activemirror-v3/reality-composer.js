@@ -905,6 +905,305 @@ class RealityComposerUI {
 }
 
 // ============================================
+// CSS STYLES
+// ============================================
+
+const realityComposerStyles = document.createElement('style');
+realityComposerStyles.textContent = `
+  .reality-composer-panel {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    z-index: 1000;
+  }
+
+  .rc-toggle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(99, 102, 241, 0.2));
+    border: 1px solid rgba(139, 92, 246, 0.4);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  .rc-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+  }
+
+  .rc-menu {
+    position: absolute;
+    bottom: 60px;
+    right: 0;
+    width: 300px;
+    background: rgba(18, 18, 26, 0.98);
+    border: 1px solid var(--glass-border, rgba(255,255,255,0.08));
+    border-radius: 16px;
+    padding: 16px;
+    backdrop-filter: blur(20px);
+    opacity: 1;
+    transform: translateY(0);
+    transition: all 0.3s ease;
+  }
+
+  .rc-menu.hidden {
+    opacity: 0;
+    transform: translateY(10px);
+    pointer-events: none;
+  }
+
+  .rc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--glass-border, rgba(255,255,255,0.08));
+  }
+
+  .rc-header h4 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary, #f0f0f5);
+  }
+
+  .rc-current {
+    font-size: 12px;
+    color: var(--text-muted, #606070);
+  }
+
+  .rc-options {
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  .rc-option {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s ease;
+    margin-bottom: 4px;
+    color: var(--text-primary, #f0f0f5);
+  }
+
+  .rc-option:hover {
+    background: var(--bg-tertiary, #1a1a24);
+    border-color: var(--glass-border, rgba(255,255,255,0.08));
+  }
+
+  .rc-option.active {
+    background: var(--primary-soft, rgba(99, 102, 241, 0.15));
+    border-color: var(--primary, #6366f1);
+  }
+
+  .option-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .option-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .option-name {
+    display: block;
+    font-weight: 500;
+    color: var(--text-primary, #f0f0f5);
+    font-size: 13px;
+  }
+
+  .option-desc {
+    display: block;
+    font-size: 11px;
+    color: var(--text-muted, #606070);
+    margin-top: 2px;
+  }
+
+  .rc-quick {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--glass-border, rgba(255,255,255,0.08));
+  }
+
+  .rc-stop-audio, .rc-reset {
+    flex: 1;
+    padding: 8px;
+    background: var(--bg-tertiary, #1a1a24);
+    border: 1px solid var(--glass-border, rgba(255,255,255,0.08));
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    color: var(--text-secondary, #a0a0b0);
+    transition: all 0.2s;
+  }
+
+  .rc-stop-audio:hover, .rc-reset:hover {
+    background: var(--bg-hover, #22222e);
+    color: var(--text-primary, #f0f0f5);
+  }
+
+  /* Reality Suggestion Toast */
+  .reality-suggestion {
+    position: fixed;
+    bottom: 150px;
+    right: 20px;
+    background: rgba(18, 18, 26, 0.98);
+    border: 1px solid var(--glass-border, rgba(255,255,255,0.08));
+    border-radius: 12px;
+    padding: 16px;
+    max-width: 320px;
+    z-index: 1001;
+    animation: rcSlideIn 0.3s ease;
+    backdrop-filter: blur(20px);
+  }
+
+  @keyframes rcSlideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+  .rs-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .rs-icon { font-size: 32px; }
+
+  .rs-info strong {
+    display: block;
+    color: var(--text-primary, #f0f0f5);
+    margin-bottom: 4px;
+  }
+
+  .rs-info p {
+    margin: 0;
+    font-size: 12px;
+    color: var(--text-secondary, #a0a0b0);
+  }
+
+  .rs-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .rs-accept {
+    padding: 8px 16px;
+    background: var(--primary, #6366f1);
+    border: none;
+    border-radius: 6px;
+    color: white;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+
+  .rs-accept:hover { filter: brightness(1.1); }
+
+  .rs-dismiss {
+    padding: 8px 12px;
+    background: transparent;
+    border: 1px solid var(--glass-border, rgba(255,255,255,0.08));
+    border-radius: 6px;
+    color: var(--text-muted, #606070);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .rs-dismiss:hover { background: var(--bg-tertiary, #1a1a24); }
+
+  /* Physical Suggestions Panel */
+  .physical-suggestions {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(18, 18, 26, 0.95);
+    border: 1px solid var(--glass-border, rgba(255,255,255,0.08));
+    border-radius: 12px;
+    padding: 16px 20px;
+    z-index: 999;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(20px);
+  }
+
+  .physical-suggestions.dismissed {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+    pointer-events: none;
+  }
+
+  .ps-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .ps-icon { font-size: 16px; }
+  .ps-title {
+    font-weight: 500;
+    font-size: 13px;
+    color: var(--text-primary, #f0f0f5);
+  }
+
+  .ps-list {
+    margin: 0;
+    padding-left: 20px;
+    font-size: 12px;
+    color: var(--text-secondary, #a0a0b0);
+  }
+
+  .ps-list li { margin: 4px 0; }
+
+  .ps-dismiss {
+    margin-top: 12px;
+    padding: 6px 12px;
+    background: transparent;
+    border: 1px solid var(--glass-border, rgba(255,255,255,0.08));
+    border-radius: 6px;
+    color: var(--text-muted, #606070);
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .ps-dismiss:hover { background: var(--bg-tertiary, #1a1a24); }
+
+  /* Light theme support */
+  [data-theme="light"] .reality-composer-panel .rc-menu,
+  [data-theme="light"] .reality-suggestion,
+  [data-theme="light"] .physical-suggestions {
+    background: rgba(255, 255, 255, 0.98);
+    border-color: rgba(0, 0, 0, 0.1);
+  }
+
+  [data-theme="light"] .rc-toggle {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(99, 102, 241, 0.15));
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+`;
+document.head.appendChild(realityComposerStyles);
+
+// ============================================
 // INITIALIZE
 // ============================================
 

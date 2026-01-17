@@ -651,19 +651,137 @@ class CommandCenter {
   }
 
   openFutureSelf() {
-    // Check for FutureSelfUI which has the dialogue interface
+    // Check for Future Self button created by FutureSelfUI
+    const futureSelfBtn = document.querySelector('.future-self-btn');
+    if (futureSelfBtn) {
+      futureSelfBtn.click();
+      return;
+    }
+
+    // Check for FutureSelfUI panel
     const futureSelfPanel = document.getElementById('future-self-panel');
     if (futureSelfPanel) {
       futureSelfPanel.classList.toggle('hidden');
-    } else if (window.futureSelf?.consultFutureSelf) {
-      // Trigger a consultation with current state context
+      return;
+    }
+
+    // Use Future Self API directly if available
+    if (window.futureSelf?.consultFutureSelf) {
       const context = `I'm checking in. Energy: ${this.currentState.energy}, Focus: ${this.currentState.focus}, Mood: ${this.currentState.mood}`;
       window.futureSelf.consultFutureSelf(context).then(response => {
-        this.showNotification('🔮 Future Self Says', response.slice(0, 100) + '...');
+        this.showInlineFutureSelf(response);
       });
-    } else {
-      this.showNotification('🔮 Future Self', 'Take a moment to reflect on what future you would say.');
+      return;
     }
+
+    // Initialize if not present
+    if (window.initFutureSelfUI) {
+      window.initFutureSelfUI();
+      setTimeout(() => {
+        document.querySelector('.future-self-btn')?.click();
+      }, 200);
+      return;
+    }
+
+    this.showNotification('🔮 Future Self', 'Take a moment to reflect on what future you would say.');
+  }
+
+  showInlineFutureSelf(response) {
+    // Remove existing panel if any
+    document.querySelector('.future-self-inline')?.remove();
+
+    const panel = document.createElement('div');
+    panel.className = 'future-self-inline';
+    panel.innerHTML = `
+      <div class="fsi-header">
+        <span class="fsi-icon">🔮</span>
+        <span class="fsi-title">Future You Says</span>
+        <button class="fsi-close">×</button>
+      </div>
+      <div class="fsi-content">
+        ${response.greeting ? `<p class="fsi-greeting">${response.greeting}</p>` : ''}
+        ${response.acknowledgment ? `<p class="fsi-ack">${response.acknowledgment}</p>` : ''}
+        ${response.wisdom ? `<p class="fsi-wisdom">${response.wisdom}</p>` : ''}
+        ${response.encouragement ? `<p class="fsi-encouragement">${response.encouragement}</p>` : ''}
+        ${response.question ? `<p class="fsi-question"><em>${response.question}</em></p>` : ''}
+      </div>
+    `;
+
+    // Add styles if not present
+    if (!document.querySelector('#fsi-styles')) {
+      const styles = document.createElement('style');
+      styles.id = 'fsi-styles';
+      styles.textContent = `
+        .future-self-inline {
+          position: fixed;
+          bottom: 100px;
+          right: 80px;
+          width: 340px;
+          background: rgba(18, 18, 26, 0.98);
+          border: 1px solid var(--glass-border, rgba(255,255,255,0.08));
+          border-radius: 16px;
+          padding: 20px;
+          z-index: 2000;
+          animation: fsiSlide 0.3s ease;
+          backdrop-filter: blur(20px);
+        }
+        @keyframes fsiSlide {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .fsi-header {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 16px;
+          padding-bottom: 12px;
+          border-bottom: 1px solid var(--glass-border, rgba(255,255,255,0.08));
+        }
+        .fsi-icon { font-size: 24px; }
+        .fsi-title { flex: 1; font-weight: 600; color: var(--text-primary, #f0f0f5); }
+        .fsi-close {
+          background: none;
+          border: none;
+          color: var(--text-muted, #606070);
+          font-size: 20px;
+          cursor: pointer;
+          padding: 0;
+          width: 28px;
+          height: 28px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 6px;
+          transition: all 0.2s;
+        }
+        .fsi-close:hover { background: var(--bg-tertiary, #1a1a24); }
+        .fsi-content p { margin: 0 0 12px 0; line-height: 1.5; }
+        .fsi-greeting { color: var(--text-secondary, #a0a0b0); font-size: 13px; }
+        .fsi-ack { color: var(--text-primary, #f0f0f5); font-size: 14px; }
+        .fsi-wisdom {
+          color: var(--primary, #6366f1);
+          font-weight: 500;
+          padding: 12px;
+          background: var(--primary-soft, rgba(99,102,241,0.1));
+          border-radius: 8px;
+        }
+        .fsi-encouragement { color: var(--success, #10b981); font-size: 13px; }
+        .fsi-question { color: var(--text-secondary, #a0a0b0); font-size: 13px; }
+        [data-theme="light"] .future-self-inline {
+          background: rgba(255, 255, 255, 0.98);
+          border-color: rgba(0, 0, 0, 0.1);
+        }
+      `;
+      document.head.appendChild(styles);
+    }
+
+    document.body.appendChild(panel);
+    panel.querySelector('.fsi-close').addEventListener('click', () => panel.remove());
+
+    // Auto-dismiss after 30 seconds
+    setTimeout(() => {
+      if (document.body.contains(panel)) panel.remove();
+    }, 30000);
   }
 
   openBrainDump() {
@@ -699,11 +817,33 @@ class CommandCenter {
   }
 
   openRealityComposer() {
-    // Toggle reality composer panel
-    const panel = document.getElementById('reality-composer');
+    // Look for Reality Composer panel
+    const panel = document.querySelector('.reality-composer-panel');
     if (panel) {
-      panel.classList.toggle('hidden');
+      const menu = panel.querySelector('.rc-menu');
+      if (menu) {
+        menu.classList.toggle('hidden');
+      }
+      return;
     }
+
+    // Look for toggle button
+    const toggle = document.querySelector('.rc-toggle');
+    if (toggle) {
+      toggle.click();
+      return;
+    }
+
+    // Initialize if not present
+    if (window.initRealityComposerUI) {
+      window.initRealityComposerUI();
+      setTimeout(() => {
+        document.querySelector('.rc-toggle')?.click();
+      }, 200);
+      return;
+    }
+
+    this.showNotification('🎭 Reality Composer', 'Environment control loading...');
   }
 
   // === UI HELPERS ===

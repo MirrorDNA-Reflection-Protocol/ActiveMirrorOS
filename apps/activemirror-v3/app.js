@@ -407,6 +407,33 @@ class ActiveMirrorApp {
       if (window.initCognitiveBridge) window.initCognitiveBridge();
       if (window.initLifeStack) setTimeout(() => window.initLifeStack(), 1000);
 
+      // Initialize Reality Composer UI (environment control panel)
+      if (window.initRealityComposerUI) {
+        setTimeout(() => window.initRealityComposerUI(), 500);
+      }
+
+      // Initialize Future Self UI (wisdom dialogue)
+      if (window.initFutureSelfUI) {
+        setTimeout(() => window.initFutureSelfUI(), 700);
+      }
+
+      // Check for time capsules from Future Self
+      if (window.futureSelf?.checkTimeCapsules) {
+        setTimeout(() => window.futureSelf.checkTimeCapsules(), 2000);
+      }
+
+      // Auto-expand left tab for first-time users to show widgets
+      if (!localStorage.getItem('left_tab_seen')) {
+        setTimeout(() => {
+          const leftTab = document.getElementById('left-tab');
+          if (leftTab) {
+            leftTab.classList.remove('collapsed');
+            leftTab.classList.add('expanded');
+            localStorage.setItem('left_tab_seen', 'true');
+          }
+        }, 1500);
+      }
+
       // Initialize Your State widget in sidebar
       this.initStateWidget();
     }, 400);
@@ -764,6 +791,19 @@ class ActiveMirrorApp {
     this.updateStats();
     this.trackMessageForNudges();
 
+    // Dispatch message-sent event for Future Self wisdom capture
+    window.dispatchEvent(new CustomEvent('message-sent', {
+      detail: {
+        text: message,
+        role: 'user',
+        timestamp: Date.now(),
+        context: {
+          tier: this.currentTier,
+          sessionMessages: this.stats.messages
+        }
+      }
+    }));
+
     const typingId = this.addTypingIndicator();
 
     // Trigger consciousness stream burst
@@ -976,14 +1016,186 @@ class ActiveMirrorApp {
         e.preventDefault();
         document.getElementById('user-input')?.focus();
       }
-      
+
       // Cmd/Ctrl + 1-4: Switch tiers
       if ((e.metaKey || e.ctrlKey) && ['1', '2', '3', '4'].includes(e.key)) {
         e.preventDefault();
         const tiers = ['sovereign', 'fast_free', 'budget', 'frontier'];
         this.setTier(tiers[parseInt(e.key) - 1]);
       }
+
+      // Cmd/Ctrl + /: Show shortcuts help
+      if ((e.metaKey || e.ctrlKey) && e.key === '/') {
+        e.preventDefault();
+        this.showShortcutsHelp();
+      }
     });
+  }
+
+  showShortcutsHelp() {
+    // Remove existing if present
+    document.querySelector('.shortcuts-help')?.remove();
+
+    const help = document.createElement('div');
+    help.className = 'shortcuts-help';
+    help.innerHTML = `
+      <div class="sh-content">
+        <div class="sh-header">
+          <h3>Keyboard Shortcuts</h3>
+          <button class="sh-close">×</button>
+        </div>
+        <div class="sh-grid">
+          <div class="sh-section">
+            <h4>Navigation</h4>
+            <div class="sh-item"><kbd>⌘K</kbd> <span>Focus chat input</span></div>
+            <div class="sh-item"><kbd>⌘1-4</kbd> <span>Switch AI tiers</span></div>
+            <div class="sh-item"><kbd>⌘/</kbd> <span>This help</span></div>
+          </div>
+          <div class="sh-section">
+            <h4>Quick Tools</h4>
+            <div class="sh-item"><kbd>⌘⇧B</kbd> <span>Brain Dump</span></div>
+            <div class="sh-item"><kbd>⌘⇧E</kbd> <span>Energy Check</span></div>
+            <div class="sh-item"><kbd>⌘⇧C</kbd> <span>Quick Capture</span></div>
+            <div class="sh-item"><kbd>⌘⇧P</kbd> <span>Panic Mode</span></div>
+            <div class="sh-item"><kbd>⌘⇧S</kbd> <span>Social Scripts</span></div>
+          </div>
+        </div>
+        <p class="sh-tip">Use <strong>Ctrl</strong> instead of <strong>⌘</strong> on Windows/Linux</p>
+      </div>
+    `;
+
+    // Add styles if not present
+    if (!document.querySelector('#sh-styles')) {
+      const styles = document.createElement('style');
+      styles.id = 'sh-styles';
+      styles.textContent = `
+        .shortcuts-help {
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          background: rgba(18, 18, 26, 0.98);
+          border: 1px solid var(--glass-border, rgba(255,255,255,0.08));
+          border-radius: 16px;
+          padding: 24px;
+          z-index: 3000;
+          animation: shFadeIn 0.2s ease;
+          backdrop-filter: blur(20px);
+          max-width: 500px;
+          width: 90%;
+        }
+        @keyframes shFadeIn {
+          from { opacity: 0; transform: translate(-50%, -50%) scale(0.95); }
+          to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+        .sh-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 20px;
+        }
+        .sh-header h3 {
+          margin: 0;
+          font-size: 18px;
+          font-weight: 600;
+          color: var(--text-primary, #f0f0f5);
+        }
+        .sh-close {
+          background: none;
+          border: none;
+          color: var(--text-muted, #606070);
+          font-size: 24px;
+          cursor: pointer;
+          padding: 0;
+          width: 32px;
+          height: 32px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 8px;
+          transition: all 0.2s;
+        }
+        .sh-close:hover { background: var(--bg-tertiary, #1a1a24); }
+        .sh-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 24px;
+        }
+        .sh-section h4 {
+          margin: 0 0 12px 0;
+          font-size: 12px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          color: var(--text-muted, #606070);
+        }
+        .sh-item {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin-bottom: 8px;
+        }
+        .sh-item kbd {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          min-width: 50px;
+          padding: 4px 8px;
+          background: var(--bg-tertiary, #1a1a24);
+          border: 1px solid var(--glass-border, rgba(255,255,255,0.08));
+          border-radius: 6px;
+          font-family: var(--font-mono, 'JetBrains Mono', monospace);
+          font-size: 12px;
+          color: var(--text-primary, #f0f0f5);
+        }
+        .sh-item span {
+          color: var(--text-secondary, #a0a0b0);
+          font-size: 13px;
+        }
+        .sh-tip {
+          margin: 20px 0 0 0;
+          padding-top: 16px;
+          border-top: 1px solid var(--glass-border, rgba(255,255,255,0.08));
+          font-size: 12px;
+          color: var(--text-muted, #606070);
+          text-align: center;
+        }
+        .sh-tip strong { color: var(--text-secondary, #a0a0b0); }
+        [data-theme="light"] .shortcuts-help {
+          background: rgba(255, 255, 255, 0.98);
+          border-color: rgba(0, 0, 0, 0.1);
+        }
+        @media (max-width: 480px) {
+          .sh-grid { grid-template-columns: 1fr; }
+        }
+      `;
+      document.head.appendChild(styles);
+    }
+
+    document.body.appendChild(help);
+
+    // Close handlers
+    const closeHelp = () => help.remove();
+    help.querySelector('.sh-close').addEventListener('click', closeHelp);
+
+    // Click outside to close
+    help.addEventListener('click', (e) => {
+      if (e.target === help) closeHelp();
+    });
+
+    // Escape to close
+    const escHandler = (e) => {
+      if (e.key === 'Escape') {
+        closeHelp();
+        document.removeEventListener('keydown', escHandler);
+      }
+    };
+    document.addEventListener('keydown', escHandler);
+
+    // Auto-dismiss after 30 seconds
+    setTimeout(() => {
+      if (document.body.contains(help)) help.remove();
+    }, 30000);
   }
   
   // ============================================
