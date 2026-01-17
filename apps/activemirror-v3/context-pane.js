@@ -11,6 +11,200 @@
  * Design: Essential like coffee. Always there when you need it.
  */
 
+/**
+ * LITE VAULT — Browser-based memory system
+ * Stores notes, thoughts, files, and links in localStorage
+ * For testing and local-first usage without MCP
+ */
+class LiteVault {
+  constructor() {
+    this.storageKey = 'lite_vault';
+    this.items = this.load();
+
+    // Seed with sample data if empty
+    if (this.items.length === 0) {
+      this.seedSampleData();
+    }
+  }
+
+  load() {
+    try {
+      return JSON.parse(localStorage.getItem(this.storageKey) || '[]');
+    } catch (e) {
+      return [];
+    }
+  }
+
+  save() {
+    localStorage.setItem(this.storageKey, JSON.stringify(this.items));
+  }
+
+  seedSampleData() {
+    const samples = [
+      {
+        id: 'v1',
+        type: 'note',
+        title: 'Getting Started with ActiveMirror',
+        content: 'ActiveMirror is your cognitive OS. Use the search to find anything across your world - web, vault, files, and captured thoughts. Try searching for "productivity" or "ideas" to see it in action.',
+        tags: ['getting-started', 'help'],
+        timestamp: Date.now() - 86400000
+      },
+      {
+        id: 'v2',
+        type: 'note',
+        title: 'Meeting Notes: Q1 Planning',
+        content: 'Discussed roadmap priorities. Key focus areas: 1) User onboarding improvements, 2) Mobile experience, 3) Integration with external tools. Action items assigned to team leads.',
+        tags: ['meetings', 'planning', 'q1'],
+        timestamp: Date.now() - 172800000
+      },
+      {
+        id: 'v3',
+        type: 'thought',
+        title: 'Idea: Knowledge Graph',
+        content: 'What if we could visualize all connections between notes, people, and projects? A dynamic knowledge graph that updates as you work. Could help surface unexpected connections.',
+        tags: ['ideas', 'features'],
+        timestamp: Date.now() - 259200000
+      },
+      {
+        id: 'v4',
+        type: 'note',
+        title: 'Productivity Tips',
+        content: 'Best productivity tip: work in 90-minute blocks with breaks. Morning is for creative work, afternoon for meetings and admin. Protect your peak hours.',
+        tags: ['productivity', 'tips', 'focus'],
+        timestamp: Date.now() - 345600000
+      },
+      {
+        id: 'v5',
+        type: 'note',
+        title: 'Book Notes: Deep Work',
+        content: 'Cal Newport argues that the ability to perform deep work is becoming rare and valuable. Key insight: schedule distraction time, not work time. Build rituals around focus.',
+        tags: ['books', 'reading', 'focus', 'productivity'],
+        timestamp: Date.now() - 432000000
+      },
+      {
+        id: 'v6',
+        type: 'thought',
+        title: 'Reflection: What makes a good day?',
+        content: 'A good day has: 1) One meaningful accomplishment, 2) Time for creative thinking, 3) Connection with someone I care about, 4) Movement and fresh air. Simple but effective.',
+        tags: ['reflection', 'wellbeing'],
+        timestamp: Date.now() - 518400000
+      },
+      {
+        id: 'v7',
+        type: 'file',
+        title: 'project-roadmap.md',
+        content: 'Project roadmap for 2025. Phase 1: Core features. Phase 2: Integrations. Phase 3: Mobile apps. Phase 4: Enterprise features.',
+        path: '/Documents/project-roadmap.md',
+        tags: ['project', 'roadmap'],
+        timestamp: Date.now() - 604800000
+      },
+      {
+        id: 'v8',
+        type: 'note',
+        title: 'API Integration Ideas',
+        content: 'Potential integrations: Notion, Obsidian, Roam, Linear, Slack, Discord, Calendar. Priority: whatever users ask for most. Start with read-only, then add write.',
+        tags: ['integrations', 'api', 'features'],
+        timestamp: Date.now() - 691200000
+      }
+    ];
+
+    this.items = samples;
+    this.save();
+    console.log('🗄️ Lite Vault seeded with sample data');
+  }
+
+  getAll() {
+    return this.items;
+  }
+
+  get(id) {
+    return this.items.find(item => item.id === id);
+  }
+
+  add(item) {
+    const newItem = {
+      id: 'v' + Date.now(),
+      timestamp: Date.now(),
+      ...item
+    };
+    this.items.unshift(newItem);
+    this.save();
+    return newItem;
+  }
+
+  update(id, updates) {
+    const index = this.items.findIndex(item => item.id === id);
+    if (index !== -1) {
+      this.items[index] = { ...this.items[index], ...updates, updatedAt: Date.now() };
+      this.save();
+      return this.items[index];
+    }
+    return null;
+  }
+
+  delete(id) {
+    this.items = this.items.filter(item => item.id !== id);
+    this.save();
+  }
+
+  search(query) {
+    const queryLower = query.toLowerCase();
+    return this.items.filter(item => {
+      const titleMatch = item.title?.toLowerCase().includes(queryLower);
+      const contentMatch = item.content?.toLowerCase().includes(queryLower);
+      const tagMatch = item.tags?.some(tag => tag.toLowerCase().includes(queryLower));
+      return titleMatch || contentMatch || tagMatch;
+    });
+  }
+
+  getByType(type) {
+    return this.items.filter(item => item.type === type);
+  }
+
+  getByTag(tag) {
+    return this.items.filter(item => item.tags?.includes(tag));
+  }
+
+  getAllTags() {
+    const tags = new Set();
+    this.items.forEach(item => {
+      item.tags?.forEach(tag => tags.add(tag));
+    });
+    return Array.from(tags);
+  }
+
+  clear() {
+    this.items = [];
+    this.save();
+  }
+
+  reset() {
+    this.clear();
+    this.seedSampleData();
+  }
+
+  // Quick add methods
+  addNote(title, content, tags = []) {
+    return this.add({ type: 'note', title, content, tags });
+  }
+
+  addThought(content, tags = []) {
+    return this.add({
+      type: 'thought',
+      title: content.substring(0, 50) + (content.length > 50 ? '...' : ''),
+      content,
+      tags
+    });
+  }
+
+  addFile(title, content, path, tags = []) {
+    return this.add({ type: 'file', title, content, path, tags });
+  }
+}
+
+// Make LiteVault globally available
+window.LiteVault = LiteVault;
+
 class ContextPane {
   constructor() {
     this.isOpen = false;
@@ -43,6 +237,9 @@ class ContextPane {
       edges: [],
       clusters: []
     };
+
+    // Lite Vault - localStorage-based memory system
+    this.liteVault = new LiteVault();
 
     this.init();
   }
@@ -107,7 +304,7 @@ class ContextPane {
         <div class="cp-section active" data-section="search">
           <div class="search-container">
             <div class="search-input-wrap">
-              <input type="text" id="unified-search" placeholder="Search everything..." />
+              <input type="text" id="unified-search" placeholder="Search... or + to add thought" />
               <button class="search-go" id="search-go">↵</button>
             </div>
             <div class="search-sources">
@@ -384,10 +581,48 @@ class ContextPane {
   async performSearch(query) {
     if (!query.trim()) return;
 
+    const resultsContainer = document.getElementById('search-results');
+
+    // Quick add to vault: start with "+" to add a thought
+    if (query.startsWith('+')) {
+      const thought = query.substring(1).trim();
+      if (thought) {
+        this.liteVault.addThought(thought);
+        this.showToast('✨ Added to vault');
+        document.getElementById('unified-search').value = '';
+        resultsContainer.innerHTML = `
+          <div class="search-success">
+            <span class="empty-icon">✨</span>
+            <p>Thought saved to vault!</p>
+            <p class="empty-hint">"${thought.substring(0, 50)}${thought.length > 50 ? '...' : ''}"</p>
+          </div>
+        `;
+        return;
+      }
+    }
+
+    // Quick add note: start with "note:" to add a titled note
+    if (query.toLowerCase().startsWith('note:')) {
+      const noteContent = query.substring(5).trim();
+      if (noteContent) {
+        const title = noteContent.split('.')[0] || noteContent.substring(0, 30);
+        this.liteVault.addNote(title, noteContent);
+        this.showToast('📝 Note saved to vault');
+        document.getElementById('unified-search').value = '';
+        resultsContainer.innerHTML = `
+          <div class="search-success">
+            <span class="empty-icon">📝</span>
+            <p>Note saved to vault!</p>
+            <p class="empty-hint">"${title}"</p>
+          </div>
+        `;
+        return;
+      }
+    }
+
     this.sessionContext.queries.push(query);
     this.searchResults = [];
 
-    const resultsContainer = document.getElementById('search-results');
     resultsContainer.innerHTML = '<div class="search-loading">Searching everywhere...</div>';
 
     const results = [];
@@ -416,17 +651,39 @@ class ContextPane {
   }
 
   async searchWeb(query) {
-    // Web search via DuckDuckGo instant answers API
-    // Note: This uses DuckDuckGo's instant answer API which is CORS-friendly
-    try {
-      // DuckDuckGo instant answers (works without CORS issues)
-      const response = await fetch(
-        `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`,
-        { mode: 'cors' }
-      );
-      const data = await response.json();
+    // Web search via DuckDuckGo instant answers API (JSONP workaround for CORS)
+    const results = [];
 
-      const results = [];
+    try {
+      // Use JSONP to bypass CORS - DuckDuckGo supports this
+      const data = await new Promise((resolve, reject) => {
+        const callbackName = 'ddgCallback_' + Date.now();
+        const script = document.createElement('script');
+
+        // Set up timeout
+        const timeout = setTimeout(() => {
+          delete window[callbackName];
+          script.remove();
+          reject(new Error('Timeout'));
+        }, 5000);
+
+        window[callbackName] = (response) => {
+          clearTimeout(timeout);
+          delete window[callbackName];
+          script.remove();
+          resolve(response);
+        };
+
+        script.src = `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1&callback=${callbackName}`;
+        script.onerror = () => {
+          clearTimeout(timeout);
+          delete window[callbackName];
+          script.remove();
+          reject(new Error('Script error'));
+        };
+
+        document.head.appendChild(script);
+      });
 
       // Main abstract/answer
       if (data.AbstractText) {
@@ -447,7 +704,7 @@ class ContextPane {
           source: 'Instant Answer',
           title: query,
           snippet: data.Answer,
-          url: data.AnswerURL || `https://duckduckgo.com/?q=${encodeURIComponent(query)}`,
+          url: `https://duckduckgo.com/?q=${encodeURIComponent(query)}`,
           icon: '⚡'
         });
       }
@@ -459,15 +716,14 @@ class ContextPane {
           source: data.DefinitionSource || 'Definition',
           title: `Definition: ${query}`,
           snippet: data.Definition,
-          url: data.DefinitionURL,
+          url: data.DefinitionURL || `https://duckduckgo.com/?q=define+${encodeURIComponent(query)}`,
           icon: '📖'
         });
       }
 
       // Related topics
-      if (data.RelatedTopics && data.RelatedTopics.length > 0) {
-        data.RelatedTopics.slice(0, 5).forEach(topic => {
-          // Handle nested topics
+      if (data.RelatedTopics?.length > 0) {
+        data.RelatedTopics.slice(0, 4).forEach(topic => {
           if (topic.Topics) {
             topic.Topics.slice(0, 2).forEach(subtopic => {
               if (subtopic.Text && subtopic.FirstURL) {
@@ -493,95 +749,133 @@ class ContextPane {
           }
         });
       }
-
-      // If no results, provide a direct search link
-      if (results.length === 0) {
-        results.push({
-          type: 'web',
-          source: 'DuckDuckGo',
-          title: `Search for "${query}"`,
-          snippet: 'Click to search DuckDuckGo for more results',
-          url: `https://duckduckgo.com/?q=${encodeURIComponent(query)}`,
-          icon: '🔍'
-        });
-      }
-
-      return results.slice(0, 8); // Limit to 8 results
     } catch (e) {
       console.log('Web search error:', e);
-      // Return a fallback search link on error
-      return [{
-        type: 'web',
-        source: 'DuckDuckGo',
-        title: `Search for "${query}"`,
-        snippet: 'Click to search the web',
-        url: `https://duckduckgo.com/?q=${encodeURIComponent(query)}`,
-        icon: '🔍'
-      }];
     }
+
+    // Always provide a direct search link
+    results.push({
+      type: 'web',
+      source: 'DuckDuckGo',
+      title: `Search "${query}" on DuckDuckGo`,
+      snippet: 'Open full web search results',
+      url: `https://duckduckgo.com/?q=${encodeURIComponent(query)}`,
+      icon: '🔍'
+    });
+
+    return results.slice(0, 8);
   }
 
   async searchVault(query) {
-    // Search MirrorDNA Vault via MCP
+    // Search Lite Vault (localStorage-based)
+    const results = [];
+    const queryLower = query.toLowerCase();
+
     try {
+      // Search lite vault
+      const vaultResults = this.liteVault.search(query);
+      vaultResults.forEach(item => {
+        results.push({
+          type: 'vault',
+          source: 'Vault',
+          title: item.title,
+          snippet: item.content.substring(0, 150) + (item.content.length > 150 ? '...' : ''),
+          id: item.id,
+          tags: item.tags,
+          timestamp: item.timestamp,
+          icon: '🗄'
+        });
+      });
+
+      // Also check MCP if available
       if (window.mcp?.mirrorbrain?.vault_semantic_search) {
-        const results = await window.mcp.mirrorbrain.vault_semantic_search({ query, n_results: 5 });
-        return results.map(r => ({
-          type: 'vault',
-          source: 'Vault',
-          title: r.title || r.path?.split('/').pop() || 'Note',
-          snippet: r.content?.substring(0, 200) + '...',
-          path: r.path,
-          icon: '🗄'
-        }));
+        try {
+          const mcpResults = await window.mcp.mirrorbrain.vault_semantic_search({ query, n_results: 3 });
+          mcpResults?.forEach(r => {
+            results.push({
+              type: 'vault',
+              source: 'MirrorDNA Vault',
+              title: r.title || r.path?.split('/').pop() || 'Note',
+              snippet: r.content?.substring(0, 150) + '...',
+              path: r.path,
+              icon: '📚'
+            });
+          });
+        } catch (e) {
+          // MCP not available, that's fine
+        }
       }
-
-      // Fallback: search via grep
-      if (window.mcp?.mirrorbrain?.search_vault) {
-        const results = await window.mcp.mirrorbrain.search_vault({ query });
-        return results.slice(0, 5).map(r => ({
-          type: 'vault',
-          source: 'Vault',
-          title: r.split('/').pop(),
-          snippet: 'Found in vault',
-          path: r,
-          icon: '🗄'
-        }));
-      }
-
-      return [];
     } catch (e) {
       console.log('Vault search error:', e);
-      return [];
     }
+
+    return results.slice(0, 5);
   }
 
   async searchFiles(query) {
-    // Search local files
+    // Search local files in lite vault
+    const results = [];
+    const queryLower = query.toLowerCase();
+
     try {
+      // Search file references in lite vault
+      const vaultItems = this.liteVault.getAll();
+      vaultItems.filter(item => item.type === 'file').forEach(item => {
+        if (item.title.toLowerCase().includes(queryLower) ||
+            item.content.toLowerCase().includes(queryLower)) {
+          results.push({
+            type: 'file',
+            source: 'Files',
+            title: item.title,
+            snippet: item.content.substring(0, 150),
+            path: item.path,
+            icon: this.getFileIcon(item.title)
+          });
+        }
+      });
+
       // Use file-intelligence if available
       if (window.fileIntelligence?.search) {
-        const results = await window.fileIntelligence.search(query);
-        return results.slice(0, 5).map(r => ({
-          type: 'file',
-          source: 'Files',
-          title: r.name,
-          snippet: r.preview || r.path,
-          path: r.path,
-          icon: this.getFileIcon(r.name)
-        }));
+        const fiResults = await window.fileIntelligence.search(query);
+        fiResults?.slice(0, 3).forEach(r => {
+          results.push({
+            type: 'file',
+            source: 'Files',
+            title: r.name,
+            snippet: r.preview || r.path,
+            path: r.path,
+            icon: this.getFileIcon(r.name)
+          });
+        });
       }
-      return [];
     } catch (e) {
       console.log('File search error:', e);
-      return [];
     }
+
+    return results.slice(0, 5);
   }
 
   async searchThoughts(query) {
-    // Search captured thoughts, brain dumps, etc.
+    // Search captured thoughts, brain dumps, lite vault notes
     const results = [];
     const queryLower = query.toLowerCase();
+
+    // Search lite vault notes
+    const vaultNotes = this.liteVault.getAll().filter(item => item.type === 'note' || item.type === 'thought');
+    vaultNotes.forEach(note => {
+      if (note.title.toLowerCase().includes(queryLower) ||
+          note.content.toLowerCase().includes(queryLower)) {
+        results.push({
+          type: 'thought',
+          source: 'Note',
+          title: note.title,
+          snippet: note.content.substring(0, 150),
+          id: note.id,
+          timestamp: note.timestamp,
+          icon: '📝'
+        });
+      }
+    });
 
     // Search brain dump history
     const brainDumps = JSON.parse(localStorage.getItem('brain_dumps') || '[]');
@@ -609,7 +903,7 @@ class ContextPane {
           title: capture.text.substring(0, 50),
           snippet: capture.text,
           timestamp: capture.timestamp,
-          icon: '📝'
+          icon: '✏️'
         });
       }
     });
@@ -629,7 +923,7 @@ class ContextPane {
       }
     });
 
-    return results.slice(0, 5);
+    return results.slice(0, 8);
   }
 
   renderSearchResults(results, query) {
@@ -1575,7 +1869,7 @@ class ContextPane {
         padding: 8px;
       }
 
-      .search-empty, .search-no-results, .search-loading {
+      .search-empty, .search-no-results, .search-loading, .search-success {
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -1583,6 +1877,14 @@ class ContextPane {
         padding: 40px 20px;
         text-align: center;
         color: var(--text-muted);
+      }
+
+      .search-success {
+        color: var(--success);
+      }
+
+      .search-success .empty-icon {
+        opacity: 1;
       }
 
       .empty-icon {
