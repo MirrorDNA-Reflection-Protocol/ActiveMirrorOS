@@ -40,6 +40,13 @@ class ToolsDock {
     this.dock.className = 'tools-dock';
     this.dock.id = 'tools-dock';
 
+    // Add drag handle
+    const dragHandle = document.createElement('div');
+    dragHandle.className = 'tools-dock-drag-handle';
+    dragHandle.innerHTML = '⋮⋮';
+    dragHandle.title = 'Drag to reposition';
+    this.dock.appendChild(dragHandle);
+
     // Build buttons fresh every time (no moving elements around)
     this.createThemeButton();
     this.createAccessibilityButton();
@@ -58,8 +65,118 @@ class ToolsDock {
     // Add to document
     document.body.appendChild(this.dock);
 
+    // Setup dragging
+    this.setupDragging(dragHandle);
+
+    // Restore saved position
+    this.restorePosition();
+
     this.initialized = true;
     console.log('⟡ Tools Dock built — 6 buttons unified');
+  }
+
+  setupDragging(handle) {
+    let isDragging = false;
+    let startX, startY, startRight, startTop;
+
+    handle.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      startX = e.clientX;
+      startY = e.clientY;
+
+      const rect = this.dock.getBoundingClientRect();
+      startRight = window.innerWidth - rect.right;
+      startTop = rect.top;
+
+      this.dock.style.transition = 'none';
+      this.dock.classList.add('dragging');
+      e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+
+      const deltaX = e.clientX - startX;
+      const deltaY = e.clientY - startY;
+
+      const newRight = Math.max(8, Math.min(window.innerWidth - 80, startRight - deltaX));
+      const newTop = Math.max(60, Math.min(window.innerHeight - 100, startTop + deltaY));
+
+      this.dock.style.right = `${newRight}px`;
+      this.dock.style.top = `${newTop}px`;
+      this.dock.style.transform = 'none';
+    });
+
+    document.addEventListener('mouseup', () => {
+      if (isDragging) {
+        isDragging = false;
+        this.dock.style.transition = '';
+        this.dock.classList.remove('dragging');
+        this.savePosition();
+      }
+    });
+
+    // Touch support
+    handle.addEventListener('touchstart', (e) => {
+      const touch = e.touches[0];
+      isDragging = true;
+      startX = touch.clientX;
+      startY = touch.clientY;
+
+      const rect = this.dock.getBoundingClientRect();
+      startRight = window.innerWidth - rect.right;
+      startTop = rect.top;
+
+      this.dock.style.transition = 'none';
+      this.dock.classList.add('dragging');
+    });
+
+    document.addEventListener('touchmove', (e) => {
+      if (!isDragging) return;
+      const touch = e.touches[0];
+
+      const deltaX = touch.clientX - startX;
+      const deltaY = touch.clientY - startY;
+
+      const newRight = Math.max(8, Math.min(window.innerWidth - 80, startRight - deltaX));
+      const newTop = Math.max(60, Math.min(window.innerHeight - 100, startTop + deltaY));
+
+      this.dock.style.right = `${newRight}px`;
+      this.dock.style.top = `${newTop}px`;
+      this.dock.style.transform = 'none';
+    });
+
+    document.addEventListener('touchend', () => {
+      if (isDragging) {
+        isDragging = false;
+        this.dock.style.transition = '';
+        this.dock.classList.remove('dragging');
+        this.savePosition();
+      }
+    });
+  }
+
+  savePosition() {
+    const rect = this.dock.getBoundingClientRect();
+    const pos = {
+      right: window.innerWidth - rect.right,
+      top: rect.top
+    };
+    localStorage.setItem('tools_dock_position', JSON.stringify(pos));
+  }
+
+  restorePosition() {
+    const saved = localStorage.getItem('tools_dock_position');
+    if (saved) {
+      try {
+        const pos = JSON.parse(saved);
+        this.dock.style.right = `${pos.right}px`;
+        this.dock.style.top = `${pos.top}px`;
+        this.dock.style.transform = 'none';
+      } catch (e) {
+        // Use default position
+      }
+    }
   }
 
   cleanup() {
@@ -136,17 +253,26 @@ class ToolsDock {
   }
 
   toggleAccessibility() {
-    // Try WOW features accessibility
+    console.log('♿ Toggling accessibility...');
+
+    // Try WOW features accessibility menu
+    const menu = document.getElementById('accessibility-menu');
+    if (menu) {
+      menu.classList.toggle('visible');
+      console.log('♿ Toggled accessibility menu');
+      return;
+    }
+
+    // Try WOW features function
     if (window.wowFeatures?.toggleAccessibilityMenu) {
       window.wowFeatures.toggleAccessibilityMenu();
-    } else {
-      const menu = document.getElementById('accessibility-menu');
-      if (menu) {
-        menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
-      } else {
-        this.showToast('♿', 'Accessibility options in Settings');
-      }
+      console.log('♿ Called wowFeatures.toggleAccessibilityMenu');
+      return;
     }
+
+    // Fallback - show a toast and open settings
+    this.showToast('♿', 'Accessibility settings are in Settings panel');
+    setTimeout(() => this.openSettings(), 500);
   }
 
   createSettingsButton() {
@@ -159,15 +285,10 @@ class ToolsDock {
   }
 
   openSettings() {
-    // Try settings panel
+    // Try settings panel (uses 'visible' class)
     const panel = document.getElementById('settings-panel');
     if (panel) {
-      const isOpen = panel.classList.contains('open');
-      if (isOpen) {
-        panel.classList.remove('open');
-      } else {
-        panel.classList.add('open');
-      }
+      panel.classList.toggle('visible');
       return;
     }
 
@@ -177,8 +298,7 @@ class ToolsDock {
       return;
     }
 
-    // Fallback
-    this.showToast('⚙️', 'Settings panel opening...');
+    // Fallback - click the settings button
     document.getElementById('settings-btn')?.click();
   }
 
@@ -193,17 +313,34 @@ class ToolsDock {
   }
 
   openCommandCenter() {
+    console.log('⟡ Opening Command Center...', window.commandCenter);
+
+    if (window.commandCenter?.toggle) {
+      window.commandCenter.toggle();
+      return;
+    }
+
     if (window.commandCenter?.togglePanel) {
       window.commandCenter.togglePanel();
-    } else {
-      // Click existing command icon if present
-      const icon = document.querySelector('.command-icon-inner');
-      if (icon) {
-        icon.click();
-      } else {
-        this.showToast('⟡', 'Command Center initializing...');
-      }
+      return;
     }
+
+    // Direct panel toggle as fallback
+    const panel = document.getElementById('command-center-panel');
+    if (panel) {
+      panel.classList.toggle('hidden');
+      console.log('⟡ Toggled panel directly');
+      return;
+    }
+
+    // Click existing command icon if present
+    const icon = document.querySelector('.command-icon-inner');
+    if (icon) {
+      icon.click();
+      return;
+    }
+
+    this.showToast('⟡', 'Command Center initializing...');
   }
 
   createRealityComposerButton() {
@@ -216,7 +353,9 @@ class ToolsDock {
   }
 
   openRealityComposer() {
-    if (window.realityComposer?.togglePanel) {
+    if (window.realityComposerUI?.togglePanel) {
+      window.realityComposerUI.togglePanel();
+    } else if (window.realityComposer?.togglePanel) {
       window.realityComposer.togglePanel();
     } else if (window.commandCenter?.openRealityComposer) {
       window.commandCenter.openRealityComposer();
@@ -224,7 +363,7 @@ class ToolsDock {
       // Check for menu
       const menu = document.querySelector('.rc-menu');
       if (menu) {
-        menu.classList.toggle('visible');
+        menu.classList.toggle('hidden');
       } else {
         this.showToast('🎭', 'Reality Composer loading...');
       }
@@ -241,15 +380,17 @@ class ToolsDock {
   }
 
   openFutureSelf() {
-    if (window.futureSelf?.showInlineDialogue) {
+    if (window.futureSelfUI?.showDialogue) {
+      window.futureSelfUI.showDialogue();
+    } else if (window.futureSelf?.showInlineDialogue) {
       window.futureSelf.showInlineDialogue();
     } else if (window.commandCenter?.openFutureSelf) {
       window.commandCenter.openFutureSelf();
     } else {
-      // Check for inline panel
-      const panel = document.querySelector('.future-self-inline');
-      if (panel) {
-        panel.classList.toggle('visible');
+      // Check for future self button
+      const btn = document.querySelector('.future-self-btn');
+      if (btn) {
+        btn.click();
       } else {
         this.showToast('🔮', 'Future Self loading...');
       }

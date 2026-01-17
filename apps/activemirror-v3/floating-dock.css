@@ -79,6 +79,42 @@
 }
 
 /* ============================================
+   DOCK DRAG HANDLE
+   ============================================ */
+
+.tools-dock-drag-handle {
+  width: var(--dock-btn-size);
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted, #666);
+  font-size: 10px;
+  letter-spacing: 2px;
+  cursor: grab;
+  opacity: 0.5;
+  transition: all 0.2s ease;
+  user-select: none;
+  margin-bottom: 4px;
+}
+
+.tools-dock-drag-handle:hover {
+  opacity: 1;
+  color: var(--text-secondary, #999);
+}
+
+.tools-dock-drag-handle:active,
+.tools-dock.dragging .tools-dock-drag-handle {
+  cursor: grabbing;
+  opacity: 1;
+}
+
+.tools-dock.dragging {
+  opacity: 0.9;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* ============================================
    DOCK DIVIDER
    ============================================ */
 
@@ -389,7 +425,8 @@
    MOBILE — Phone Breakpoint
    ============================================ */
 
-@media (max-width: 600px) {
+/* Only go horizontal on actual mobile devices, not desktop window resize */
+@media (max-width: 600px) and (hover: none) and (pointer: coarse) {
   :root {
     --dock-btn-size: 40px;
     --dock-btn-gap: 6px;
@@ -455,10 +492,36 @@
 }
 
 /* ============================================
-   VERY SMALL SCREENS
+   NARROW DESKTOP WINDOWS (not mobile)
+   Keep vertical but smaller
    ============================================ */
 
-@media (max-width: 400px) {
+@media (max-width: 600px) and (hover: hover) {
+  :root {
+    --dock-btn-size: 36px;
+    --dock-btn-gap: 4px;
+    --dock-padding: 8px;
+  }
+
+  .tools-dock {
+    right: 8px;
+  }
+
+  /* Position panels better for narrow windows */
+  .command-panel,
+  .rc-menu,
+  #accessibility-menu,
+  .future-self-inline {
+    right: 60px !important;
+    max-width: calc(100vw - 80px) !important;
+  }
+}
+
+/* ============================================
+   VERY SMALL SCREENS (actual mobile)
+   ============================================ */
+
+@media (max-width: 400px) and (hover: none) and (pointer: coarse) {
   :root {
     --dock-btn-size: 36px;
     --dock-btn-gap: 4px;
