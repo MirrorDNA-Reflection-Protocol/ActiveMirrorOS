@@ -70,8 +70,15 @@ class CommandCenter {
     panel.className = 'command-panel hidden';
     panel.innerHTML = this.renderPanelContent();
 
-    document.body.appendChild(icon);
-    document.body.appendChild(panel);
+    // Append to bottom-left dock if exists, otherwise body
+    const dock = document.getElementById('bottom-left-dock');
+    if (dock) {
+      dock.appendChild(icon);
+      dock.appendChild(panel);
+    } else {
+      document.body.appendChild(icon);
+      document.body.appendChild(panel);
+    }
 
     // Event listeners
     icon.addEventListener('click', () => this.toggle());

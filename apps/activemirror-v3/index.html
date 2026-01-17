@@ -2322,8 +2322,30 @@
   </style>
   <link rel="stylesheet" href="cognitive-ui.css">
   <link rel="stylesheet" href="cognitive-bridge.css">
+  <link rel="stylesheet" href="floating-dock.css">
 </head>
 <body>
+  <!-- ============================================
+       FLOATING DOCK SYSTEM
+       Organized button layout
+       ============================================ -->
+
+  <!-- Top-Right Toolbar: Theme, Accessibility, Settings -->
+  <div class="top-right-toolbar" id="top-right-toolbar">
+    <!-- WOW features will inject theme-toggle and accessibility-toggle here -->
+    <!-- Settings button added via JS -->
+  </div>
+
+  <!-- Bottom-Left Dock: Command Center -->
+  <div class="bottom-left-dock" id="bottom-left-dock">
+    <!-- Command Center will inject its icon here -->
+  </div>
+
+  <!-- Bottom-Right Dock: Reality Composer, Context Pane toggle -->
+  <div class="bottom-right-dock" id="bottom-right-dock">
+    <!-- Reality Composer will inject its panel here -->
+  </div>
+
   <!-- Consent Gate with Hero -->
   <div id="consent-gate" class="consent-gate">
     <!-- Animated data particles -->
@@ -2625,6 +2647,9 @@
       <div class="briefing-skip">
         <button id="skip-briefing">Skip to workspace →</button>
       </div>
+
+      <!-- Close button -->
+      <button id="close-briefing" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: var(--text-muted); font-size: 28px; cursor: pointer; padding: 8px; border-radius: 8px; transition: all 0.2s;" onmouseover="this.style.background='var(--bg-tertiary)'" onmouseout="this.style.background='none'">×</button>
     </div>
   </div>
 
@@ -3497,8 +3522,20 @@
     function showDailyBriefing() {
       if (!cognitiveOS) return;
 
+      // Check if already dismissed this session
+      if (sessionStorage.getItem('briefing_dismissed') === 'true') {
+        return;
+      }
+
       const briefing = cognitiveOS.generateBriefing();
       const overlay = document.getElementById('daily-briefing');
+      if (!overlay) return;
+
+      // Reset any inline styles from previous hide
+      overlay.style.display = '';
+      overlay.style.opacity = '';
+      overlay.style.visibility = '';
+      overlay.style.pointerEvents = '';
 
       // Populate briefing
       document.getElementById('briefing-greeting').textContent = briefing.greeting;
@@ -3533,7 +3570,23 @@
 
     function hideBriefing(startWithAgent = null) {
       const overlay = document.getElementById('daily-briefing');
+      if (!overlay) return;
+
+      // Remove visible class
       overlay.classList.remove('visible');
+
+      // Force hide with inline style as backup
+      overlay.style.opacity = '0';
+      overlay.style.visibility = 'hidden';
+      overlay.style.pointerEvents = 'none';
+
+      // After transition, set display none
+      setTimeout(() => {
+        overlay.style.display = 'none';
+      }, 400);
+
+      // Mark as dismissed for this session
+      sessionStorage.setItem('briefing_dismissed', 'true');
 
       if (startWithAgent && cognitiveOS) {
         switchAgent(startWithAgent);
@@ -3586,6 +3639,28 @@
 
       document.getElementById('skip-briefing')?.addEventListener('click', () => {
         hideBriefing();
+      });
+
+      // Close button
+      document.getElementById('close-briefing')?.addEventListener('click', () => {
+        hideBriefing();
+      });
+
+      // Click outside to close (on the overlay background)
+      document.getElementById('daily-briefing')?.addEventListener('click', (e) => {
+        if (e.target.id === 'daily-briefing') {
+          hideBriefing();
+        }
+      });
+
+      // Escape key to close
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          const briefing = document.getElementById('daily-briefing');
+          if (briefing && briefing.classList.contains('visible')) {
+            hideBriefing();
+          }
+        }
       });
 
       // Toast handlers
@@ -3685,6 +3760,18 @@
         if (window.wowFeatures?.showToast) {
           window.wowFeatures.showToast('Settings saved!');
         }
+      }
+
+      // Add settings button to toolbar
+      const toolbar = document.getElementById('top-right-toolbar');
+      if (toolbar && !document.getElementById('toolbar-settings-btn')) {
+        const settingsBtn = document.createElement('button');
+        settingsBtn.id = 'toolbar-settings-btn';
+        settingsBtn.className = 'toolbar-settings-btn';
+        settingsBtn.innerHTML = '⚙️';
+        settingsBtn.title = 'Settings';
+        settingsBtn.addEventListener('click', openSettings);
+        toolbar.appendChild(settingsBtn);
       }
 
       // Settings event listeners

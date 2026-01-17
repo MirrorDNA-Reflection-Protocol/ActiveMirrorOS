@@ -863,7 +863,13 @@ class RealityComposerUI {
       </div>
     `;
 
-    document.body.appendChild(panel);
+    // Append to bottom-right dock if exists, otherwise body
+    const dock = document.getElementById('bottom-right-dock');
+    if (dock) {
+      dock.appendChild(panel);
+    } else {
+      document.body.appendChild(panel);
+    }
 
     // Toggle menu
     panel.querySelector('.rc-toggle').addEventListener('click', () => {

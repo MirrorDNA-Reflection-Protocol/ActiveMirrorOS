@@ -74,7 +74,13 @@ class WowFeatures {
       this.toggleTheme();
     });
 
-    document.body.appendChild(toggle);
+    // Append to toolbar if exists, otherwise body
+    const toolbar = document.getElementById('top-right-toolbar');
+    if (toolbar) {
+      toolbar.appendChild(toggle);
+    } else {
+      document.body.appendChild(toggle);
+    }
 
     // Keyboard shortcut
     document.addEventListener('keydown', (e) => {
@@ -234,8 +240,17 @@ class WowFeatures {
       e.stopPropagation();
     });
 
-    document.body.appendChild(btn);
-    document.body.appendChild(menu);
+    // Append to toolbar if exists, otherwise body
+    const toolbar = document.getElementById('top-right-toolbar');
+    if (toolbar) {
+      // Accessibility button goes first (left of theme)
+      toolbar.insertBefore(btn, toolbar.firstChild);
+      // Menu stays in body but is positioned absolutely
+      document.body.appendChild(menu);
+    } else {
+      document.body.appendChild(btn);
+      document.body.appendChild(menu);
+    }
   }
 
   applyAccessibility(mode) {
