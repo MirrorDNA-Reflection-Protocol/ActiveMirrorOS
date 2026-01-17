@@ -1,13 +1,13 @@
 /**
  * UNIFIED TOOLS DOCK
- * Consolidates all floating buttons into one clean vertical dock
+ * A single, polished vertical dock for all floating tools
  *
  * Order (top to bottom):
- * - Theme Toggle (☼)
+ * - Theme Toggle (☀/🌙)
  * - Accessibility (♿)
  * - Settings (⚙)
- * --- divider ---
- * - Command Center (⟡) - Primary
+ * ─── divider ───
+ * - Command Center (⟡) — primary
  * - Reality Composer (🎭)
  * - Future Self (🔮)
  */
@@ -21,77 +21,89 @@ class ToolsDock {
   init() {
     if (this.initialized) return;
 
-    // Wait for DOM to be ready
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', () => this.build());
     } else {
-      // Small delay to ensure other components have initialized
-      setTimeout(() => this.build(), 100);
+      this.build();
     }
   }
 
   build() {
-    // Remove any existing dock
-    const existingDock = document.querySelector('.tools-dock');
-    if (existingDock) existingDock.remove();
+    // Clean up any competing elements
+    this.cleanup();
 
-    // Create the dock container
+    // Remove existing dock if any
+    document.querySelector('.tools-dock')?.remove();
+
+    // Create dock container
     this.dock = document.createElement('div');
     this.dock.className = 'tools-dock';
     this.dock.id = 'tools-dock';
 
-    // Section 1: Display & Access Controls
-    this.addThemeToggle();
-    this.addAccessibilityToggle();
-    this.addSettingsButton();
+    // Build buttons fresh every time (no moving elements around)
+    this.createThemeButton();
+    this.createAccessibilityButton();
+    this.createSettingsButton();
 
     // Divider
     const divider = document.createElement('div');
     divider.className = 'tools-dock-divider';
     this.dock.appendChild(divider);
 
-    // Section 2: AI Tools
-    this.addCommandCenter();
-    this.addRealityComposer();
-    this.addFutureSelf();
+    // AI Tools
+    this.createCommandCenterButton();
+    this.createRealityComposerButton();
+    this.createFutureSelfButton();
 
     // Add to document
     document.body.appendChild(this.dock);
 
     this.initialized = true;
-    console.log('⟡ Tools Dock initialized — all buttons unified');
+    console.log('⟡ Tools Dock built — 6 buttons unified');
   }
 
-  createButton(icon, tooltip, onClick, className = '') {
+  cleanup() {
+    // Hide all old floating containers
+    const oldContainers = [
+      '.top-right-toolbar',
+      '.bottom-left-dock',
+      '.bottom-right-dock',
+      '.command-icon:not(.tools-dock .command-icon)',
+      '.rc-toggle:not(.tools-dock .rc-toggle)',
+      '.future-self-toggle:not(.tools-dock .future-self-toggle)',
+      '.wow-theme-toggle:not(.tools-dock .wow-theme-toggle)',
+      '.wow-accessibility-toggle:not(.tools-dock .wow-accessibility-toggle)'
+    ];
+
+    oldContainers.forEach(sel => {
+      document.querySelectorAll(sel).forEach(el => {
+        el.style.display = 'none';
+        el.style.visibility = 'hidden';
+        el.style.pointerEvents = 'none';
+      });
+    });
+  }
+
+  createButton(icon, tooltip, id, onClick, primary = false) {
     const btn = document.createElement('button');
-    btn.className = `tools-dock-btn ${className}`.trim();
+    btn.className = 'tools-dock-btn' + (primary ? ' primary' : '');
+    btn.id = id;
     btn.innerHTML = icon;
     btn.setAttribute('data-tooltip', tooltip);
+    btn.setAttribute('aria-label', tooltip);
     btn.addEventListener('click', onClick);
+    this.dock.appendChild(btn);
     return btn;
   }
 
-  addThemeToggle() {
-    // Check if WOW features created a theme toggle
-    const existingToggle = document.getElementById('theme-toggle') ||
-                           document.querySelector('.wow-theme-toggle');
-
-    if (existingToggle) {
-      // Move existing toggle into dock
-      existingToggle.setAttribute('data-tooltip', 'Theme');
-      existingToggle.classList.add('tools-dock-btn');
-      this.dock.appendChild(existingToggle);
-    } else {
-      // Create new theme toggle
-      const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
-      const btn = this.createButton(
-        isDark ? '☀️' : '🌙',
-        'Theme',
-        () => this.toggleTheme(btn)
-      );
-      btn.id = 'theme-toggle';
-      this.dock.appendChild(btn);
-    }
+  createThemeButton() {
+    const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+    const btn = this.createButton(
+      isDark ? '☀️' : '🌙',
+      'Theme',
+      'dock-theme-btn',
+      () => this.toggleTheme(btn)
+    );
   }
 
   toggleTheme(btn) {
@@ -107,131 +119,100 @@ class ToolsDock {
       btn.innerHTML = '🌙';
       localStorage.setItem('theme', 'light');
     }
-  }
 
-  addAccessibilityToggle() {
-    // Check if WOW features created an accessibility toggle
-    const existingToggle = document.getElementById('accessibility-toggle') ||
-                           document.querySelector('.wow-accessibility-toggle');
-
-    if (existingToggle) {
-      existingToggle.setAttribute('data-tooltip', 'Accessibility');
-      existingToggle.classList.add('tools-dock-btn');
-      this.dock.appendChild(existingToggle);
-    } else {
-      // Create new accessibility toggle
-      const btn = this.createButton(
-        '♿',
-        'Accessibility',
-        () => this.toggleAccessibilityMenu()
-      );
-      btn.id = 'accessibility-toggle';
-      this.dock.appendChild(btn);
+    // Sync with WOW features if available
+    if (window.wowFeatures) {
+      window.wowFeatures.theme = isLight ? 'dark' : 'light';
     }
   }
 
-  toggleAccessibilityMenu() {
-    // Try to use WOW features accessibility menu
+  createAccessibilityButton() {
+    this.createButton(
+      '♿',
+      'Accessibility',
+      'dock-accessibility-btn',
+      () => this.toggleAccessibility()
+    );
+  }
+
+  toggleAccessibility() {
+    // Try WOW features accessibility
     if (window.wowFeatures?.toggleAccessibilityMenu) {
       window.wowFeatures.toggleAccessibilityMenu();
     } else {
-      // Show toast that accessibility features can be configured
-      this.showToast('♿', 'Accessibility settings coming soon');
-    }
-  }
-
-  addSettingsButton() {
-    // Check if settings button already exists
-    const existingBtn = document.getElementById('toolbar-settings-btn') ||
-                        document.querySelector('.toolbar-settings-btn');
-
-    if (existingBtn) {
-      existingBtn.setAttribute('data-tooltip', 'Settings');
-      existingBtn.classList.add('tools-dock-btn');
-      this.dock.appendChild(existingBtn);
-    } else {
-      const btn = this.createButton(
-        '⚙️',
-        'Settings',
-        () => this.openSettings()
-      );
-      btn.id = 'toolbar-settings-btn';
-      this.dock.appendChild(btn);
-    }
-  }
-
-  openSettings() {
-    // Try to use existing settings functionality
-    if (window.activeMirror?.openSettings) {
-      window.activeMirror.openSettings();
-    } else {
-      // Look for settings modal
-      const settingsModal = document.getElementById('settings-modal');
-      if (settingsModal) {
-        settingsModal.style.display = 'flex';
-        setTimeout(() => settingsModal.classList.add('visible'), 10);
+      const menu = document.getElementById('accessibility-menu');
+      if (menu) {
+        menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
       } else {
-        this.showToast('⚙️', 'Opening settings...');
-        // Trigger any settings button click handler
-        const settingsBtn = document.getElementById('settings-btn');
-        if (settingsBtn) settingsBtn.click();
+        this.showToast('♿', 'Accessibility options in Settings');
       }
     }
   }
 
-  addCommandCenter() {
-    // Check if Command Center created its icon
-    const existingIcon = document.querySelector('.command-icon');
+  createSettingsButton() {
+    this.createButton(
+      '⚙️',
+      'Settings',
+      'dock-settings-btn',
+      () => this.openSettings()
+    );
+  }
 
-    if (existingIcon) {
-      // Move the entire command icon into dock
-      this.dock.appendChild(existingIcon);
-    } else {
-      // Create a button that opens command center
-      const btn = this.createButton(
-        '⟡',
-        'Command Center',
-        () => this.openCommandCenter(),
-        'primary'
-      );
-      btn.id = 'command-center-btn';
-      this.dock.appendChild(btn);
+  openSettings() {
+    // Try settings panel
+    const panel = document.getElementById('settings-panel');
+    if (panel) {
+      const isOpen = panel.classList.contains('open');
+      if (isOpen) {
+        panel.classList.remove('open');
+      } else {
+        panel.classList.add('open');
+      }
+      return;
     }
+
+    // Try ActiveMirror settings
+    if (window.activeMirror?.openSettings) {
+      window.activeMirror.openSettings();
+      return;
+    }
+
+    // Fallback
+    this.showToast('⚙️', 'Settings panel opening...');
+    document.getElementById('settings-btn')?.click();
+  }
+
+  createCommandCenterButton() {
+    this.createButton(
+      '⟡',
+      'Command Center',
+      'dock-command-btn',
+      () => this.openCommandCenter(),
+      true // primary
+    );
   }
 
   openCommandCenter() {
     if (window.commandCenter?.togglePanel) {
       window.commandCenter.togglePanel();
     } else {
-      // Try to find and click command icon
+      // Click existing command icon if present
       const icon = document.querySelector('.command-icon-inner');
-      if (icon) icon.click();
+      if (icon) {
+        icon.click();
+      } else {
+        this.showToast('⟡', 'Command Center initializing...');
+      }
     }
   }
 
-  addRealityComposer() {
-    // Check if Reality Composer created its toggle
-    const existingToggle = document.querySelector('.rc-toggle');
-
-    if (existingToggle) {
-      existingToggle.setAttribute('data-tooltip', 'Reality Composer');
-      this.dock.appendChild(existingToggle);
-    } else {
-      // Check for reality composer panel
-      const panel = document.querySelector('.reality-composer-panel');
-      if (panel) {
-        this.dock.appendChild(panel);
-      } else {
-        // Create a button for Reality Composer
-        const btn = this.createButton(
-          '🎭',
-          'Reality Composer',
-          () => this.openRealityComposer()
-        );
-        btn.id = 'reality-composer-btn';
-        this.dock.appendChild(btn);
-      }
-    }
+  createRealityComposerButton() {
+    this.createButton(
+      '🎭',
+      'Reality Composer',
+      'dock-reality-btn',
+      () => this.openRealityComposer()
+    );
   }
 
   openRealityComposer() {
@@ -240,29 +221,23 @@ class ToolsDock {
     } else if (window.commandCenter?.openRealityComposer) {
       window.commandCenter.openRealityComposer();
     } else {
-      this.showToast('🎭', 'Reality Composer loading...');
+      // Check for menu
+      const menu = document.querySelector('.rc-menu');
+      if (menu) {
+        menu.classList.toggle('visible');
+      } else {
+        this.showToast('🎭', 'Reality Composer loading...');
+      }
     }
   }
 
-  addFutureSelf() {
-    // Check if Future Self created its button
-    const existingToggle = document.querySelector('.future-self-toggle') ||
-                           document.getElementById('future-self-toggle');
-
-    if (existingToggle) {
-      existingToggle.setAttribute('data-tooltip', 'Future Self');
-      existingToggle.classList.add('tools-dock-btn');
-      this.dock.appendChild(existingToggle);
-    } else {
-      // Create a button for Future Self
-      const btn = this.createButton(
-        '🔮',
-        'Future Self',
-        () => this.openFutureSelf()
-      );
-      btn.id = 'future-self-btn';
-      this.dock.appendChild(btn);
-    }
+  createFutureSelfButton() {
+    this.createButton(
+      '🔮',
+      'Future Self',
+      'dock-future-btn',
+      () => this.openFutureSelf()
+    );
   }
 
   openFutureSelf() {
@@ -271,80 +246,63 @@ class ToolsDock {
     } else if (window.commandCenter?.openFutureSelf) {
       window.commandCenter.openFutureSelf();
     } else {
-      this.showToast('🔮', 'Future Self loading...');
+      // Check for inline panel
+      const panel = document.querySelector('.future-self-inline');
+      if (panel) {
+        panel.classList.toggle('visible');
+      } else {
+        this.showToast('🔮', 'Future Self loading...');
+      }
     }
   }
 
   showToast(icon, message) {
+    // Remove existing toast
+    document.querySelector('.tools-dock-toast')?.remove();
+
     const toast = document.createElement('div');
     toast.className = 'tools-dock-toast';
-    toast.innerHTML = `
-      <span class="toast-icon">${icon}</span>
-      <span class="toast-message">${message}</span>
-    `;
-    toast.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 80px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 12px 20px;
-      background: var(--bg-secondary, #12121a);
-      border: 1px solid var(--glass-border, rgba(255,255,255,0.08));
-      border-radius: 8px;
-      opacity: 0;
-      transform: translateX(20px);
-      transition: all 0.3s ease;
-      z-index: 100001;
-      backdrop-filter: blur(20px);
-    `;
-
+    toast.innerHTML = `<span>${icon}</span><span>${message}</span>`;
     document.body.appendChild(toast);
 
     // Animate in
-    setTimeout(() => {
-      toast.style.opacity = '1';
-      toast.style.transform = 'translateX(0)';
-    }, 10);
+    requestAnimationFrame(() => {
+      toast.classList.add('visible');
+    });
 
-    // Animate out and remove
+    // Remove after delay
     setTimeout(() => {
-      toast.style.opacity = '0';
-      toast.style.transform = 'translateX(20px)';
+      toast.classList.remove('visible');
       setTimeout(() => toast.remove(), 300);
     }, 2500);
   }
 
-  // Refresh dock (call after components initialize)
   refresh() {
     this.initialized = false;
     this.build();
   }
 }
 
-// Create global instance
+// Global instance
 window.toolsDock = new ToolsDock();
 
-// Initialize after a delay to ensure other components are ready
-setTimeout(() => {
-  window.toolsDock.init();
-}, 500);
+// Initialize after other scripts have had time to load
+const initDock = () => {
+  if (!window.toolsDock.initialized) {
+    window.toolsDock.init();
+  }
+};
 
-// Also initialize on DOMContentLoaded if not already done
-document.addEventListener('DOMContentLoaded', () => {
-  setTimeout(() => {
-    if (!window.toolsDock.initialized) {
-      window.toolsDock.init();
-    }
-  }, 800);
-});
+// Multiple init points for reliability
+if (document.readyState === 'complete') {
+  setTimeout(initDock, 100);
+} else {
+  window.addEventListener('load', () => setTimeout(initDock, 200));
+}
 
-// Listen for when app enters
+// Refresh when app enters (after consent)
 window.addEventListener('app-entered', () => {
-  setTimeout(() => {
-    window.toolsDock.refresh();
-  }, 1000);
+  setTimeout(() => window.toolsDock.refresh(), 500);
 });
 
 console.log('⟡ Tools Dock module loaded');

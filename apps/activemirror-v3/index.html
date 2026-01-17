@@ -2613,6 +2613,9 @@
       <div class="briefing-header">
         <h1 class="briefing-greeting" id="briefing-greeting">Good morning.</h1>
         <p class="briefing-date" id="briefing-date"></p>
+        <p class="briefing-tagline" style="margin-top: 12px; font-size: 14px; color: var(--text-secondary);">
+          Your personal AI workspace — powered by <a href="https://brief.activemirror.ai/" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 500;">brief.activemirror.ai</a>
+        </p>
       </div>
 
       <div class="briefing-stats">
@@ -2645,11 +2648,11 @@
       </div>
 
       <div class="briefing-skip">
-        <button id="skip-briefing">Skip to workspace →</button>
+        <button id="skip-briefing" onclick="document.getElementById('daily-briefing').classList.remove('visible'); document.getElementById('daily-briefing').style.display='none'; sessionStorage.setItem('briefing_dismissed','true');">Skip to workspace →</button>
       </div>
 
-      <!-- Close button -->
-      <button id="close-briefing" style="position: absolute; top: 20px; right: 20px; background: none; border: none; color: var(--text-muted); font-size: 28px; cursor: pointer; padding: 8px; border-radius: 8px; transition: all 0.2s;" onmouseover="this.style.background='var(--bg-tertiary)'" onmouseout="this.style.background='none'">×</button>
+      <!-- Close button - robust inline click handler -->
+      <button id="close-briefing" onclick="document.getElementById('daily-briefing').classList.remove('visible'); document.getElementById('daily-briefing').style.display='none'; sessionStorage.setItem('briefing_dismissed','true');" style="position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.1); border: none; color: var(--text-secondary); font-size: 28px; cursor: pointer; padding: 8px 14px; border-radius: 12px; transition: all 0.2s; z-index: 10;" onmouseover="this.style.background='rgba(255,255,255,0.2)'; this.style.color='white'" onmouseout="this.style.background='rgba(255,255,255,0.1)'; this.style.color='var(--text-secondary)'">×</button>
     </div>
   </div>
 
@@ -3247,7 +3250,178 @@
       document.getElementById('help-modal')?.addEventListener('click', (e) => {
         if (e.target.id === 'help-modal') closeHelp();
       });
+
+      // Widget toggle handlers
+      document.querySelectorAll('.widget-toggle').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const target = btn.getAttribute('data-target');
+          const content = document.getElementById(target);
+          if (content) {
+            btn.classList.toggle('active');
+            content.classList.toggle('collapsed');
+          }
+        });
+      });
+
+      // Add widget button handler
+      document.getElementById('add-widget-btn')?.addEventListener('click', () => {
+        showAddWidgetMenu();
+      });
     });
+
+    // Add Widget Menu
+    function showAddWidgetMenu() {
+      // Remove existing menu
+      document.querySelector('.add-widget-menu')?.remove();
+
+      const menu = document.createElement('div');
+      menu.className = 'add-widget-menu';
+      menu.innerHTML = `
+        <div class="menu-backdrop" onclick="this.parentElement.remove()"></div>
+        <div class="menu-panel" style="
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          background: var(--bg-secondary);
+          border: 1px solid var(--glass-border);
+          border-radius: 16px;
+          padding: 20px;
+          z-index: 1001;
+          min-width: 280px;
+          box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        ">
+          <h3 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 600;">Add Widget</h3>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
+            <button class="widget-option" onclick="addWidget('tasks')" style="display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-tertiary); border: 1px solid var(--glass-border); border-radius: 8px; cursor: pointer; text-align: left; color: var(--text-primary);">
+              <span style="font-size: 20px;">✓</span>
+              <div><strong>Tasks</strong><br><span style="font-size: 12px; color: var(--text-muted);">Track to-dos and goals</span></div>
+            </button>
+            <button class="widget-option" onclick="addWidget('notes')" style="display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-tertiary); border: 1px solid var(--glass-border); border-radius: 8px; cursor: pointer; text-align: left; color: var(--text-primary);">
+              <span style="font-size: 20px;">📝</span>
+              <div><strong>Notes</strong><br><span style="font-size: 12px; color: var(--text-muted);">Quick notes and thoughts</span></div>
+            </button>
+            <button class="widget-option" onclick="addWidget('scratchpad')" style="display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-tertiary); border: 1px solid var(--glass-border); border-radius: 8px; cursor: pointer; text-align: left; color: var(--text-primary);">
+              <span style="font-size: 20px;">✏️</span>
+              <div><strong>Scratchpad</strong><br><span style="font-size: 12px; color: var(--text-muted);">Freeform text area</span></div>
+            </button>
+            <button class="widget-option" onclick="addWidget('links')" style="display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-tertiary); border: 1px solid var(--glass-border); border-radius: 8px; cursor: pointer; text-align: left; color: var(--text-primary);">
+              <span style="font-size: 20px;">🔗</span>
+              <div><strong>Links</strong><br><span style="font-size: 12px; color: var(--text-muted);">Save quick links</span></div>
+            </button>
+          </div>
+          <button onclick="this.closest('.add-widget-menu').remove()" style="margin-top: 16px; width: 100%; padding: 10px; background: transparent; border: 1px solid var(--glass-border); border-radius: 8px; color: var(--text-muted); cursor: pointer;">Cancel</button>
+        </div>
+      `;
+      document.body.appendChild(menu);
+    }
+
+    function addWidget(type) {
+      document.querySelector('.add-widget-menu')?.remove();
+      const container = document.getElementById('widgets-container');
+      if (!container) return;
+
+      const widgetId = `widget-${type}-${Date.now()}`;
+      const widget = document.createElement('div');
+      widget.className = 'user-widget';
+      widget.id = widgetId;
+      widget.style.cssText = 'background: var(--bg-tertiary); border: 1px solid var(--glass-border); border-radius: 12px; padding: 12px; margin-bottom: 8px; position: relative;';
+
+      const icons = { tasks: '✓', notes: '📝', scratchpad: '✏️', links: '🔗' };
+      const titles = { tasks: 'Tasks', notes: 'Notes', scratchpad: 'Scratchpad', links: 'Links' };
+
+      widget.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <span style="font-weight: 500;"><span style="margin-right: 6px;">${icons[type]}</span>${titles[type]}</span>
+          <button onclick="this.closest('.user-widget').remove()" style="background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 16px;">×</button>
+        </div>
+        <div class="widget-body" id="${widgetId}-body">
+          ${getWidgetContent(type, widgetId)}
+        </div>
+      `;
+      container.appendChild(widget);
+
+      // Save to localStorage
+      saveWidgets();
+    }
+
+    function getWidgetContent(type, id) {
+      switch(type) {
+        case 'tasks':
+          return `<div id="${id}-tasks" style="font-size: 13px;"></div>
+                  <div style="display: flex; gap: 8px; margin-top: 8px;">
+                    <input type="text" id="${id}-input" placeholder="Add task..." style="flex: 1; padding: 6px 10px; background: var(--bg-secondary); border: 1px solid var(--glass-border); border-radius: 6px; color: var(--text-primary); font-size: 12px;">
+                    <button onclick="addTaskToWidget('${id}')" style="padding: 6px 12px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px;">+</button>
+                  </div>`;
+        case 'notes':
+          return `<textarea id="${id}-text" placeholder="Type your notes..." style="width: 100%; min-height: 80px; padding: 8px; background: var(--bg-secondary); border: 1px solid var(--glass-border); border-radius: 6px; color: var(--text-primary); font-size: 12px; resize: vertical;" onchange="saveWidgets()"></textarea>`;
+        case 'scratchpad':
+          return `<textarea id="${id}-text" placeholder="Scratchpad..." style="width: 100%; min-height: 60px; padding: 8px; background: var(--bg-secondary); border: 1px solid var(--glass-border); border-radius: 6px; color: var(--text-primary); font-size: 12px; resize: vertical; font-family: var(--font-mono);" onchange="saveWidgets()"></textarea>`;
+        case 'links':
+          return `<div id="${id}-links" style="font-size: 13px;"></div>
+                  <div style="display: flex; gap: 8px; margin-top: 8px;">
+                    <input type="text" id="${id}-input" placeholder="Add URL..." style="flex: 1; padding: 6px 10px; background: var(--bg-secondary); border: 1px solid var(--glass-border); border-radius: 6px; color: var(--text-primary); font-size: 12px;">
+                    <button onclick="addLinkToWidget('${id}')" style="padding: 6px 12px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px;">+</button>
+                  </div>`;
+        default:
+          return '';
+      }
+    }
+
+    function addTaskToWidget(widgetId) {
+      const input = document.getElementById(`${widgetId}-input`);
+      const container = document.getElementById(`${widgetId}-tasks`);
+      if (!input || !container || !input.value.trim()) return;
+
+      const task = document.createElement('div');
+      task.style.cssText = 'display: flex; align-items: center; gap: 8px; padding: 4px 0; border-bottom: 1px solid var(--glass-border);';
+      task.innerHTML = `
+        <input type="checkbox" onchange="this.parentElement.style.opacity = this.checked ? '0.5' : '1'; this.nextElementSibling.style.textDecoration = this.checked ? 'line-through' : 'none'; saveWidgets();">
+        <span style="flex: 1;">${input.value}</span>
+        <button onclick="this.parentElement.remove(); saveWidgets();" style="background: none; border: none; color: var(--error); cursor: pointer; font-size: 12px;">×</button>
+      `;
+      container.appendChild(task);
+      input.value = '';
+      saveWidgets();
+    }
+
+    function addLinkToWidget(widgetId) {
+      const input = document.getElementById(`${widgetId}-input`);
+      const container = document.getElementById(`${widgetId}-links`);
+      if (!input || !container || !input.value.trim()) return;
+
+      let url = input.value.trim();
+      if (!url.startsWith('http')) url = 'https://' + url;
+
+      const link = document.createElement('div');
+      link.style.cssText = 'display: flex; align-items: center; gap: 8px; padding: 4px 0; border-bottom: 1px solid var(--glass-border);';
+      link.innerHTML = `
+        <a href="${url}" target="_blank" style="flex: 1; color: var(--primary); text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${url}</a>
+        <button onclick="this.parentElement.remove(); saveWidgets();" style="background: none; border: none; color: var(--error); cursor: pointer; font-size: 12px;">×</button>
+      `;
+      container.appendChild(link);
+      input.value = '';
+      saveWidgets();
+    }
+
+    function saveWidgets() {
+      // Simple localStorage save (can be enhanced)
+      const container = document.getElementById('widgets-container');
+      if (container) {
+        localStorage.setItem('am_widgets', container.innerHTML);
+      }
+    }
+
+    function loadWidgets() {
+      const saved = localStorage.getItem('am_widgets');
+      const container = document.getElementById('widgets-container');
+      if (saved && container) {
+        container.innerHTML = saved;
+      }
+    }
+
+    // Load saved widgets on page load
+    document.addEventListener('DOMContentLoaded', loadWidgets);
   </script>
   <!-- Data flow info now integrated into transparency bar -->
 

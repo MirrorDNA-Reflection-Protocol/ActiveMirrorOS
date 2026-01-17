@@ -322,8 +322,7 @@
 
 .command-toast,
 .eh-toast,
-.wow-toast,
-.tools-dock-toast {
+.wow-toast {
   position: fixed !important;
   top: 20px !important;
   right: 80px !important;
@@ -331,6 +330,33 @@
   bottom: auto !important;
   transform: none !important;
   z-index: 100002 !important;
+}
+
+/* Tools Dock Toast */
+.tools-dock-toast {
+  position: fixed;
+  top: 20px;
+  right: 80px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  background: var(--bg-secondary, #12121a);
+  border: 1px solid var(--dock-border);
+  border-radius: 12px;
+  font-size: 14px;
+  color: var(--text-primary, #f0f0f5);
+  opacity: 0;
+  transform: translateX(20px);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 100002;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.tools-dock-toast.visible {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 /* ============================================
