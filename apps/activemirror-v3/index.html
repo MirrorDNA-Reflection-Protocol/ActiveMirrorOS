@@ -732,6 +732,7 @@
     .side-tab {
       position: relative;
       display: flex;
+      height: 100%;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
@@ -813,6 +814,7 @@
     /* Tab Content */
     .tab-content {
       flex: 1;
+      height: 100%;
       background: var(--bg-secondary);
       overflow: hidden;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -829,14 +831,37 @@
       width: 252px;
       padding: var(--space-md);
       opacity: 1;
+      overflow: hidden;
     }
-    
+
     .tab-content-inner {
       height: 100%;
+      max-height: calc(100vh - 32px);
       overflow-y: auto;
+      overflow-x: hidden;
       display: flex;
       flex-direction: column;
       gap: var(--space-md);
+      padding-bottom: var(--space-lg);
+      scrollbar-width: thin;
+      scrollbar-color: var(--glass-border) transparent;
+    }
+
+    .tab-content-inner::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .tab-content-inner::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .tab-content-inner::-webkit-scrollbar-thumb {
+      background: var(--glass-border);
+      border-radius: 3px;
+    }
+
+    .tab-content-inner::-webkit-scrollbar-thumb:hover {
+      background: var(--text-muted);
     }
     
     /* Widget Preview (collapsed state) */
