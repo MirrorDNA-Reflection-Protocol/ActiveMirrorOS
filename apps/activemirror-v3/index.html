@@ -1099,7 +1099,248 @@
       border-color: var(--primary);
       color: white;
     }
-    
+
+    /* ============================================
+       SETTINGS PANEL
+       ============================================ */
+    .settings-panel {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 3500;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .settings-panel.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .settings-container {
+      width: 90%;
+      max-width: 480px;
+      max-height: 85vh;
+      background: var(--bg-secondary);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-xl);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.5);
+      transform: translateY(20px);
+      transition: transform 0.3s ease;
+    }
+
+    .settings-panel.visible .settings-container {
+      transform: translateY(0);
+    }
+
+    .settings-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-lg);
+      border-bottom: 1px solid var(--glass-border);
+      background: var(--bg-tertiary);
+    }
+
+    .settings-header h2 {
+      font-size: 18px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .settings-close {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: 1px solid var(--glass-border);
+      border-radius: 50%;
+      color: var(--text-muted);
+      font-size: 18px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .settings-close:hover {
+      background: var(--error);
+      border-color: var(--error);
+      color: white;
+    }
+
+    .settings-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--space-md);
+    }
+
+    .settings-section {
+      margin-bottom: var(--space-lg);
+    }
+
+    .settings-section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: var(--space-md);
+      padding-bottom: var(--space-xs);
+      border-bottom: 1px solid var(--glass-border);
+    }
+
+    .settings-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-sm) var(--space-md);
+      background: var(--bg-tertiary);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--space-sm);
+      transition: all 0.2s ease;
+    }
+
+    .settings-item:hover {
+      border-color: var(--primary);
+    }
+
+    .settings-item-info {
+      flex: 1;
+    }
+
+    .settings-item-label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+
+    .settings-item-desc {
+      display: block;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* Toggle Switch */
+    .settings-toggle {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      flex-shrink: 0;
+      margin-left: var(--space-md);
+    }
+
+    .settings-toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background: var(--bg-active);
+      border-radius: 24px;
+      transition: all 0.3s ease;
+    }
+
+    .toggle-slider::before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background: var(--text-muted);
+      border-radius: 50%;
+      transition: all 0.3s ease;
+    }
+
+    .settings-toggle input:checked + .toggle-slider {
+      background: var(--primary);
+    }
+
+    .settings-toggle input:checked + .toggle-slider::before {
+      transform: translateX(20px);
+      background: white;
+    }
+
+    /* Action Buttons */
+    .settings-actions {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+
+    .settings-action-btn {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      padding: var(--space-sm) var(--space-md);
+      background: var(--bg-tertiary);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-md);
+      color: var(--text-secondary);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .settings-action-btn:hover {
+      background: var(--bg-hover);
+      border-color: var(--primary);
+      color: var(--text-primary);
+    }
+
+    .settings-action-btn.danger:hover {
+      background: rgba(239, 68, 68, 0.1);
+      border-color: var(--error);
+      color: var(--error);
+    }
+
+    .settings-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-md) var(--space-lg);
+      border-top: 1px solid var(--glass-border);
+      background: var(--bg-tertiary);
+    }
+
+    .settings-version {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .settings-save {
+      padding: var(--space-sm) var(--space-lg);
+      background: var(--primary);
+      border: none;
+      border-radius: var(--radius-md);
+      color: white;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .settings-save:hover {
+      background: var(--frontier);
+      transform: translateY(-1px);
+    }
+
     /* Help Modal */
     .help-modal {
       position: fixed;
@@ -2387,6 +2628,154 @@
     </div>
   </div>
 
+  <!-- Settings Panel -->
+  <div id="settings-panel" class="settings-panel">
+    <div class="settings-container">
+      <div class="settings-header">
+        <h2>⚙️ Settings</h2>
+        <button class="settings-close" id="settings-close">×</button>
+      </div>
+
+      <div class="settings-content">
+        <!-- Notifications Section -->
+        <div class="settings-section">
+          <h3 class="settings-section-title">Notifications & Overlays</h3>
+
+          <div class="settings-item">
+            <div class="settings-item-info">
+              <span class="settings-item-label">Morning Briefing</span>
+              <span class="settings-item-desc">Show daily briefing overlay when you start</span>
+            </div>
+            <label class="settings-toggle">
+              <input type="checkbox" id="setting-briefing" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="settings-item">
+            <div class="settings-item-info">
+              <span class="settings-item-label">Proactive Insights</span>
+              <span class="settings-item-desc">Toast notifications with AI suggestions</span>
+            </div>
+            <label class="settings-toggle">
+              <input type="checkbox" id="setting-insights" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="settings-item">
+            <div class="settings-item-info">
+              <span class="settings-item-label">Focus Reminders</span>
+              <span class="settings-item-desc">Nudges when you've been away</span>
+            </div>
+            <label class="settings-toggle">
+              <input type="checkbox" id="setting-focus-reminders" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="settings-item">
+            <div class="settings-item-info">
+              <span class="settings-item-label">Sound Effects</span>
+              <span class="settings-item-desc">Audio feedback for actions</span>
+            </div>
+            <label class="settings-toggle">
+              <input type="checkbox" id="setting-sounds">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Appearance Section -->
+        <div class="settings-section">
+          <h3 class="settings-section-title">Appearance</h3>
+
+          <div class="settings-item">
+            <div class="settings-item-info">
+              <span class="settings-item-label">Consciousness Stream</span>
+              <span class="settings-item-desc">Animated neural activity visualization</span>
+            </div>
+            <label class="settings-toggle">
+              <input type="checkbox" id="setting-consciousness-stream" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="settings-item">
+            <div class="settings-item-info">
+              <span class="settings-item-label">Ambient Particles</span>
+              <span class="settings-item-desc">Background particle effects</span>
+            </div>
+            <label class="settings-toggle">
+              <input type="checkbox" id="setting-particles" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="settings-item">
+            <div class="settings-item-info">
+              <span class="settings-item-label">Reduce Motion</span>
+              <span class="settings-item-desc">Minimize animations for accessibility</span>
+            </div>
+            <label class="settings-toggle">
+              <input type="checkbox" id="setting-reduce-motion">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Data Section -->
+        <div class="settings-section">
+          <h3 class="settings-section-title">Data & Privacy</h3>
+
+          <div class="settings-item">
+            <div class="settings-item-info">
+              <span class="settings-item-label">Local Storage</span>
+              <span class="settings-item-desc">Store preferences and history locally</span>
+            </div>
+            <label class="settings-toggle">
+              <input type="checkbox" id="setting-local-storage" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="settings-item">
+            <div class="settings-item-info">
+              <span class="settings-item-label">Clipboard History</span>
+              <span class="settings-item-desc">Track copied text for quick access</span>
+            </div>
+            <label class="settings-toggle">
+              <input type="checkbox" id="setting-clipboard-history" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Actions Section -->
+        <div class="settings-section">
+          <h3 class="settings-section-title">Actions</h3>
+
+          <div class="settings-actions">
+            <button class="settings-action-btn" id="reset-briefing">
+              <span>🔄</span> Reset Morning Briefing
+            </button>
+            <button class="settings-action-btn" id="clear-vault">
+              <span>🗑️</span> Clear Lite Vault Data
+            </button>
+            <button class="settings-action-btn danger" id="reset-all">
+              <span>⚠️</span> Reset All Settings
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-footer">
+        <span class="settings-version">ActiveMirror v3.2</span>
+        <button class="settings-save" id="settings-save">Save & Close</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Main App -->
   <div id="main-app" class="main-app hidden">
 
@@ -2493,6 +2882,7 @@
         </div>
         
         <button class="help-btn" id="help-btn" title="Get Help">?</button>
+        <button class="help-btn" id="settings-btn" title="Settings" style="margin-left: 8px;">⚙️</button>
       </div>
       
       <div id="messages" class="messages-container">
@@ -3205,12 +3595,152 @@
         // Handle the insight action
       });
 
-      // Show briefing after entering app (optional - can be toggled)
+      // ============================================
+      // SETTINGS MANAGEMENT
+      // ============================================
+      const defaultSettings = {
+        briefing: true,
+        insights: true,
+        focusReminders: true,
+        sounds: false,
+        consciousnessStream: true,
+        particles: true,
+        reduceMotion: false,
+        localStorage: true,
+        clipboardHistory: true
+      };
+
+      function loadSettings() {
+        try {
+          const saved = localStorage.getItem('activemirror_settings');
+          return saved ? { ...defaultSettings, ...JSON.parse(saved) } : defaultSettings;
+        } catch (e) {
+          return defaultSettings;
+        }
+      }
+
+      function saveSettings(settings) {
+        localStorage.setItem('activemirror_settings', JSON.stringify(settings));
+        applySettings(settings);
+      }
+
+      function applySettings(settings) {
+        // Apply reduce motion
+        if (settings.reduceMotion) {
+          document.body.classList.add('reduce-motion');
+        } else {
+          document.body.classList.remove('reduce-motion');
+        }
+
+        // Apply consciousness stream visibility
+        const stream = document.getElementById('consciousness-stream');
+        if (stream) {
+          stream.style.display = settings.consciousnessStream ? 'block' : 'none';
+        }
+
+        // Store settings globally for other components to check
+        window.activeMirrorSettings = settings;
+      }
+
+      function openSettings() {
+        const panel = document.getElementById('settings-panel');
+        const settings = loadSettings();
+
+        // Populate checkboxes with current values
+        document.getElementById('setting-briefing').checked = settings.briefing;
+        document.getElementById('setting-insights').checked = settings.insights;
+        document.getElementById('setting-focus-reminders').checked = settings.focusReminders;
+        document.getElementById('setting-sounds').checked = settings.sounds;
+        document.getElementById('setting-consciousness-stream').checked = settings.consciousnessStream;
+        document.getElementById('setting-particles').checked = settings.particles;
+        document.getElementById('setting-reduce-motion').checked = settings.reduceMotion;
+        document.getElementById('setting-local-storage').checked = settings.localStorage;
+        document.getElementById('setting-clipboard-history').checked = settings.clipboardHistory;
+
+        panel.classList.add('visible');
+      }
+
+      function closeSettings() {
+        document.getElementById('settings-panel').classList.remove('visible');
+      }
+
+      function saveAndCloseSettings() {
+        const settings = {
+          briefing: document.getElementById('setting-briefing').checked,
+          insights: document.getElementById('setting-insights').checked,
+          focusReminders: document.getElementById('setting-focus-reminders').checked,
+          sounds: document.getElementById('setting-sounds').checked,
+          consciousnessStream: document.getElementById('setting-consciousness-stream').checked,
+          particles: document.getElementById('setting-particles').checked,
+          reduceMotion: document.getElementById('setting-reduce-motion').checked,
+          localStorage: document.getElementById('setting-local-storage').checked,
+          clipboardHistory: document.getElementById('setting-clipboard-history').checked
+        };
+
+        saveSettings(settings);
+        closeSettings();
+
+        // Show confirmation
+        if (window.wowFeatures?.showToast) {
+          window.wowFeatures.showToast('Settings saved!');
+        }
+      }
+
+      // Settings event listeners
+      document.getElementById('settings-btn')?.addEventListener('click', openSettings);
+      document.getElementById('settings-close')?.addEventListener('click', closeSettings);
+      document.getElementById('settings-save')?.addEventListener('click', saveAndCloseSettings);
+
+      // Click outside to close
+      document.getElementById('settings-panel')?.addEventListener('click', (e) => {
+        if (e.target.id === 'settings-panel') closeSettings();
+      });
+
+      // Settings action buttons
+      document.getElementById('reset-briefing')?.addEventListener('click', () => {
+        localStorage.removeItem('last_briefing_shown');
+        localStorage.removeItem('last_morning_briefing');
+        if (window.wowFeatures?.showToast) {
+          window.wowFeatures.showToast('Briefing will show next time');
+        }
+      });
+
+      document.getElementById('clear-vault')?.addEventListener('click', () => {
+        if (confirm('Clear all Lite Vault data? This cannot be undone.')) {
+          if (window.liteVault) {
+            window.liteVault.clear();
+          } else {
+            localStorage.removeItem('lite_vault');
+          }
+          if (window.wowFeatures?.showToast) {
+            window.wowFeatures.showToast('Vault data cleared');
+          }
+        }
+      });
+
+      document.getElementById('reset-all')?.addEventListener('click', () => {
+        if (confirm('Reset ALL settings and data? This cannot be undone.')) {
+          localStorage.clear();
+          location.reload();
+        }
+      });
+
+      // Apply saved settings on load
+      const currentSettings = loadSettings();
+      applySettings(currentSettings);
+
+      // Show briefing after entering app (respects settings)
       const originalEnterApp = window.activeMirror?.enterApp;
       if (window.activeMirror) {
         const origEnter = window.activeMirror.enterApp.bind(window.activeMirror);
         window.activeMirror.enterApp = function() {
           origEnter();
+
+          // Check settings first
+          const settings = loadSettings();
+          if (!settings.briefing) {
+            return; // Briefing disabled in settings
+          }
 
           // Check if we should show briefing (e.g., first visit of day)
           const lastBriefing = localStorage.getItem('last_briefing_shown');
