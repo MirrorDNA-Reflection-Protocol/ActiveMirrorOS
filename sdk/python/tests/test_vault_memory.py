@@ -2,11 +2,16 @@
 Tests for VaultMemory
 """
 
+import os
 import pytest
 import tempfile
 import shutil
 from pathlib import Path
 from activemirror import VaultMemory, VaultCategory
+
+# Test-only password - never use in production
+# Can be overridden via environment variable for CI/CD
+TEST_VAULT_PASSWORD = os.environ.get("TEST_VAULT_PASSWORD", "test-fixture-only")
 
 
 class TestVaultMemory:
@@ -16,7 +21,7 @@ class TestVaultMemory:
     def temp_vault(self):
         """Create temporary vault for testing."""
         temp_dir = tempfile.mkdtemp()
-        vault = VaultMemory(vault_path=temp_dir, password="test-password")
+        vault = VaultMemory(vault_path=temp_dir, password=TEST_VAULT_PASSWORD)
         yield vault
         shutil.rmtree(temp_dir)
 
