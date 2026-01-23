@@ -1,8 +1,16 @@
-# ActiveMirrorOS
+# ⟡ ActiveMirrorOS
+
+[![N1 Intelligence](https://img.shields.io/badge/N1-Intelligence-6366f1)](https://activemirror.ai)
+[![Active MirrorOS](https://img.shields.io/badge/Active_MirrorOS-System-10b981)](https://activemirror.ai)
+[![MirrorDNA](https://img.shields.io/badge/MirrorDNA-Protocol-purple)](https://activemirror.ai/research)
+
+> **Organization:** N1 Intelligence
+> **System:** Active MirrorOS™
+> **Protocol:** MirrorDNA™
+> **Author:** Paul Desai
+> **Canonical Domain:** https://activemirror.ai
 
 **Persistent AI memory for developers and users.**
-
-> Created by **[Paul Desai](https://github.com/MirrorDNA-Reflection-Protocol)** (`~active-mirror-paul`) — Goa, India
 
 ActiveMirrorOS is the product layer SDK for building AI applications with memory, context preservation, and reflective dialogue. Unlike traditional AI that forgets after each session, ActiveMirrorOS maintains continuity across conversations, sessions, and time.
 
