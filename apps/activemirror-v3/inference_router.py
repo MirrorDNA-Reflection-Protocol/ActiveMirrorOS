@@ -36,6 +36,19 @@ from pathlib import Path
 import aiohttp
 from aiohttp import web
 
+# Add sovereign_memory to path
+try:
+    from sovereign_memory.memory_cortex import LocalMemoryCortex
+except ImportError:
+    # If running from apps/activemirror-v3, handle path
+    import sys
+    sys.path.append(os.path.join(os.path.dirname(__file__), "sovereign_memory"))
+    try:
+        from sovereign_memory.memory_cortex import LocalMemoryCortex
+    except ImportError:
+        print("⚠ Sovereign Memory not found. RAG disabled.")
+        LocalMemoryCortex = None
+
 # Load environment variables
 ENV_FILE = Path.home() / '.env.mirrordna'
 if ENV_FILE.exists():
@@ -142,6 +155,13 @@ TIER_CONFIGS = {
     ),
 }
 
+class RAGConfig:
+    enabled: bool = True
+    min_relevance: float = 0.3
+    max_memories: int = 3
+    
+rag_config = RAGConfig()
+
 SYSTEM_PROMPT = """You are ActiveMirror, a sovereign AI assistant demonstrating the MirrorDNA framework.
 
 Core principles:
@@ -153,7 +173,9 @@ Core principles:
 Current inference tier: {tier_name}
 Data location: {data_location}
 
-Be concise, honest about limitations, and acknowledge your current tier's capabilities."""
+Be concise, honest about limitations, and acknowledge your current tier's capabilities.
+
+{context_block}"""
 
 
 # ============================================
@@ -554,6 +576,15 @@ class InferenceRouter:
         self.deepseek = DeepSeekClient()
         self.openai = OpenAIClient()
         
+        # Initialize Memory Cortex
+        self.cortex = None
+        if LocalMemoryCortex:
+            try:
+                self.cortex = LocalMemoryCortex()
+                logger.info("✓ Sovereign Memory Cortex initialized")
+            except Exception as e:
+                logger.error(f"Failed to init cortex: {e}")
+        
         self.start_time = datetime.utcnow()
     
     async def close(self):
@@ -561,6 +592,8 @@ class InferenceRouter:
         await self.groq.close()
         await self.deepseek.close()
         await self.openai.close()
+        # Cortex doesn't need explicit close (sqlite handles it)
+
     
     def _get_system_prompt(self, tier: InferenceTier) -> str:
         tier_config = TIER_CONFIGS[tier]
@@ -568,7 +601,8 @@ class InferenceRouter:
         
         return SYSTEM_PROMPT.format(
             tier_name=tier_config.name,
-            data_location=data_location
+            data_location=data_location,
+            context_block="{context_block}"  # Leave placeholder for per-request injection
         )
     
     def _calculate_cost(self, tier: InferenceTier, input_tokens: int, output_tokens: int) -> float:
@@ -583,7 +617,10 @@ class InferenceRouter:
         tier: InferenceTier = None,
         ip_address: str = "unknown",
         byo_key: str = None,
-        byo_provider: str = None
+        ip_address: str = "unknown",
+        byo_key: str = None,
+        byo_provider: str = None,
+        context_memories: List[str] = None
     ) -> Dict[str, Any]:
         """Route inference request to appropriate tier"""
         
@@ -625,6 +662,15 @@ class InferenceRouter:
         # Route to appropriate client
         try:
             system_prompt = self._get_system_prompt(tier)
+            
+            # Inject Context
+            context_text = ""
+            if context_memories:
+                memory_text = "\n".join([f"- {m}" for m in context_memories])
+                context_text = f"\nRELEVANT MEMORIES (Use these to ground your answer):\n{memory_text}\n"
+            
+            system_prompt = system_prompt.replace("{context_block}", context_text)
+            
             result = None
             
             if tier == InferenceTier.SOVEREIGN:
@@ -786,6 +832,29 @@ async def handle_chat(request: web.Request) -> web.Response:
             byo_key=byo_key,
             byo_provider=byo_provider
         )
+        
+        # RAG Logic
+        memories = []
+        if router.cortex and rag_config.enabled:
+            # Simple recall
+            hits = router.cortex.recall(message, k=rag_config.max_memories, min_strength=rag_config.min_relevance)
+            if hits:
+                memories = [h[0].content_encrypted.decode() for h in hits] # simple decode
+                logger.info(f"RAG found {len(memories)} memories")
+
+        # Pass memories to route
+        result = await router.route(
+            prompt=message,
+            tier=tier,
+            ip_address=ip,
+            byo_key=byo_key,
+            byo_provider=byo_provider,
+            context_memories=memories
+        )
+        
+        # Inject RAG info into response
+        if memories:
+            result['rag_context'] = memories
         
         return web.json_response(result)
     
@@ -951,6 +1020,22 @@ def create_app() -> web.Application:
     app.router.add_get('/api/transparency', handle_transparency)
     app.router.add_post('/api/waitlist', handle_email_capture)
     app.router.add_get('/health', handle_health)
+    
+    # Memory routes
+    async def handle_commit(request):
+        try:
+            data = await request.json()
+            content = data.get('content')
+            if not content or not router.cortex:
+                return web.json_response({"error": "No content or cortex unavailable"}, status=400)
+            
+            # Commit metadata
+            router.cortex.commit(content, router.cortex._generate_default_attention(content), context={"source": "api"})
+            return web.json_response({"status": "committed"})
+        except Exception as e:
+            return web.json_response({"error": str(e)}, status=500)
+
+    app.router.add_post('/api/commit', handle_commit)
     
     # Cleanup
     async def cleanup(app):
