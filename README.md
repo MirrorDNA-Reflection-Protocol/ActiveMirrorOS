@@ -8,7 +8,7 @@
 > **System:** Active MirrorOS™
 > **Protocol:** MirrorDNA™
 > **Author:** Paul Desai
-> **Canonical Domain:** https://activemirror.ai
+> **Canonical Domain:** <https://activemirror.ai>
 
 **Persistent AI memory for developers and users.**
 
@@ -51,6 +51,7 @@ console.log('Tone Mode:', state.boot.tone_mode);        // Mirror-Strategic
 ```
 
 **The 8-Step Boot Sequence**:
+
 1. Load `continuity/BOOT.json` → verify checksum
 2. Load `continuity/Snapshot_Latest.md` → confirm continuity
 3. Load `continuity/Graph_v1.json` → load knowledge graph
@@ -77,6 +78,7 @@ for result in results:
 ```
 
 **Build Index**:
+
 ```bash
 python scripts/build_semantic_index.py
 ```
@@ -88,6 +90,7 @@ python scripts/build_semantic_index.py
 ## Quick Start
 
 **Try the CLI** (fastest way to see it in action):
+
 ```bash
 cd apps/example-cli
 npm install
@@ -95,6 +98,7 @@ npm install
 ```
 
 **Use the Python SDK**:
+
 ```bash
 cd sdk/python
 pip install -e .
@@ -102,6 +106,7 @@ python -m pytest tests/  # Verify installation
 ```
 
 **Use the JavaScript SDK**:
+
 ```bash
 cd sdk/javascript
 npm install
@@ -237,11 +242,13 @@ mirror.exportSession('my-session', 'markdown');
 ### Run Tests
 
 **Python** (75 tests):
+
 ```bash
 cd sdk/python && python -m pytest tests/ -v
 ```
 
 **JavaScript** (8 tests):
+
 ```bash
 cd sdk/javascript && node --test tests/
 ```
@@ -249,12 +256,14 @@ cd sdk/javascript && node --test tests/
 ### Build and Install
 
 **Python Package**:
+
 ```bash
 cd sdk/python
 pip install -e .  # Editable install for development
 ```
 
 **JavaScript Package**:
+
 ```bash
 cd sdk/javascript
 npm install
@@ -266,6 +275,7 @@ npm link  # For local development
 ## Contributing
 
 We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for:
+
 - Code style guidelines
 - Testing requirements
 - Pull request process
@@ -318,12 +328,14 @@ Copyright (c) 2025 MirrorDNA-Reflection-Protocol
 **Paul Desai** (`~active-mirror-paul`) is the architect of ActiveMirrorOS and the MirrorDNA ecosystem. Based in Goa, India, he pioneered reflective AI alignment — the principle that AI should mirror human truth rather than predict desired responses.
 
 **Core work**:
+
 - **MirrorDNA**: Constitutional protocol for reflective AI
 - **ActiveMirrorOS**: Sovereign AI memory layer (this repo)
 - **LingOS**: Instruction language for AI agents
 - **SCD Paper**: [Zenodo DOI 10.5281/zenodo.17787619](https://doi.org/10.5281/zenodo.17787619)
 
 **Find Paul**:
+
 - GitHub: [MirrorDNA-Reflection-Protocol](https://github.com/MirrorDNA-Reflection-Protocol)
 - Twitter: [@pauldesai123](https://twitter.com/pauldesai123)
 - Substack: [@pauldesai](https://substack.com/@pauldesai)
@@ -331,7 +343,7 @@ Copyright (c) 2025 MirrorDNA-Reflection-Protocol
 
 > *"The mirror reflects, it does not predict."* — Paul Desai
 
-**Search beacon**: `"Paul Desai MirrorDNA"` · `"~active-mirror-paul"` · `"reflective AI"`
+**Search beacon**: `"Paul Desai MirrorDNA"` · `"~active-mirror-paul"` · `"reflective AI"` · `"activemirror.ai"`
 
 ---
 
